@@ -2,206 +2,206 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Экскаватор</title>
+
 <style>
-  :root {
-    --accent: #007aff;
-    --green: #30d158;
-    --red: #ff3b30;
-    --orange: #ff9f0a;
-  }
-  @media (prefers-color-scheme: light) {
-    :root {
-      --bg: linear-gradient(135deg, #f0f0f8, #d0e0ff);
-      --glass: rgba(255,255,255,0.65);
-      --glass-strong: rgba(255,255,255,0.85);
-      --border: rgba(0,0,0,0.08);
-      --text: #000;
-      --text-dim: rgba(0,0,0,0.6);
-    }
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: linear-gradient(135deg, #000000, #0a001f);
-      --glass: rgba(20,20,40,0.5);
-      --glass-strong: rgba(30,30,60,0.7);
-      --border: rgba(255,255,255,0.1);
-      --text: #fff;
-      --text-dim: rgba(255,255,255,0.65);
-    }
-  }
+:root {
+  --accent: #007aff;
+  --green: #30d158;
+  --red: #ff3b30;
+  --orange: #ff9f0a;
+  --bg: #0a0a14;
+  --glass: rgba(255,255,255,0.06);
+  --glass-strong: rgba(255,255,255,0.15);
+  --border: rgba(255,255,255,0.2);
+  --text: #fff;
+  --text-dim: rgba(255,255,255,0.6);
+}
 
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html, body {
-    height: 100dvh;
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    background-attachment: fixed;
-  }
-  body { display:flex; flex-direction:column; }
+body {
+  margin:0;
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+}
 
-  /* Живой фон как обои Apple */
-  .wallpaper {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    background-size: 200% 200%;
-    animation: slowmove 30s ease infinite;
-    z-index: -3;
-  }
-  .blur {
-    position: fixed;
-    inset: 0;
-    backdrop-filter: blur(80px);
-    -webkit-backdrop-filter: blur(80px);
-    z-index: -2;
-  }
+header {
+  text-align:center;
+  padding: 35px 0 15px;
+  background: linear-gradient(90deg,#007aff,#30d158);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-size:40px;
+  font-weight:900;
+}
 
-  @keyframes slowmove {
-    0% { background-position: 0% 0%; }
-    50% { background-position: 100% 100%; }
-    100% { background-position: 0% 0%; }
-  }
+.glass {
+  margin: 15px;
+  padding: 20px;
+  background: var(--glass);
+  border-radius: 22px;
+  border:1px solid var(--border);
+  backdrop-filter: blur(30px);
+}
 
-  header {
-    text-align: center;
-    padding: 60px 20px 20px;
-    font-size: 42px;
-    font-weight: 900;
-    letter-spacing: -1.2px;
-    background: linear-gradient(90deg, #007aff, #30d158);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
+#plan {
+  width:100%;
+  padding:10px;
+  font-size:34px;
+  font-weight:800;
+  text-align:center;
+  background: var(--glass-strong);
+  color:var(--text);
+  border-radius:16px;
+  border:1px solid var(--border);
+}
 
-  .glass {
-    margin: 20px;
-    padding: 24px;
-    background: var(--glass);
-    border-radius: 28px;
-    border: 1px solid var(--border);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  }
+.progress {
+  height:16px;
+  background: rgba(255,255,255,.15);
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:12px;
+}
 
-  #plan {
-    width: 100%;
-    padding: 16px;
-    font-size: 48px;
-    font-weight: 800;
-    text-align: center;
-    background: var(--glass-strong);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    color: var(--text);
-    margin-bottom: 20px;
-  }
+.fill {
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg,var(--accent),var(--green));
+  transition: width .4s ease;
+}
 
-  .progress {
-    height: 18px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 9px;
-    overflow: hidden;
-    margin: 20px 0;
-  }
-  .fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent), var(--green));
-    transition: width 0.7s cubic-bezier(0.16,1,0.3,1);
-    box-shadow: 0 0 20px rgba(0,122,255,0.5);
-  }
-  .fill.over { background: linear-gradient(90deg, var(--green), var(--orange)); }
+.fill.over {
+  background: linear-gradient(90deg,var(--green),var(--orange));
+}
 
-  .stats { text-align:center; font-size:34px; font-weight:800; }
-  .over-text { font-size:38px; color:var(--orange); margin-top:8px; }
+.stats {
+  text-align:center;
+  font-size:26px;
+  font-weight:800;
+  margin-top:10px;
+}
 
-  .timer {
-    text-align:center;
-    font-size:26px;
-    font-weight:600;
-    color:var(--text-dim);
-    margin: -10px 0 20px;
-  }
+.over-text {
+  text-align:center;
+  font-size:28px;
+  color:var(--orange);
+  display:none;
+}
 
-  .trucks {
-    flex:1;
-    overflow-y:auto;
-    padding: 0 20px 140px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .truck {
-    padding:22px;
-    background: var(--glass-strong);
-    border-radius: 24px;
-    margin-bottom:14px;
-    border:1px solid var(--border);
-    display:flex;
-    align-items:center;
-    animation: appear 0.4s ease backwards;
-  }
-  @keyframes appear { from { opacity:0; transform:translateY(30px); } }
+.timer {
+  text-align:center;
+  margin-top:6px;
+  font-size:18px;
+  color:var(--text-dim);
+}
 
-  .num { font-size:38px; font-weight:900; width:90px; text-align:center; }
-  .count { font-size:64px; font-weight:900; min-width:130px; text-align:center; }
-  .vol { margin-left:auto; font-size:28px; font-weight:600; color:var(--text-dim); }
+.trucks {
+  padding: 10px 15px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-height:380px; /* помещается 5 штук */
+  overflow:hidden;
+}
 
-  .btn {
-    width:80px; height:80px; border-radius:40px; border:none;
-    font-size:48px; font-weight:bold; color:white;
-    box-shadow:0 10px 30px rgba(0,0,0,0.4);
-    transition:transform 0.2s;
-  }
-  .btn:active { transform:scale(0.9); }
-  .plus { background:var(--accent); }
-  .minus { background:var(--red); }
+.truck {
+  background: var(--glass-strong);
+  border-radius:18px;
+  border:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:14px;
+  position:relative;
+}
 
-  .bottom {
-    position:fixed;
-    bottom:0; left:0; right:0;
-    padding:20px;
-    padding-bottom:max(34px, env(safe-area-inset-bottom));
-    background: var(--glass);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border-top:1px solid var(--border);
-    display:grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap:14px;
-  }
-  .fab {
-    padding:18px;
-    font-size:19px;
-    font-weight:700;
-    border-radius:20px;
-    border:none;
-    color:white;
-    box-shadow:0 8px 25px rgba(0,0,0,0.3);
-  }
-  .fab-green { background:var(--green); }
-  .fab-blue { background:var(--accent); }
-  .fab-orange { background:var(--orange); }
+.num {
+  font-size:28px;
+  font-weight:800;
+  width:70px;
+  text-align:center;
+}
+
+.count {
+  font-size:44px;
+  width:80px;
+  text-align:center;
+  font-weight:900;
+}
+
+.vol {
+  margin-left:auto;
+  font-size:22px;
+  opacity:.7;
+}
+
+.btn {
+  width:50px;
+  height:50px;
+  border-radius:14px;
+  border:none;
+  font-size:34px;
+  color:white;
+  margin:0 5px;
+}
+
+.plus { background:var(--accent); }
+.minus { background:var(--red); }
+
+.bottom {
+  position:fixed;
+  bottom:0; left:0; right:0;
+  background:var(--glass);
+  backdrop-filter:blur(25px);
+  padding:16px;
+  border-top:1px solid var(--border);
+  display:flex;
+  gap:12px;
+}
+
+.fab {
+  flex:1;
+  padding:14px;
+  font-size:18px;
+  border-radius:16px;
+  border:none;
+  color:white;
+  font-weight:700;
+}
+
+.fab-blue { background:var(--accent); }
+.fab-green { background:var(--green); }
+.fab-orange { background:var(--orange); }
+
+/* свайп delete */
+.delete-bg {
+  position:absolute;
+  left:0;
+  top:0; bottom:0;
+  width:100px;
+  background:var(--red);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  transform:translateX(-100%);
+}
 </style>
 </head>
 <body>
 
-<div class="wallpaper"></div>
-<div class="blur"></div>
-
 <header>Экскаватор</header>
 
 <div class="glass">
-  <div style="text-align:center; font-size:18px; color:var(--text-dim);">Наряд на смену, м³</div>
+  <div style="font-size:18px; text-align:center; color:var(--text-dim)">Наряд (м³)</div>
   <input id="plan" type="number" value="3000">
   <div class="progress"><div class="fill" id="fill"></div></div>
   <div class="stats" id="stats">0 / 3000 м³</div>
-  <div class="over-text" id="over" style="display:none">+0 м³ 🔥</div>
+  <div class="over-text" id="over">+0 м³ 🔥</div>
 </div>
 
 <div class="timer" id="timer">Смена: 00:00:00</div>
@@ -215,115 +215,142 @@
 </div>
 
 <script>
-  const V = 37.8;
-  let trucks = JSON.parse(localStorage.getItem('exc_apple')) || [];
-  let target = +localStorage.getItem('exc_plan') || 3000;
-  let start = localStorage.getItem('exc_day') === new Date().toDateString() ?
-              +localStorage.getItem('exc_start') : Date.now();
+const V=37.8;
+let trucks = JSON.parse(localStorage.getItem("exc_trucks")) || [];
+let plan = +localStorage.getItem("exc_plan") || 3000;
+let start = +localStorage.getItem("exc_start") || Date.now();
 
-  if (!localStorage.getItem('exc_day')) {
-    localStorage.setItem('exc_day', new Date().toDateString());
-    localStorage.setItem('exc_start', Date.now());
-    start = Date.now();
+document.getElementById("plan").value = plan;
+
+function save(){
+  localStorage.setItem("exc_trucks",JSON.stringify(trucks));
+  localStorage.setItem("exc_plan",plan);
+  localStorage.setItem("exc_start",start);
+}
+
+function update(){
+  const total = trucks.reduce((s,t)=>s+t.c*V,0);
+  const fill = document.getElementById("fill");
+  const overEl=document.getElementById("over");
+
+  let pct = total/plan*100;
+  fill.style.width = Math.min(pct,200) + "%";
+
+  document.getElementById("stats").textContent =
+    `${Math.round(total)} / ${plan} м³`;
+
+  if(total>plan){
+    overEl.style.display="block";
+    overEl.textContent = `+${Math.round(total-plan)} м³ 🔥`;
+    fill.classList.add("over");
+  } else {
+    overEl.style.display="none";
+    fill.classList.remove("over");
   }
+}
 
-  document.getElementById('plan').value = target;
+function render(){
+  const list=document.getElementById("list");
+  list.innerHTML="";
 
-  function save() {
-    localStorage.setItem('exc_apple', JSON.stringify(trucks));
-    localStorage.setItem('exc_plan', target);
-    localStorage.setItem('exc_start', start);
-    localStorage.setItem('exc_day', new Date().toDateString());
-  }
+  trucks.forEach((t,i)=>{
+    const item=document.createElement("div");
+    item.className="truck";
 
-  function update() {
-    const total = trucks.reduce((s,t)=>s + t.c*V, 0);
-    const perc = Math.min(total/target*100, 200);
-    document.getElementById('fill').style.width = perc + '%';
-    document.getElementById('stats').textContent = `${Math.round(total).toLocaleString()} / ${target.toLocaleString()} м³`;
-    const over = total > target;
-    document.getElementById('over').style.display = over ? 'block' : 'none';
-    if (over) document.getElementById('over').textContent = `+${Math.round(total-target).toLocaleString()} м³ 🔥`;
-    document.getElementById('fill').classList.toggle('over', over);
-  }
+    const del=document.createElement("div");
+    del.className="delete-bg";
+    del.textContent="Удалить";
+    item.append(del);
 
-  function render() {
-    const list = document.getElementById('list');
-    list.innerHTML = trucks.map((t,i)=>`
-      <div class="truck" data-i="${i}" onpointerdown="swipeStart(event,this)">
-        <div style="position:absolute; left:0; top:0; bottom:0; width:100px; background:var(--red); color:white; display:flex; align-items:center; justify-content:center; font-size:28px; transform:translateX(-100%); transition:0.3s;">
-          Удалить
-        </div>
-        <div style="width:100%; display:flex; align-items:center;">
-          <div class="num">${t.n}</div>
-          <button class="btn minus" onclick="event.stopPropagation(); ch(${i},-1)">–</button>
-          <div class="count" onclick="event.stopPropagation(); ch(${i},5)" style="cursor:pointer">${t.c}</div>
-          <button class="btn plus" onclick="event.stopPropagation(); ch(${i},1)">+</button>
-          <div class="vol">${(t.c*V).toFixed(1)} м³</div>
-        </div>
-      </div>
-    `).join('');
-    update();
-  }
+    const content=document.createElement("div");
+    content.style.display="flex";
+    content.style.width="100%";
+    content.style.alignItems="center";
+    content.innerHTML=`
+      <div class="num">${t.n}</div>
+      <button class="btn minus">−</button>
+      <div class="count">${t.c}</div>
+      <button class="btn plus">+</button>
+      <div class="vol">${(t.c*V).toFixed(1)} м³</div>
+    `;
+    item.append(content);
 
-  window.ch = (i,d) => {
-    trucks[i].c = Math.max(0, trucks[i].c + d);
-    save(); render();
-    navigator.vibrate?.(30);
-  }
-
-  let swipeEl = null;
-  window.swipeStart = (e,el) => {
-    if (e.pointerType==='mouse') return;
-    let startX = e.touches[0].clientX;
-    const move = e=> {
-      let diff = e.touches[0].clientX - startX;
-      if (diff < -40) el.style.transform = `translateX(${diff}px)`;
+    /* логика +/- */
+    content.querySelector(".plus").onclick=()=>{
+      t.c++; save(); render();
     };
-    const end = e=> {
-      if (e.changedTouches[0].clientX - startX < -100) {
-        trucks.splice(el.dataset.i,1);
+    content.querySelector(".minus").onclick=()=>{
+      t.c=Math.max(0,t.c-1);
+      if(t.c===0){ trucks.splice(i,1); }
+      save(); render();
+    };
+
+    /* свайп удаление (ОПТИМИЗИРОВАНО, БЕЗ ДУБЛЕЙ) */
+    let startX=0;
+    item.addEventListener("touchstart",e=>{
+      startX=e.touches[0].clientX;
+    });
+
+    item.addEventListener("touchmove",e=>{
+      let diff=e.touches[0].clientX-startX;
+      if(diff<-40){
+        item.style.transform=`translateX(${diff}px)`;
+      }
+    });
+
+    item.addEventListener("touchend",e=>{
+      let diff=e.changedTouches[0].clientX-startX;
+      if(diff<-100){
+        trucks.splice(i,1);
         save(); render();
       } else {
-        el.style.transform = '';
+        item.style.transform="";
       }
-      document.removeEventListener('touchmove',move);
-      document.removeEventListener('touchend',end);
-    };
-    document.addEventListener('touchmove',move);
-    document.addEventListener('touchend',end);
-  }
+    });
 
-  window.addTruck = () => {
-    const n = prompt('Номер БелАЗа')?.trim().toUpperCase();
-    if (!n || trucks.some(t=>t.n===n)) return;
-    trucks.push({n, c:0});
+    list.append(item);
+  });
+
+  update();
+}
+
+function addTruck(){
+  const n=prompt("Номер БелАЗа")?.trim();
+  if(!n || trucks.some(t=>t.n===n)) return;
+  trucks.push({n,c:0});
+  save(); render();
+}
+
+function shareShift(){
+  const total=trucks.reduce((s,t)=>s+t.c*V,0);
+  const text=trucks.map(t=>`БелАЗ ${t.n}: ${t.c} рейс`).join("\n") +
+    `\nИтого ${Math.round(total)} / ${plan} м³`;
+
+  navigator.share ? navigator.share({text}) : alert(text);
+}
+
+function resetShift(){
+  if(confirm("Начать заново?")){
+    trucks=[]; start=Date.now();
     save(); render();
   }
+}
 
-  window.shareShift = () => {
-    const total = trucks.reduce((s,t)=>s+t.c*V,0);
-    const text = `Экскаватор • Смена\n\n` +
-      trucks.filter(t=>t.c>0).map(t=>`БелАЗ ${t.n} — ${t.c} рейс${t.c>1?'а':''}`).join('\n') ||
-      'Рейсов пока нет\n' +
-      `\nИтого: ${Math.round(total)} м³ из ${target}\nПеревыполнение: ${Math.round(total-target)} м³ 🔥\nВремя смены: ${document.getElementById('timer').textContent}`;
-    navigator.share ? navigator.share({text}) : navigator.clipboard.writeText(text) && alert('Скопировано в буфер');
-  }
+document.getElementById("plan").onchange=e=>{
+  plan=+e.target.value||3000;
+  save(); update();
+};
 
-  window.resetShift = () => confirm('Начать новую смену?') && (trucks=[], start=Date.now(), save(), render());
+setInterval(()=>{
+  let s=Math.floor((Date.now()-start)/1000);
+  let h=String(Math.floor(s/3600)).padStart(2,"0");
+  let m=String(Math.floor((s%3600)/60)).padStart(2,"0");
+  let sec=String(s%60).padStart(2,"0");
+  document.getElementById("timer").textContent=`Смена: ${h}:${m}:${sec}`;
+},1000);
 
-  document.getElementById('plan').onchange = e => { target = +e.target.value || 3000; save(); update(); };
-
-  // Таймер
-  setInterval(() => {
-    let s = Math.floor((Date.now() - start)/1000);
-    let h = String(Math.floor(s/3600)).padStart(2,'0');
-    let m = String(Math.floor(s%3600/60)).padStart(2,'0');
-    let sec = String(s%60).padStart(2,'0');
-    document.getElementById('timer').textContent = `Смена: ${h}:${m}:${sec}`;
-  }, 1000);
-
-  render();
+render();
 </script>
+
 </body>
 </html>

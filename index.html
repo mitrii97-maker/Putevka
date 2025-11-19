@@ -1,364 +1,311 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>БелАЗ • Рейсы</title>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    min-height:100vh;
-    background:#0c0e12;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-    color:#e5e5e5;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:16px;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000">
+  <title>Экскаватор • Рейсы</title>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🚜</text></svg>">
+  <style>
+    :root {
+      --bg: rgba(0,0,0,0.95);
+      --card: rgba(255,255,255,0.08);
+      --text: #ffffff;
+      --accent: #0a84ff;
+      --green: #30d158;
+      --red: #ff453a;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: rgba(255,255,255,0.95);
+        --card: rgba(0,0,0,0.06);
+        --text: #000000;
+      }
+    }
 
-  .app {
-    width:100%;
-    max-width:428px;
-    background:rgba(20,24,32,0.72);
-    backdrop-filter:blur(40px) saturate(180%);
-    -webkit-backdrop-filter:blur(40px) saturate(180%);
-    border-radius:42px;
-    border:1.8px solid rgba(255,255,255,0.14);
-    box-shadow:
-      0 30px 60px rgba(0,0,0,0.8),
-      inset 0 1px 0 rgba(255,255,255,0.12),
-      inset 0 -1px 0 rgba(255,255,255,0.06);
-    overflow:hidden;
-    position:relative;
-  }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      overscroll-behavior: none;
+    }
+    header {
+      text-align: center;
+      padding: 50px 20px 20px;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .target {
+      margin: 20px;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 32px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-weight: 600;
+    }
+    input:focus { outline: none; }
 
-  .app::before {
-    content:'';
-    position:absolute;
-    top:0; left:0; right:0; height:260px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.16) 0%, transparent 100%);
-    pointer-events:none;
-  }
+    .progress-container {
+      margin: 20px 0;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 17px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .progress-bar {
+      height: 12px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0a84ff, #30d158);
+      transition: width 0.4s ease;
+    }
+    .overshoot { background: linear-gradient(90deg, #30d158, #ff9f0a); }
 
-  header {
-    padding:44px 28px 32px;
-    text-align:center;
-    position:relative;
-  }
+    .trucks {
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .truck {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+    .truck-num {
+      font-size: 28px;
+      font-weight: 700;
+      width: 90px;
+      text-align: center;
+    }
+    .controls {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+    button {
+      width: 70px;
+      height: 70px;
+      border-radius: 35px;
+      border: none;
+      font-size: 36px;
+      font-weight: bold;
+      color: white;
+      background: var(--accent);
+      box-shadow: 0 4px 15px rgba(10,132,255,0.4);
+    }
+    .minus { background: var(--red); box-shadow: 0 4px 15px rgba(255,69,58,0.4); }
+    .count {
+      font-size: 48px;
+      font-weight: 800;
+      min-width: 100px;
+      text-align: center;
+    }
+    .copy-all {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 18px 50px;
+      font-size: 20px;
+      font-weight: 600;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      box-shadow: 0 8px 30px rgba(48,209,88,0.4);
+    }
+    .add-truck {
+      margin: 20px;
+      text-align: center;
+    }
+    .add-truck input {
+      font-size: 24px;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--card);
+    }
+    .add-btn {
+      margin-top: 10px;
+      padding: 14px 30px;
+      font-size: 18px;
+      background: var(--accent);
+      border-radius: 14px;
+    }
+    .vibrate { animation: vib 0.3s; }
+    @keyframes vib { 0%,100% {transform: translateX(0)} 25%{transform: translateX(-5px)} 75%{transform: translateX(5px)} }
 
-  h1 {
-    font-size:32px;
-    font-weight:800;
-    letter-spacing:-0.6px;
-    background:linear-gradient(90deg, #ffffff, #b0b0b0);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-  }
-
-  .subtitle {
-    font-size:15px;
-    opacity:0.7;
-    margin-top:6px;
-    font-weight:500;
-  }
-
-  /* Блок наряда */
-  .plan {
-    margin:0 28px 32px;
-    background:rgba(255,255,255,0.06);
-    border:1.5px solid rgba(255,255,255,0.12);
-    border-radius:28px;
-    padding:28px 24px;
-    text-align:center;
-    backdrop-filter:blur(12px);
-  }
-
-  .plan-label {
-    font-size:16px;
-    opacity:0.85;
-    margin-bottom:8px;
-  }
-
-  .plan-value {
-    font-size:48px;
-    font-weight:800;
-    letter-spacing:-1px;
-  }
-
-  .plan-unit {
-    font-size:32px;
-    font-weight:600;
-    opacity:0.8;
-    margin-left:4px;
-  }
-
-  .progress {
-    height:22px;
-    background:rgba(255,255,255,0.12);
-    border-radius:11px;
-    overflow:hidden;
-    margin:24px 0 14px;
-    box-shadow:inset 0 3px 8px rgba(0,0,0,0.4);
-  }
-
-  .progress-bar {
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg, #00e0a8 0%, #00ff95 100%);
-    border-radius:11px;
-    box-shadow:0 0 30px rgba(0,224,168,0.6);
-    transition:width 0.7s cubic-bezier(0.16,1,0.3,1);
-  }
-
-  .stats {
-    font-size:19px;
-    font-weight:600;
-  }
-
-  .remaining {
-    font-size:17px;
-    color:#ffb360;
-    margin-top:10px;
-    font-weight:600;
-  }
-
-  /* Добавление */
-  .add-section {
-    padding:0 28px 32px;
-    display:flex;
-    gap:16px;
-  }
-
-  #truckInput {
-    flex:1;
-    padding:20px 24px;
-    font-size:19px;
-    font-weight:600;
-    background:rgba(255,255,255,0.08);
-    border:1.5px solid rgba(255,255,255,0.18);
-    border-radius:24px;
-    color:white;
-  }
-
-  #addBtn {
-    width:68px; height:68px;
-    background:rgba(0,224,168,0.36);
-    border:1.8px solid rgba(0,224,168,0.5);
-    border-radius:24px;
-    font-size:40px;
-    font-weight:800;
-    color:white;
-    backdrop-filter:blur(12px);
-    box-shadow:inset 0 3px 8px rgba(255,255,255,0.2);
-  }
-
-  /* Список */
-  .list {
-    padding:0 28px 100px;
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-  }
-
-  .truck {
-    background:rgba(255,255,255,0.07);
-    border:1.5px solid rgba(255,255,255,0.14);
-    border-radius:26px;
-    padding:24px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    backdrop-filter:blur(14px);
-  }
-
-  .truck-num {
-    font-size:26px;
-    font-weight:700;
-  }
-
-  .trips {
-    font-size:38px;
-    font-weight:800;
-    margin-top:4px;
-  }
-
-  .controls {
-    display:flex;
-    gap:18px;
-  }
-
-  .ctrl {
-    width:64px; height:64px;
-    border-radius:22px;
-    border:none;
-    font-size:36px;
-    font-weight:800;
-    backdrop-filter:blur(14px);
-    box-shadow:inset 0 3px 10px rgba(255,255,255,0.2);
-  }
-
-  .minus { background:rgba(255,80,80,0.36); border:1.8px solid rgba(255,80,80,0.5); }
-  .plus  { background:rgba(0,224,168,0.36); border:1.8px solid rgba(0,224,168,0.5); }
-
-  /* Нижняя панель */
-  .bottom-bar {
-    position:fixed;
-    bottom:0; left:0; right:0;
-    padding:20px 28px 40px;
-    background:linear-gradient(180deg, transparent 0%, rgba(12,14,18,0.9) 30%);
-    backdrop-filter:blur(20px);
-    display:flex;
-    gap:16px;
-  }
-
-  .btn-bottom {
-    flex:1;
-    padding:18px;
-    border-radius:24px;
-    font-size:17px;
-    font-weight:700;
-    border:none;
-    cursor:pointer;
-    backdrop-filter:blur(12px);
-  }
-
-  #resetBtn {
-    background:rgba(255,80,80,0.3);
-    border:1.5px solid rgba(255,80,80,0.4);
-    color:white;
-  }
-
-  #copyBtn {
-    background:rgba(0,140,255,0.36);
-    border:1.5px solid rgba(0,140,255,0.5);
-    color:white;
-  }
-</style>
+    .overshoot-text {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      margin: 10px 0;
+      color: #ff9f0a;
+    }
+  </style>
 </head>
 <body>
+  <header>Экскаватор</header>
 
-<div class="app">
-  <header>
-    <h1>Точковка</h1>
-    <div class="subtitle">Volvo 26</div>
-  </header>
-
-  <div class="plan">
-    <div class="plan-label">Наряд на смену</div>
-    <div style="display:flex; align-items:flex-end; justify-content:center;">
-      <input type="number" id="targetInput" class="plan-value" value="3000" style="background:transparent;border:none;width:140px;text-align:center;">
-      <span class="plan-unit">м³</span>
+  <div class="target">
+    <div class="progress-label">
+      <span>Наряд на смену</span>
+      <span id="current-plan">0 / <span id="target">0</span> м³</span>
     </div>
-
-    <div class="progress"><div class="progress-bar" id="bar"></div></div>
-    <div class="stats" id="stats">0 м³ из 3000 м³ (0%)</div>
-    <div class="remaining" id="remaining">Осталось ~48 рейсов</div>
+    <input type="number" id="plan-input" placeholder="Введите наряд (м³)" value="3000">
+    <div class="progress-container">
+      <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    </div>
+    <div id="overshoot" class="overshoot-text" style="display:none;">+<span id="over-amount">0</span> м³ 🔥</div>
   </div>
 
-  <div class="add-section">
-    <input type="text" id="truckInput" placeholder="Номер БелАЗа" maxlength="8">
-    <button id="addBtn">+</button>
+  <div class="trucks" id="trucks-list"></div>
+
+  <div class="add-truck">
+    <input type="text" id="new-truck" placeholder="Номер Белаза (например 57)" maxlength="4">
+    <button class="add-btn" onclick="addTruck()">Добавить БелАЗ</button>
   </div>
 
-  <div class="list" id="list"></div>
-</div>
+  <button class="copy-all" onclick="copyToDispatcher()">📋 Скопировать диспетчеру</button>
 
-<div class="bottom-bar">
-  <button class="btn-bottom" id="resetBtn">Сбросить смену</button>
-  <button class="btn-bottom" id="copyBtn">Скопировать диспетчеру</button>
-</div>
+  <script>
+    const VOLUME_PER_TRIP = 37.8;
+    let trucks = JSON.parse(localStorage.getItem('trucks')) || [];
+    let targetPlan = parseFloat(localStorage.getItem('targetPlan')) || 3000;
 
-<script>
-  const CUBES = 37.8;
-  const input = document.getElementById('truckInput');
-  const addBtn = document.getElementById('addBtn');
-  const list = document.getElementById('list');
-  const targetInput = document.getElementById('targetInput');
-  const bar = document.getElementById('bar');
-  const stats = document.getElementById('stats');
-  const remaining = document.getElementById('remaining');
-  const resetBtn = document.getElementById('resetBtn');
-  const copyBtn = document.getElementById('copyBtn');
+    const planInput = document.getElementById('plan-input');
+    planInput.value = targetPlan;
+    document.getElementById('target').textContent = targetPlan.toLocaleString();
 
-  let trucks = JSON.parse(localStorage.getItem('belaz_pro')) || {};
-  let target = parseFloat(localStorage.getItem('target_pro')) || 180;
-  targetInput.value = target;
+    function saveData() {
+      localStorage.setItem('trucks', JSON.stringify(trucks));
+      localStorage.setItem('targetPlan', targetPlan);
+    }
 
-  function save() {
-    localStorage.setItem('belaz_pro', JSON.stringify(trucks));
-    localStorage.setItem('target_pro', target);
-  }
+    function updateProgress() {
+      const total = trucks.reduce((sum, t) => sum + t.trips * VOLUME_PER_TRIP, 0);
+      const percent = Math.min(total / targetPlan * 100, 200);
+      document.getElementById('progress').style.width = percent + '%';
+      document.getElementById('current-plan').innerHTML = `${Math.round(total).toLocaleString()} / ${targetPlan.toLocaleString()} м³`;
 
-  function render() {
-    list.innerHTML = '';
-    const totalTrips = Object.values(trucks).reduce((a,b)=>a+b,0);
-    const totalCubes = (totalTrips * CUBES).toFixed(1);
-    const percent = Math.min(100, (totalCubes/target*100).toFixed(1));
-    const leftTrips = Math.max(0, Math.ceil((target - totalCubes)/CUBES));
+      const fill = document.querySelector('.progress-fill');
+      if (total > targetPlan) {
+        fill.classList.add('overshoot');
+        document.getElementById('over-amount').textContent = Math.round(total - targetPlan).toLocaleString();
+        document.getElementById('overshoot').style.display = 'block';
+      } else {
+        fill.classList.remove('overshoot');
+        document.getElementById('overshoot').style.display = 'none';
+      }
+    }
 
-    bar.style.width = percent + '%';
-    stats.textContent = `${totalCubes} м³ из ${target} м³ (${percent}%)`;
-    remaining.textContent = leftTrips===0 ? 'ПЛАН ВЫПОЛНЕН' : `Осталось ~${leftTrips} рейс${end(leftTrips)}`;
+    function renderTrucks() {
+      const list = document.getElementById('trucks-list');
+      list.innerHTML = '';
+      trucks.forEach((truck, i) => {
+        const div = document.createElement('div');
+        div.className = 'truck';
+        div.innerHTML = `
+          <div class="truck-num">${truck.num}</div>
+          <div class="controls">
+            <button class="minus" onclick="changeTrips(${i}, -1)">–</button>
+            <div class="count">${truck.trips}</div>
+            <button onclick="changeTrips(${i}, 1)">+</button>
+          </div>
+          <div style="margin-left: auto; font-size: 24px; opacity: 0.7;">
+            ${(truck.trips * VOLUME_PER_TRIP).toFixed(1)} м³
+          </div>
+        `;
+        list.appendChild(div);
+      });
+      updateProgress();
+    }
 
-    Object.keys(trucks).sort().forEach(n => {
-      const el = document.createElement('div');
-      el.className = 'truck';
-      el.innerHTML = `
-        <div>
-          <div class="truck-num">№${n}</div>
-          <div class="trips">${trucks[n]} рейс${end(trucks[n])}</div>
-        </div>
-        <div class="controls">
-          <button class="ctrl minus" data-n="${n}">–</button>
-          <button class="ctrl plus" data-n="${n}">+</button>
-        </div>
-      `;
-      list.appendChild(el);
+    function addTruck() {
+      const input = document.getElementById('new-truck');
+      const num = input.value.trim();
+      if (!num) return;
+      if (trucks.find(t => t.num === num)) {
+        alert('Этот БелАЗ уже есть');
+        return;
+      }
+      trucks.push({ num, trips: 0 });
+      input.value = '';
+      saveData();
+      renderTrucks();
+    }
+
+    function changeTrips(index, delta) {
+      trucks[index].trips = Math.max(0, trucks[index].trips + delta);
+      saveData();
+      renderTrucks();
+      navigator.vibrate?.(30); // тактильная отдача на айфоне
+    }
+
+    planInput.addEventListener('change', () => {
+      targetPlan = Math.max(0, parseFloat(planInput.value) || 0);
+      document.getElementById('target').textContent = targetPlan.toLocaleString();
+      saveData();
+      updateProgress();
     });
-  }
 
-  function end(n) {
-    if (n%10===1 && n%100!==11) return '';
-    if ([2,3,4].includes(n%10) && ![12,13,14].includes(n%100)) return 'а';
-    return 'ов';
-  }
+    function copyToDispatcher() {
+      let text = '';
+      trucks.forEach(t => {
+        if (t.trips > 0) text += `${t.num} — ${t.trips} рейс.\n`;
+      });
+      if (!text) text = 'Рейсов пока нет';
+      navigator.clipboard.writeText(text.trim());
+      const btn = document.querySelector('.copy-all');
+      btn.textContent = '✅ Скопировано!';
+      btn.style.background = '#30d158';
+      setTimeout(() => {
+        btn.textContent = '📋 Скопировать диспетчеру';
+        btn.style.background = '#30d158';
+      }, 1500);
+    }
 
-  addBtn.onclick = () => {
-    let n = input.value.trim().toUpperCase();
-    if (!n) return;
-    trucks[n] = (trucks[n]||0) + 1;
-    save(); render(); input.value='';
-  };
-
-  list.onclick = e => {
-    if (!e.target.classList.contains('ctrl')) return;
-    const n = e.target.dataset.n;
-    const d = e.target.classList.contains('plus') ? 1 : -1;
-    if ((trucks[n]||0) + d < 0) {
-      if (confirm(`Удалить №${n}?`)) delete trucks[n];
-    } else trucks[n] += d;
-    save(); render();
-  };
-
-  targetInput.onchange = () => {
-    target = Math.max(0, parseFloat(targetInput.value)||0);
-    targetInput.value = target;
-    save(); render();
-  };
-
-  resetBtn.onclick = () => confirm('Сбросить смену?') && (trucks={}, save(), render());
-  
-  copyBtn.onclick = () => {
-    let text = Object.keys(trucks).sort().map(n => `${n} — ${trucks[n]} рейс${end(trucks[n])}`).join('\n') || 'Нет данных';
-    navigator.clipboard.writeText(text).then(() => {
-      copyBtn.textContent = 'Скопировано';
-      setTimeout(()=>copyBtn.textContent='Скопировать диспетчеру', 2000);
+    // добавляем первый БелАЗ сразу или по Enter
+    document.getElementById('new-truck').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addTruck();
     });
-  };
 
-  input.addEventListener('keydown', e=> e.key==='Enter' && addBtn.click());
-  render();
-</script>
+    // инициализация
+    renderTrucks();
+
+    // если список пустой — сразу фокус на добавление
+    if (trucks.length === 0) {
+      setTimeout(() => document.getElementById('new-truck').focus(), 500);
+    }
+  </script>
 </body>
 </html>

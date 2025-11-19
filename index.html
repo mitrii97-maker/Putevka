@@ -1,304 +1,339 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#000000">
-  <title>Экскаватор</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <style>
-    :root {
-      --bg: rgba(20, 20, 30, 0.95);
-      --glass: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      --text: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.7);
-      --accent: #007aff;
-      --green: #30d158;
-      --red: #ff3b30;
-      --orange: #ff9f0a;
-    }
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: rgba(245, 245, 247, 0.95);
-        --glass: rgba(255, 255, 255, 0.7);
-        --glass-border: rgba(0, 0, 0, 0.1);
-        --text: #000000;
-        --text-secondary: rgba(0, 0, 0, 0.65);
-      }
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Экскаватор</title>
+<style>
+  :root {
+    --bg: radial-gradient(circle at 50% 120%, #0a0a1f, #000000);
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-strong: rgba(255, 255, 255, 0.12);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.65);
+    --blue: #007aff;
+    --green: #30d158;
+    --red: #ff453a;
+    --orange: #ff9f0a;
+  }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      height: 100dvh;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-    }
-    body { display: flex; flex-direction: column; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    height: 100dvh;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    background-attachment: fixed;
+  }
 
-    .container {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: max(20px, env(safe-area-inset-top)) 20px max(100px, env(safe-area-inset-bottom)) 20px;
-    }
+  body {
+    display: flex;
+    flex-direction: column;
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
 
-    header {
-      text-align: center;
-      font-size: 38px;
-      font-weight: 800;
-      letter-spacing: -0.8px;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #007aff, #30d158);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+  .blur-bg {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    z-index: -2;
+  }
 
-    .card {
-      background: var(--glass);
-      border-radius: 24px;
-      padding: 20px;
-      margin-bottom: 20px;
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    }
+  header {
+    text-align: center;
+    padding: 60px 20px 30px;
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, #007aff, #00ff88);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-    .target-input {
-      width: 100%;
-      padding: 16px;
-      font-size: 36px;
-      font-weight: 700;
-      text-align: center;
-      background: transparent;
-      border: none;
-      color: var(--text);
-    }
-    .target-input:focus { outline: none; }
+  .glass-card {
+    margin: 20px;
+    padding: 28px;
+    background: var(--glass);
+    border-radius: 28px;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    box-shadow: 
+      0 20px 40px rgba(0,0,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.2);
+  }
 
-    .progress-bar {
-      height: 14px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 7px;
-      overflow: hidden;
-      margin: 16px 0;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #007aff, #30d158);
-      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .overshoot { background: linear-gradient(90deg, #30d158, #ff9f0a); }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
 
-    .overshoot-text {
-      text-align: center;
-      font-size: 32px;
-      font-weight: 800;
-      color: var(--orange);
-      display: none;
-      margin-top: 10px;
-    }
+  #plan-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 48px;
+    font-weight: 900;
+    text-align: center;
+    background: var(--glass-strong);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
 
-    .trucks { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
-    .truck {
-      background: var(--glass);
-      border-radius: 20px;
-      padding: 18px;
-      display: flex;
-      align-items: center;
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(16px);
-    }
-    .truck-num {
-      font-size: 32px;
-      font-weight: 800;
-      width: 100px;
-      text-align: center;
-    }
-    .count {
-      font-size: 56px;
-      font-weight: 900;
-      min-width: 120px;
-      text-align: center;
-    }
-    .volume {
-      margin-left: auto;
-      font-size: 24px;
-      opacity: 0.8;
-      font-weight: 600;
-    }
+  .progress-container {
+    height: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
 
-    .btn {
-      width: 76px; height: 76px;
-      border-radius: 38px;
-      border: none;
-      font-size: 40px;
-      font-weight: bold;
-      color: white;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      transition: all 0.2s ease;
-    }
-    .btn:active { transform: scale(0.92); }
-    .plus { background: var(--accent); }
-    .minus { background: var(--red); }
+  .progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #007aff 0%, #30d158 70%, #ff9f0a 100%);
+    border-radius: 8px;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 20px rgba(0, 122, 255, 0.6);
+  }
 
-    .add-section {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .add-section input {
-      flex: 1;
-      padding: 18px;
-      font-size: 28px;
-      text-align: center;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: 18px;
-      color: var(--text);
-    }
-    .add-btn {
-      padding: 18px 28px;
-      background: var(--accent);
-      font-size: 20px;
-      font-weight: 700;
-      border-radius: 18px;
-    }
+  .overshoot-text {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--orange);
+    text-shadow: 0 0 20px rgba(255, 159, 10, 0.5);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
 
-    .fab {
-      position: fixed;
-      bottom: max(24px, env(safe-area-inset-bottom));
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 20px 56px;
-      font-size: 22px;
-      font-weight: 700;
-      background: var(--green);
-      color: white;
-      border: none;
-      border-radius: 60px;
-      box-shadow: 0 12px 40px rgba(48, 209, 88, 0.5);
-      z-index: 1000;
-      transition: all 0.3s ease;
-    }
-    .fab:active { transform: translateX(-50%) scale(0.95); }
-  </style>
+  .trucks {
+    padding: 0 20px 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .truck {
+    {
+    background: var(--glass);
+    border-radius: 24px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  .num {
+    font-size: 36px;
+    font-weight: 900;
+    width: 100px;
+    text-align: center;
+  }
+
+  .count {
+    font-size: 64px;
+    font-weight: 900;
+    min-width: 140px;
+    text-align: center;
+    text-shadow: 0 0 30px rgba(255,255,255,0.3);
+  }
+
+  .volume {
+    margin-left: auto;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-dim);
+  }
+
+  .btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+    border: none;
+    font-size: 44px;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: all 0.2s;
+  }
+
+  .btn.plus { background: linear-gradient(135deg, #007aff, #00d4ff); }
+  .btn.minus { background: linear-gradient(135deg, #ff453a, #ff9f0a); }
+
+  .btn:active {
+    transform: scale(0.9);
+  }
+
+  .fab {
+    position: fixed;
+    bottom: max(30px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 22px 60px;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #30d158, #00ff88);
+    color: black;
+    border: none;
+    border-radius: 60px;
+    box-shadow: 0 15px 40px rgba(48, 209, 88, 0.6);
+    z-index: 999;
+  }
+
+  .add-bar {
+    position: fixed;
+    bottom: max(100px, env(safe-area-inset-bottom) + 70px);
+    left: 20px;
+    right: 20px;
+    display: flex;
+    gap: 12px;
+    z-index: 998;
+  }
+
+  .add-bar input {
+    flex: 1;
+    padding: 20px;
+    font-size: 28px;
+    text-align: center;
+    background: var(--glass-strong);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    color: white;
+  }
+
+  .add-bar button {
+    padding: 20px 32px;
+    background: var(--blue);
+    border-radius: 24px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+</style>
 </head>
 <body>
 
-  <div class="container">
-    <header>Экскаватор</header>
+<div class="blur-bg"></div>
 
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; font-size:18px; margin-bottom:8px;">
-        <span>Наряд на смену</span>
-        <span id="current-plan">0 / 3000 м³</span>
-      </div>
-      <input type="number" class="target-input" id="plan-input" value="3000">
-      <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-      <div class="overshoot-text" id="overshoot">+<span id="over-amount">0</span> м³ 🔥</div>
-    </div>
+<header>Экскаватор</header>
 
-    <div class="trucks" id="trucks-list"></div>
-
-    <div class="add-section">
-      <input type="text" id="new-truck" placeholder="Номер БелАЗа" maxlength="5">
-      <button class="add-btn" onclick="addTruck()">+ БелАЗ</button>
-    </div>
+<div class="glass-card">
+  <div class="progress-label">
+    <span>Наряд на смену</span>
+    <span id="stats">0 / 3000 м³</span>
   </div>
+  <input type="number" id="plan-input" value="3000">
+  <div class="progress-container"><div class="progress" id="bar"></div></div>
+  <div class="overshoot-text" id="over">+0 м³ 🔥</div>
+</div>
 
-  <button class="fab" onclick="copyToDispatcher()">📋 Диспетчеру</button>
+<div class="trucks" id="list"></div>
 
-  <script>
-    const VOLUME = 37.8;
-    let trucks = JSON.parse(localStorage.getItem('exc_trucks')) || [];
-    let target = parseFloat(localStorage.getItem('exc_target')) || 3000;
+<div class="add-bar">
+  <input type="text" id="new-num" placeholder="Номер" maxlength="5">
+  <button onclick="add()">+ БелАЗ</button>
+</div>
 
-    document.getElementById('plan-input').value = target;
+<button class="fab" onclick="copy()">Диспетчеру</button>
 
-    function save() {
-      localStorage.setItem('exc_trucks', JSON.stringify(trucks));
-      localStorage.setItem('exc_target', target);
+<script>
+  const V = 37.8;
+  let trucks = JSON.parse(localStorage.getItem('liq26')) || [];
+  let target = +localStorage.getItem('liq26_target') || 3000;
+
+  document.getElementById('plan-input').value = target;
+
+  function save() {
+    localStorage.setItem('liq26', JSON.stringify(trucks));
+    localStorage.setItem('liq26_target', target);
+  }
+
+  function update() {
+    const total = trucks.reduce((s,t) => s + t.c * V, 0);
+    const p = Math.min((total/target)*100, 200);
+    document.getElementById('bar').style.width = p + '%';
+    document.getElementById('stats').textContent = `${Math.round(total).toLocaleString()} / ${target.toLocaleString()} м³`;
+
+    const overEl = document.getElementById('over');
+    if (total > target) {
+      overEl.textContent = `+${Math.round(total-target).toLocaleString()} м³ 🔥`;
+      overEl.style.opacity = 1;
+    } else {
+      overEl.style.opacity = 0;
     }
+  }
 
-    function update() {
-      const total = trucks.reduce((s, t) => s + t.trips * VOLUME, 0);
-      const perc = Math.min((total / target) * 100, 200);
-      document.getElementById('progress').style.width = perc + '%';
-      document.getElementById('current-plan').textContent = `${Math.round(total).toLocaleString()} / ${target.toLocaleString()} м³`;
+  function render() {
+    const list = document.getElementById('list');
+    list.innerHTML = trucks.map((t, i) => `
+      <div class="truck">
+        <div class="num">${t.n}</div>
+        <button class="btn minus" onclick="ch(${i},-1)">–</button>
+        <div class="count">${t.c}</div>
+        <button class="btn plus" onclick="ch(${i},1)">+</button>
+        <div class="volume">${(t.c * V).toFixed(1)} м³</div>
+      </div>
+    `).join('');
+    update();
+  }
 
-      const over = total > target;
-      document.getElementById('overshoot').style.display = over ? 'block' : 'none';
-      if (over) {
-        document.getElementById('over-amount').textContent = Math.round(total - target).toLocaleString();
-        document.querySelector('.progress-fill').classList.add('overshoot');
-      } else {
-        document.querySelector('.progress-fill').classList.remove('overshoot');
-      }
-    }
+  }
 
-    function render() {
-      const list = document.getElementById('trucks-list');
-      list.innerHTML = '';
-      trucks.forEach((t, i) => {
-        const div = document.createElement('div');
-        div.className = 'truck';
-        div.innerHTML = `
-          <div class="truck-num">${t.num}</div>
-          <button class="btn minus" onclick="change(${i},-1)">–</button>
-          <div class="count">${t.trips}</div>
-          <button class="btn plus" onclick="change(${i},1)">+</button>
-          <div class="volume">${(t.trips * VOLUME).toFixed(1)} м³</div>
-        `;
-        list.appendChild(div);
-      });
-      update();
-    }
-
-    window.change = (i, d) => {
-      trucks[i].trips = Math.max(0, trucks[i].trips + d);
-      save(); render();
-      navigator.vibrate?.(30);
-    }
-
-    window.addTruck = () => {
-      const input = document.getElementById('new-truck');
-      const num = input.value.trim().toUpperCase();
-      if (!num) return;
-      if (trucks.some(t => t.num === num)) { alert('Уже есть'); return; }
-      trucks.push({ num, trips: 0 });
-      input.value = '';
-      save(); render();
-    }
-
-    document.getElementById('plan-input').addEventListener('change', e => {
-      target = Math.max(0, parseFloat(e.target.value) || 0);
-      save(); update();
-    });
-
-    window.copyToDispatcher = () => {
-      const text = trucks
-        .filter(t => t.trips > 0)
-        .map(t => `${t.num} — ${t.trips} рейс${t.trips > 1 ? 'а' : ''}`)
-        .join('\n') || 'Рейсов нет';
-      navigator.clipboard.writeText(text);
-      const btn = document.querySelector('.fab');
-      btn.textContent = '✅ Готово!';
-      setTimeout(() => btn.textContent = '📋 Диспетчеру', 2000);
-    }
-
-    document.getElementById('new-truck').addEventListener('keydown', e => e.key === 'Enter' && addTruck());
+  window.ch = (i, d) => {
+    trucks[i].c = Math.max(0, trucks[i].c + d);
+    save();
     render();
-  </script>
+    navigator.vibrate?.(40);
+  }
+
+  window.add = () => {
+    const num = document.getElementById('new-num').value.trim().toUpperCase();
+    if (!num) return;
+    if (trucks.some(t => t.n === num)) return alert('Уже есть');
+    trucks.push({n: num, c: 0});
+    document.getElementById('new-num').value = '';
+    save();
+    render();
+  }
+
+  document.getElementById('plan-input').onchange = e => {
+    target = Math.max(100, +e.target.value || 3000);
+    save();
+    update();
+  };
+
+  window.copy = () => {
+    const text = trucks
+      .filter(t => t.c > 0)
+      .map(t => `${t.n} — ${t.c} рейс${t.c === 1 ? '' : 'а'}`)
+      .join('\n') || 'Ноль рейсов';
+    navigator.clipboard.writeText(text);
+    const b = document.querySelector('.fab');
+    b.textContent = 'Готово!';
+    b.style.background = '#30d158';
+    setTimeout(() => {
+      b.textContent = 'Диспетчеру';
+      b.style.background = 'linear-gradient(135deg, #30d158, #00ff88)';
+    }, 2000);
+  };
+
+  document.getElementById('new-num').addEventListener('keydown', e => e.key === 'Enter' && add());
+
+  render();
+</script>
 </body>
 </html>

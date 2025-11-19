@@ -156,14 +156,11 @@ function copyData(){
   let done = totalTrips*TRIP;
   let over = plan>0 ? Math.max(0, done-plan) : 0;
 
-  let text = `Рейсы БелАЗ
-Наряд: ${plan}
-Итого: ${totalTrips} рейсов, ${done.toFixed(1)} м³
-Плюсом: ${over.toFixed(1)} м³
+  let text = `Рейсы
 
 `;
   trucks.forEach(t=>{
-    text+=`БЕЛАЗ ${t.id}: ${t.trips} рейсов (${(t.trips*TRIP).toFixed(1)} м³)
+    text+=` ${t.id}: ${t.trips} рейсов)
 `;
   });
 
@@ -174,3 +171,10 @@ function copyData(){
 
 </body>
 </html>
+Рейсы
+12 рейсов, 453.6 
+
+
+ 23: 12 рейсов)
+
+

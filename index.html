@@ -6,199 +6,244 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#000000">
-  <title>Экскаватор • Рейсы</title>
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🚜</text></svg>">
+  <title>Экскаватор</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg: rgba(20, 20, 30, 0.95);
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --text: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --accent: #007aff;
+      --green: #30d158;
+      --red: #ff3b30;
+      --orange: #ff9f0a;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: rgba(245, 245, 247, 0.95);
+        --glass: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(0, 0, 0, 0.1);
+        --text: #000000;
+        --text-secondary: rgba(0, 0, 0, 0.65);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100dvh;
       overflow: hidden;
-      touch-action: pan-x pan-y; /* запрещаем лишний скролл */
-      -webkit-overflow-scrolling: touch;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-      background: #000;
-      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
     }
-    body {
-      display: flex;
-      flex-direction: column;
-      background: rgba(0,0,0,0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
+    body { display: flex; flex-direction: column; }
+
     .container {
       flex: 1;
       overflow-y: auto;
-      overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-      padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 100px; /* отступ под кнопку */
+      padding: max(20px, env(safe-area-inset-top)) 20px max(100px, env(safe-area-inset-bottom)) 20px;
     }
+
     header {
       text-align: center;
-      font-size: 36px;
+      font-size: 38px;
       font-weight: 800;
-      padding: 20px 0 10px;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.8px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #007aff, #30d158);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .target {
-      background: rgba(255,255,255,0.08);
-      border-radius: 20px;
+
+    .card {
+      background: var(--glass);
+      border-radius: 24px;
       padding: 20px;
       margin-bottom: 20px;
-      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     }
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 17px;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    #plan-input {
+
+    .target-input {
       width: 100%;
-      padding: 14px;
-      font-size: 32px;
+      padding: 16px;
+      font-size: 36px;
+      font-weight: 700;
       text-align: center;
       background: transparent;
       border: none;
-      color: #fff;
-      font-weight: 600;
+      color: var(--text);
     }
-    #plan-input:focus { outline: none; }
+    .target-input:focus { outline: none; }
+
     .progress-bar {
-      height: 12px;
+      height: 14px;
       background: rgba(255,255,255,0.2);
-      border-radius: 6px;
+      border-radius: 7px;
       overflow: hidden;
-      margin: 15px 0;
+      margin: 16px 0;
     }
     .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #0a84ff, #30d158);
-      transition: width 0.4s ease;
+      background: linear-gradient(90deg, #007aff, #30d158);
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .overshoot { background: linear-gradient(90deg, #30d158, #ff9f0a); }
+
     .overshoot-text {
       text-align: center;
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 800;
-      color: #ff9f0a;
+      color: var(--orange);
       display: none;
+      margin-top: 10px;
     }
 
-    .trucks { display: flex; flex-direction: column; gap: 14px; margin-bottom: 30px; }
+    .trucks { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
     .truck {
-      background: rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 16px;
+      background: var(--glass);
+      border-radius: 20px;
+      padding: 18px;
       display: flex;
       align-items: center;
-      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
     }
-    .truck-num { font-size: 28px; font-weight: 700; width: 90px; text-align: center; }
-    .controls { flex: 1; display: flex; align-items: center; justify-content: center; gap: 30px; }
-    button {
-      width: 70px; height: 70px; border-radius: 35px; border: none;
-      font-size: 36px; font-weight: bold; color: white;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    }
-    .plus { background: #0a84ff; }
-    .minus { background: #ff453a; }
-    .count { font-size: 48px; font-weight: 800; min-width: 100px; text-align: center; }
-
-    .add-truck {
-      margin: 0 20px 20px;
-      display: flex;
-      gap: 10px;
-    }
-    .add-truck input {
-      flex: 1;
-      padding: 16px;
-      font-size: 24px;
-      background: rgba(255,255,255,0.1);
-      border: none;
-      border-radius: 14px;
-      color: white;
+    .truck-num {
+      font-size: 32px;
+      font-weight: 800;
+      width: 100px;
       text-align: center;
     }
-    .add-btn {
-      padding: 16px 24px;
-      background: #0a84ff;
-      font-size: 18px;
+    .count {
+      font-size: 56px;
+      font-weight: 900;
+      min-width: 120px;
+      text-align: center;
+    }
+    .volume {
+      margin-left: auto;
+      font-size: 24px;
+      opacity: 0.8;
       font-weight: 600;
     }
 
-    .copy-all {
+    .btn {
+      width: 76px; height: 76px;
+      border-radius: 38px;
+      border: none;
+      font-size: 40px;
+      font-weight: bold;
+      color: white;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transition: all 0.2s ease;
+    }
+    .btn:active { transform: scale(0.92); }
+    .plus { background: var(--accent); }
+    .minus { background: var(--red); }
+
+    .add-section {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .add-section input {
+      flex: 1;
+      padding: 18px;
+      font-size: 28px;
+      text-align: center;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      color: var(--text);
+    }
+    .add-btn {
+      padding: 18px 28px;
+      background: var(--accent);
+      font-size: 20px;
+      font-weight: 700;
+      border-radius: 18px;
+    }
+
+    .fab {
       position: fixed;
-      bottom: max(20px, env(safe-area-inset-bottom));
+      bottom: max(24px, env(safe-area-inset-bottom));
       left: 50%;
       transform: translateX(-50%);
-      padding: 18px 50px;
-      font-size: 20px;
-      font-weight: 600;
-      background: #30d158;
+      padding: 20px 56px;
+      font-size: 22px;
+      font-weight: 700;
+      background: var(--green);
       color: white;
       border: none;
-      border-radius: 100px;
-      box-shadow: 0 8px 30px rgba(48,209,88,0.4);
-      z-index: 100;
+      border-radius: 60px;
+      box-shadow: 0 12px 40px rgba(48, 209, 88, 0.5);
+      z-index: 1000;
+      transition: all 0.3s ease;
     }
+    .fab:active { transform: translateX(-50%) scale(0.95); }
   </style>
 </head>
 <body>
-  <header>Экскаватор</header>
 
   <div class="container">
-    <div class="target">
-      <div class="progress-label">
+    <header>Экскаватор</header>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; font-size:18px; margin-bottom:8px;">
         <span>Наряд на смену</span>
-        <span id="current-plan">0 / <span id="target">3000</span> м³</span>
+        <span id="current-plan">0 / 3000 м³</span>
       </div>
-      <input type="number" id="plan-input" value="3000">
+      <input type="number" class="target-input" id="plan-input" value="3000">
       <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-      <div id="overshoot" class="overshoot-text">+<span id="over-amount">0</span> м³ 🔥</div>
+      <div class="overshoot-text" id="overshoot">+<span id="over-amount">0</span> м³ 🔥</div>
     </div>
 
     <div class="trucks" id="trucks-list"></div>
 
-    <div class="add-truck">
-      <input type="text" id="new-truck" placeholder="Номер БелАЗа" maxlength="4">
-      <button class="add-btn" onclick="addTruck()">Добавить</button>
+    <div class="add-section">
+      <input type="text" id="new-truck" placeholder="Номер БелАЗа" maxlength="5">
+      <button class="add-btn" onclick="addTruck()">+ БелАЗ</button>
     </div>
   </div>
 
-  <button class="copy-all" onclick="copyToDispatcher()">📋 Скопировать диспетчеру</button>
+  <button class="fab" onclick="copyToDispatcher()">📋 Диспетчеру</button>
 
   <script>
-    const VOLUME_PER_TRIP = 37.8;
-    let trucks = JSON.parse(localStorage.getItem('trucks_v2')) || [];
-    let targetPlan = parseFloat(localStorage.getItem('targetPlan_v2')) || 3000;
+    const VOLUME = 37.8;
+    let trucks = JSON.parse(localStorage.getItem('exc_trucks')) || [];
+    let target = parseFloat(localStorage.getItem('exc_target')) || 3000;
 
-    const planInput = document.getElementById('plan-input');
-    planInput.value = targetPlan;
-    document.getElementById('target').textContent = targetPlan.toLocaleString('ru');
+    document.getElementById('plan-input').value = target;
 
     function save() {
-      localStorage.setItem('trucks_v2', JSON.stringify(trucks));
-      localStorage.setItem('targetPlan_v2', targetPlan);
+      localStorage.setItem('exc_trucks', JSON.stringify(trucks));
+      localStorage.setItem('exc_target', target);
     }
 
-    function updateProgress() {
-      const total = trucks.reduce((s, t) => s + t.trips * VOLUME_PER_TRIP, 0);
-      const percent = Math.min((total / targetPlan) * 100, 200);
-      document.getElementById('progress').style.width = percent + '%';
-      document.getElementById('current-plan').innerHTML = `${Math.round(total).toLocaleString('ru')} / ${targetPlan.toLocaleString('ru')} м³`;
+    function update() {
+      const total = trucks.reduce((s, t) => s + t.trips * VOLUME, 0);
+      const perc = Math.min((total / target) * 100, 200);
+      document.getElementById('progress').style.width = perc + '%';
+      document.getElementById('current-plan').textContent = `${Math.round(total).toLocaleString()} / ${target.toLocaleString()} м³`;
 
-      const fill = document.querySelector('.progress-fill');
-      const over = document.getElementById('overshoot');
-      if (total > targetPlan) {
-        fill.classList.add('overshoot');
-        document.getElementById('over-amount').textContent = Math.round(total - targetPlan).toLocaleString('ru');
-        over.style.display = 'block';
+      const over = total > target;
+      document.getElementById('overshoot').style.display = over ? 'block' : 'none';
+      if (over) {
+        document.getElementById('over-amount').textContent = Math.round(total - target).toLocaleString();
+        document.querySelector('.progress-fill').classList.add('overshoot');
       } else {
-        fill.classList.remove('overshoot');
-        over.style.display = 'none';
+        document.querySelector('.progress-fill').classList.remove('overshoot');
       }
     }
 
@@ -206,57 +251,53 @@
       const list = document.getElementById('trucks-list');
       list.innerHTML = '';
       trucks.forEach((t, i) => {
-        const el = document.createElement('div');
-        el.className = 'truck';
-        el.innerHTML = `
+        const div = document.createElement('div');
+        div.className = 'truck';
+        div.innerHTML = `
           <div class="truck-num">${t.num}</div>
-          <div class="controls">
-            <button class="minus" onclick="change(${i},-1)">–</button>
-            <div class="count">${t.trips}</div>
-            <button class="plus" onclick="change(${i},1)">+</button>
-          </div>
-          <div style="margin-left:auto; font-size:24px; opacity:0.8;">
-            ${(t.trips * VOLUME_PER_TRIP).toFixed(1)} м³
-          </div>
+          <button class="btn minus" onclick="change(${i},-1)">–</button>
+          <div class="count">${t.trips}</div>
+          <button class="btn plus" onclick="change(${i},1)">+</button>
+          <div class="volume">${(t.trips * VOLUME).toFixed(1)} м³</div>
         `;
-        list.appendChild(el);
+        list.appendChild(div);
       });
-      updateProgress();
+      update();
     }
 
-    window.change = function(i, delta) {
-      trucks[i].trips = Math.max(0, trucks[i].trips + delta);
+    window.change = (i, d) => {
+      trucks[i].trips = Math.max(0, trucks[i].trips + d);
       save(); render();
-      navigator.vibrate?.([30]);
+      navigator.vibrate?.(30);
     }
 
-    window.addTruck = function() {
-      const val = document.getElementById('new-truck').value.trim();
-      if (!val) return;
-      if (trucks.find(t => t.num === val)) { alert('Уже есть'); return; }
-      trucks.push({num: val, trips: 0});
-      document.getElementById('new-truck').value = '';
+    window.addTruck = () => {
+      const input = document.getElementById('new-truck');
+      const num = input.value.trim().toUpperCase();
+      if (!num) return;
+      if (trucks.some(t => t.num === num)) { alert('Уже есть'); return; }
+      trucks.push({ num, trips: 0 });
+      input.value = '';
       save(); render();
     }
 
-    planInput.addEventListener('change', () => {
-      targetPlan = Math.max(0, parseFloat(planInput.value) || 0);
-      document.getElementById('target').textContent = targetPlan.toLocaleString('ru');
-      save(); updateProgress();
+    document.getElementById('plan-input').addEventListener('change', e => {
+      target = Math.max(0, parseFloat(e.target.value) || 0);
+      save(); update();
     });
 
-    window.copyToDispatcher = function() {
-      let text = trucks
+    window.copyToDispatcher = () => {
+      const text = trucks
         .filter(t => t.trips > 0)
-        .map(t => `${t.num} — ${t.trips} рейс${t.trips%10===1&&t.trips%100!==11?'':'а'}.`)
+        .map(t => `${t.num} — ${t.trips} рейс${t.trips > 1 ? 'а' : ''}`)
         .join('\n') || 'Рейсов нет';
       navigator.clipboard.writeText(text);
-      const btn = document.querySelector('.copy-all');
-      btn.textContent = '✅ Скопировано';
-      setTimeout(() => btn.textContent = '📋 Скопировать диспетчеру', 2000);
+      const btn = document.querySelector('.fab');
+      btn.textContent = '✅ Готово!';
+      setTimeout(() => btn.textContent = '📋 Диспетчеру', 2000);
     }
 
-    document.getElementById('new-truck').addEventListener('keydown', e => e.key==='Enter' && addTruck());
+    document.getElementById('new-truck').addEventListener('keydown', e => e.key === 'Enter' && addTruck());
     render();
   </script>
 </body>

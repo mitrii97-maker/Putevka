@@ -2,229 +2,363 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Рейсы БелАЗ — Liquid Glass iOS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#000000">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>БелАЗ • Рейсы</title>
 <style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh;
+    background:#0c0e12;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    color:#e5e5e5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+  }
 
-/* ------------------- ГЛОБАЛЬНЫЙ ФОН ------------------- */
+  .app {
+    width:100%;
+    max-width:428px;
+    background:rgba(20,24,32,0.72);
+    backdrop-filter:blur(40px) saturate(180%);
+    -webkit-backdrop-filter:blur(40px) saturate(180%);
+    border-radius:42px;
+    border:1.8px solid rgba(255,255,255,0.14);
+    box-shadow:
+      0 30px 60px rgba(0,0,0,0.8),
+      inset 0 1px 0 rgba(255,255,255,0.12),
+      inset 0 -1px 0 rgba(255,255,255,0.06);
+    overflow:hidden;
+    position:relative;
+  }
 
-body {
-  margin: 0;
-  padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  .app::before {
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0; height:260px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.16) 0%, transparent 100%);
+    pointer-events:none;
+  }
 
-  /* ГЛАВНАЯ ФИШКА — LIQUID GLASS ФОН КАК НА АЙФОНЕ */
-  background:
-      radial-gradient(160% 60% at 50% -20%, #1b1c22, transparent),
-      radial-gradient(120% 80% at 100% 120%, #0f0f15, #000);
-  color: white;
-}
+  header {
+    padding:44px 28px 32px;
+    text-align:center;
+    position:relative;
+  }
 
-/* ------------------- LIQUID GLASS КАРТОЧКИ ------------------- */
+  h1 {
+    font-size:32px;
+    font-weight:800;
+    letter-spacing:-0.6px;
+    background:linear-gradient(90deg, #ffffff, #b0b0b0);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
 
-.card {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 18px;
-  margin-bottom: 20px;
+  .subtitle {
+    font-size:15px;
+    opacity:0.7;
+    margin-top:6px;
+    font-weight:500;
+  }
 
-  /* стеклянный эффект */
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  /* Блок наряда */
+  .plan {
+    margin:0 28px 32px;
+    background:rgba(255,255,255,0.06);
+    border:1.5px solid rgba(255,255,255,0.12);
+    border-radius:28px;
+    padding:28px 24px;
+    text-align:center;
+    backdrop-filter:blur(12px);
+  }
 
-  box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+  .plan-label {
+    font-size:16px;
+    opacity:0.85;
+    margin-bottom:8px;
+  }
 
-  position: relative;
-  overflow: hidden;
-}
+  .plan-value {
+    font-size:48px;
+    font-weight:800;
+    letter-spacing:-1px;
+  }
 
-/* жидкие блики */
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 20% 10%, rgba(255,255,255,0.22), transparent 55%),
-    radial-gradient(circle at 80% 90%, rgba(255,255,255,0.12), transparent 60%);
-  mix-blend-mode: screen;
-  opacity: 0.55;
-  pointer-events: none;
-}
+  .plan-unit {
+    font-size:32px;
+    font-weight:600;
+    opacity:0.8;
+    margin-left:4px;
+  }
 
-/* ------------------- НЕОНОВЫЙ ПРОГРЕСС-БАР ------------------- */
+  .progress {
+    height:22px;
+    background:rgba(255,255,255,0.12);
+    border-radius:11px;
+    overflow:hidden;
+    margin:24px 0 14px;
+    box-shadow:inset 0 3px 8px rgba(0,0,0,0.4);
+  }
 
-.progress {
-  width: 100%;
-  height: 24px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.10);
-  border: 1px solid rgba(255,255,255,0.15);
-  overflow: hidden;
+  .progress-bar {
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, #00e0a8 0%, #00ff95 100%);
+    border-radius:11px;
+    box-shadow:0 0 30px rgba(0,224,168,0.6);
+    transition:width 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
 
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  .stats {
+    font-size:19px;
+    font-weight:600;
+  }
 
-  position: relative;
-}
+  .remaining {
+    font-size:17px;
+    color:#ffb360;
+    margin-top:10px;
+    font-weight:600;
+  }
 
-.fill {
-  height: 100%;
-  width: 0%;
+  /* Добавление */
+  .add-section {
+    padding:0 28px 32px;
+    display:flex;
+    gap:16px;
+  }
 
-  /* НЕОНОВАЯ ЛЕНТА */
-  background: linear-gradient(
-     90deg,
-     #7f7fff,
-     #b0c8ff,
-     #ffffff,
-     #85c6ff,
-     #7f7fff
-  );
-  background-size: 200% 100%;
+  #truckInput {
+    flex:1;
+    padding:20px 24px;
+    font-size:19px;
+    font-weight:600;
+    background:rgba(255,255,255,0.08);
+    border:1.5px solid rgba(255,255,255,0.18);
+    border-radius:24px;
+    color:white;
+  }
 
-  /* мягкий свечащийся эффект */
-  box-shadow: 0 0 22px rgba(160,180,255,0.85);
+  #addBtn {
+    width:68px; height:68px;
+    background:rgba(0,224,168,0.36);
+    border:1.8px solid rgba(0,224,168,0.5);
+    border-radius:24px;
+    font-size:40px;
+    font-weight:800;
+    color:white;
+    backdrop-filter:blur(12px);
+    box-shadow:inset 0 3px 8px rgba(255,255,255,0.2);
+  }
 
-  animation: wave 3s linear infinite;
+  /* Список */
+  .list {
+    padding:0 28px 100px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
 
-  transition: width .25s ease-out;
-}
+  .truck {
+    background:rgba(255,255,255,0.07);
+    border:1.5px solid rgba(255,255,255,0.14);
+    border-radius:26px;
+    padding:24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    backdrop-filter:blur(14px);
+  }
 
-@keyframes wave {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 200% 0%; }
-}
+  .truck-num {
+    font-size:26px;
+    font-weight:700;
+  }
 
-/* ------------------- INPUTS ------------------- */
+  .trips {
+    font-size:38px;
+    font-weight:800;
+    margin-top:4px;
+  }
 
-input, button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 14px;
-  border: none;
-  font-size: 16px;
-  margin-top: 10px;
-}
-input {
-  background: rgba(255,255,255,0.12);
-  color: white;
-}
-button {
-  background: rgba(255,255,255,0.18);
-  color: white;
-  font-weight: 500;
-}
+  .controls {
+    display:flex;
+    gap:18px;
+  }
 
-/* ------------------- КАРТОЧКИ БЕЛАЗОВ ------------------- */
+  .ctrl {
+    width:64px; height:64px;
+    border-radius:22px;
+    border:none;
+    font-size:36px;
+    font-weight:800;
+    backdrop-filter:blur(14px);
+    box-shadow:inset 0 3px 10px rgba(255,255,255,0.2);
+  }
 
-.truck {
-  background: rgba(255,255,255,0.12);
-  border-radius: 18px;
-  padding: 14px;
-  backdrop-filter: blur(18px);
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-}
+  .minus { background:rgba(255,80,80,0.36); border:1.8px solid rgba(255,80,80,0.5); }
+  .plus  { background:rgba(0,224,168,0.36); border:1.8px solid rgba(0,224,168,0.5); }
 
-.controls button {
-  width: 42px;
-  height: 42px;
-  border-radius: 16px;
-  margin-left: 8px;
-}
+  /* Нижняя панель */
+  .bottom-bar {
+    position:fixed;
+    bottom:0; left:0; right:0;
+    padding:20px 28px 40px;
+    background:linear-gradient(180deg, transparent 0%, rgba(12,14,18,0.9) 30%);
+    backdrop-filter:blur(20px);
+    display:flex;
+    gap:16px;
+  }
 
+  .btn-bottom {
+    flex:1;
+    padding:18px;
+    border-radius:24px;
+    font-size:17px;
+    font-weight:700;
+    border:none;
+    cursor:pointer;
+    backdrop-filter:blur(12px);
+  }
+
+  #resetBtn {
+    background:rgba(255,80,80,0.3);
+    border:1.5px solid rgba(255,80,80,0.4);
+    color:white;
+  }
+
+  #copyBtn {
+    background:rgba(0,140,255,0.36);
+    border:1.5px solid rgba(0,140,255,0.5);
+    color:white;
+  }
 </style>
-
 </head>
 <body>
 
-<!-- ---------------- HEADER ---------------- -->
-<div class="card">
-  <h2>⛏️ Рейсы БелАЗ</h2>
-  <div>1 рейс = 37.8 м³</div>
+<div class="app">
+  <header>
+    <h1>Точковка</h1>
+    <div class="subtitle">Volvo 26</div>
+  </header>
 
-  <div class="progress" style="margin-top: 14px;">
-    <div id="fill" class="fill"></div>
+  <div class="plan">
+    <div class="plan-label">Наряд на смену</div>
+    <div style="display:flex; align-items:flex-end; justify-content:center;">
+      <input type="number" id="targetInput" class="plan-value" value="3000" style="background:transparent;border:none;width:140px;text-align:center;">
+      <span class="plan-unit">м³</span>
+    </div>
+
+    <div class="progress"><div class="progress-bar" id="bar"></div></div>
+    <div class="stats" id="stats">0 м³ из 3000 м³ (0%)</div>
+    <div class="remaining" id="remaining">Осталось ~48 рейсов</div>
   </div>
 
-  <div id="progressInfo" style="margin-top: 8px; opacity: 0.85;"></div>
+  <div class="add-section">
+    <input type="text" id="truckInput" placeholder="Номер БелАЗа" maxlength="8">
+    <button id="addBtn">+</button>
+  </div>
+
+  <div class="list" id="list"></div>
 </div>
 
-<!-- ---------------- PLAN INPUT ---------------- -->
-<div class="card">
-  <input id="plan" placeholder="Наряд (м³)">
-  <button onclick="setPlan()">OK</button>
-</div>
-
-<!-- ---------------- ADD TRUCK ---------------- -->
-<div class="card">
-  <input id="truckNum" placeholder="Номер БелАЗа">
-  <button onclick="addTruck()">Добавить</button>
-</div>
-
-<!-- ---------------- TRUCK LIST ---------------- -->
-<div class="card">
-  <div id="list"></div>
+<div class="bottom-bar">
+  <button class="btn-bottom" id="resetBtn">Сбросить смену</button>
+  <button class="btn-bottom" id="copyBtn">Скопировать диспетчеру</button>
 </div>
 
 <script>
-let TRIP = 37.8;
-let plan = 0;
-let trucks = [];
+  const CUBES = 37.8;
+  const input = document.getElementById('truckInput');
+  const addBtn = document.getElementById('addBtn');
+  const list = document.getElementById('list');
+  const targetInput = document.getElementById('targetInput');
+  const bar = document.getElementById('bar');
+  const stats = document.getElementById('stats');
+  const remaining = document.getElementById('remaining');
+  const resetBtn = document.getElementById('resetBtn');
+  const copyBtn = document.getElementById('copyBtn');
 
-function setPlan(){ plan = Number(plan.value)||0; render(); }
+  let trucks = JSON.parse(localStorage.getItem('belaz_pro')) || {};
+  let target = parseFloat(localStorage.getItem('target_pro')) || 180;
+  targetInput.value = target;
 
-function addTruck(){
-  let v = truckNum.value.trim();
-  if(!v) return;
-  trucks.push({id:v, trips:0});
-  truckNum.value="";
-  render();
-}
+  function save() {
+    localStorage.setItem('belaz_pro', JSON.stringify(trucks));
+    localStorage.setItem('target_pro', target);
+  }
 
-function mod(i,d){
-  trucks[i].trips = Math.max(0, trucks[i].trips + d);
-  render();
-}
+  function render() {
+    list.innerHTML = '';
+    const totalTrips = Object.values(trucks).reduce((a,b)=>a+b,0);
+    const totalCubes = (totalTrips * CUBES).toFixed(1);
+    const percent = Math.min(100, (totalCubes/target*100).toFixed(1));
+    const leftTrips = Math.max(0, Math.ceil((target - totalCubes)/CUBES));
 
-function render(){
-  let total = trucks.reduce((s,t)=>s+t.trips,0);
-  let done = total * TRIP;
-  let over = plan>0 ? Math.max(0, done-plan) : 0;
+    bar.style.width = percent + '%';
+    stats.textContent = `${totalCubes} м³ из ${target} м³ (${percent}%)`;
+    remaining.textContent = leftTrips===0 ? 'ПЛАН ВЫПОЛНЕН' : `Осталось ~${leftTrips} рейс${end(leftTrips)}`;
 
-  list.innerHTML="";
-  trucks.forEach((t,i)=>{
-    list.innerHTML += `
-      <div class='truck'>
+    Object.keys(trucks).sort().forEach(n => {
+      const el = document.createElement('div');
+      el.className = 'truck';
+      el.innerHTML = `
         <div>
-          <b>БЕЛАЗ ${t.id}</b><br>
-          <small>${t.trips} рейсов (${(t.trips*TRIP).toFixed(1)} м³)</small>
+          <div class="truck-num">№${n}</div>
+          <div class="trips">${trucks[n]} рейс${end(trucks[n])}</div>
         </div>
         <div class="controls">
-          <button onclick="mod(${i},-1)">-</button>
-          <button onclick="mod(${i},1)">+</button>
+          <button class="ctrl minus" data-n="${n}">–</button>
+          <button class="ctrl plus" data-n="${n}">+</button>
         </div>
-      </div>
-    `;
-  });
+      `;
+      list.appendChild(el);
+    });
+  }
 
-  // прогресс %
-  let pct = plan>0 ? Math.min(100, (done/plan)*100) : 0;
-  fill.style.width = pct + "%";
+  function end(n) {
+    if (n%10===1 && n%100!==11) return '';
+    if ([2,3,4].includes(n%10) && ![12,13,14].includes(n%100)) return 'а';
+    return 'ов';
+  }
 
-  progressInfo.innerHTML =
-    `Выполнено: ${done.toFixed(1)} м³<br>
-     Наряд: ${plan} м³<br>
-     Плюсом: ${over.toFixed(1)} м³`;
-}
+  addBtn.onclick = () => {
+    let n = input.value.trim().toUpperCase();
+    if (!n) return;
+    trucks[n] = (trucks[n]||0) + 1;
+    save(); render(); input.value='';
+  };
 
+  list.onclick = e => {
+    if (!e.target.classList.contains('ctrl')) return;
+    const n = e.target.dataset.n;
+    const d = e.target.classList.contains('plus') ? 1 : -1;
+    if ((trucks[n]||0) + d < 0) {
+      if (confirm(`Удалить №${n}?`)) delete trucks[n];
+    } else trucks[n] += d;
+    save(); render();
+  };
+
+  targetInput.onchange = () => {
+    target = Math.max(0, parseFloat(targetInput.value)||0);
+    targetInput.value = target;
+    save(); render();
+  };
+
+  resetBtn.onclick = () => confirm('Сбросить смену?') && (trucks={}, save(), render());
+  
+  copyBtn.onclick = () => {
+    let text = Object.keys(trucks).sort().map(n => `${n} — ${trucks[n]} рейс${end(trucks[n])}`).join('\n') || 'Нет данных';
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.textContent = 'Скопировано';
+      setTimeout(()=>copyBtn.textContent='Скопировать диспетчеру', 2000);
+    });
+  };
+
+  input.addEventListener('keydown', e=> e.key==='Enter' && addBtn.click());
+  render();
 </script>
-
 </body>
 </html>

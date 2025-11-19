@@ -2,162 +2,198 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Экскаватор</title>
 
 <style>
+/* === iOS 26 Liquid Glass Variables === */
 :root {
-  --accent: #007aff;
-  --green: #30d158;
-  --red: #ff3b30;
-  --orange: #ff9f0a;
-  --bg: #0a0a14;
-  --glass: rgba(255,255,255,0.06);
-  --glass-strong: rgba(255,255,255,0.15);
-  --border: rgba(255,255,255,0.2);
+  --bg1: #0b0b10;
+  --bg2: #15151d;
+  --glass: rgba(255,255,255,0.07);
+  --glass-strong: rgba(255,255,255,0.12);
+  --border: rgba(255,255,255,0.18);
   --text: #fff;
-  --text-dim: rgba(255,255,255,0.6);
+  --text-dim: rgba(255,255,255,0.55);
+  --blue: #0a84ff;
+  --green: #30d158;
+  --red: #ff453a;
+  --orange: #ff9f0a;
 }
 
+/* === GLOBAL === */
 body {
   margin:0;
-  background: var(--bg);
+  background: radial-gradient(circle at top, var(--bg2), var(--bg1) 70%);
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text);
-  height: 100vh;
-  overflow: hidden;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
 
+/* === LIQUID TITLE === */
 header {
   text-align:center;
-  padding: 35px 0 15px;
-  background: linear-gradient(90deg,#007aff,#30d158);
+  padding:36px 0 20px;
+  font-size:34px;
+  font-weight:800;
+  background:linear-gradient(90deg,var(--blue),var(--green));
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
-  font-size:40px;
-  font-weight:900;
 }
 
+/* === GLASS PANELS === */
 .glass {
-  margin: 15px;
-  padding: 20px;
-  background: var(--glass);
-  border-radius: 22px;
+  margin:12px 18px;
+  padding:18px;
+  border-radius:22px;
+  background:var(--glass);
   border:1px solid var(--border);
-  backdrop-filter: blur(30px);
+  backdrop-filter: blur(24px);
+  box-shadow:0 10px 30px rgba(0,0,0,0.35);
 }
 
+/* Plan input */
 #plan {
   width:100%;
   padding:10px;
-  font-size:34px;
-  font-weight:800;
+  font-size:32px;
   text-align:center;
-  background: var(--glass-strong);
-  color:var(--text);
+  background:var(--glass-strong);
   border-radius:16px;
   border:1px solid var(--border);
+  color:var(--text);
 }
 
+/* Progress */
 .progress {
-  height:16px;
-  background: rgba(255,255,255,.15);
+  height:14px;
+  margin-top:12px;
+  background:rgba(255,255,255,.12);
   border-radius:8px;
   overflow:hidden;
-  margin-top:12px;
 }
 
 .fill {
   height:100%;
   width:0%;
-  background: linear-gradient(90deg,var(--accent),var(--green));
-  transition: width .4s ease;
+  background:linear-gradient(90deg,var(--blue),var(--green));
+  transition:width .4s ease;
 }
 
 .fill.over {
-  background: linear-gradient(90deg,var(--green),var(--orange));
+  background:linear-gradient(90deg,var(--green),var(--orange));
 }
 
 .stats {
-  text-align:center;
-  font-size:26px;
-  font-weight:800;
   margin-top:10px;
+  font-size:24px;
+  font-weight:700;
+  text-align:center;
 }
 
 .over-text {
-  text-align:center;
-  font-size:28px;
-  color:var(--orange);
   display:none;
+  text-align:center;
+  margin-top:6px;
+  font-size:26px;
+  color:var(--orange);
 }
 
 .timer {
   text-align:center;
-  margin-top:6px;
-  font-size:18px;
+  font-size:16px;
   color:var(--text-dim);
+  margin-bottom:6px;
 }
 
+/* === TRUCK LIST === */
 .trucks {
-  padding: 10px 15px;
+  padding:0 18px;
   display:flex;
   flex-direction:column;
   gap:10px;
-  max-height:380px; /* помещается 5 штук */
+  max-height:360px;
   overflow:hidden;
 }
 
 .truck {
-  background: var(--glass-strong);
-  border-radius:18px;
-  border:1px solid var(--border);
+  position:relative;
+  height:70px;
   display:flex;
   align-items:center;
-  padding:14px;
-  position:relative;
+  padding:12px 16px;
+  background:var(--glass-strong);
+  border-radius:18px;
+  border:1px solid var(--border);
+  transition:transform .15s ease;
 }
 
+/* DELETE BG (hidden until swipe) */
+.truck .delete {
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:90px;
+  background:var(--red);
+  color:#fff;
+  font-size:20px;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:18px 0 0 18px;
+  pointer-events:none;
+  opacity:0;
+}
+
+/* Content */
 .num {
-  font-size:28px;
+  font-size:26px;
   font-weight:800;
-  width:70px;
+  width:65px;
   text-align:center;
 }
 
 .count {
-  font-size:44px;
-  width:80px;
+  width:70px;
   text-align:center;
-  font-weight:900;
+  font-size:42px;
+  font-weight:800;
 }
 
 .vol {
   margin-left:auto;
   font-size:22px;
-  opacity:.7;
+  color:var(--text-dim);
 }
 
+/* Buttons */
 .btn {
-  width:50px;
-  height:50px;
-  border-radius:14px;
+  width:46px;
+  height:46px;
   border:none;
-  font-size:34px;
+  border-radius:12px;
+  font-size:28px;
+  font-weight:700;
   color:white;
-  margin:0 5px;
+  margin:0 6px;
 }
 
-.plus { background:var(--accent); }
+.plus { background:var(--blue); }
 .minus { background:var(--red); }
 
+/* === BOTTOM BAR === */
 .bottom {
   position:fixed;
-  bottom:0; left:0; right:0;
-  background:var(--glass);
-  backdrop-filter:blur(25px);
+  bottom:0;
+  left:0;
+  right:0;
   padding:16px;
+  background:var(--glass);
   border-top:1px solid var(--border);
+  backdrop-filter:blur(25px);
   display:flex;
   gap:12px;
 }
@@ -165,48 +201,34 @@ header {
 .fab {
   flex:1;
   padding:14px;
-  font-size:18px;
-  border-radius:16px;
   border:none;
-  color:white;
+  border-radius:16px;
+  color:#fff;
   font-weight:700;
+  font-size:18px;
 }
 
-.fab-blue { background:var(--accent); }
+.fab-blue { background:var(--blue); }
 .fab-green { background:var(--green); }
 .fab-orange { background:var(--orange); }
-
-/* свайп delete */
-.delete-bg {
-  position:absolute;
-  left:0;
-  top:0; bottom:0;
-  width:100px;
-  background:var(--red);
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:22px;
-  transform:translateX(-100%);
-}
 </style>
 </head>
+
 <body>
 
 <header>Экскаватор</header>
 
 <div class="glass">
-  <div style="font-size:18px; text-align:center; color:var(--text-dim)">Наряд (м³)</div>
+  <div style="text-align:center; font-size:18px; color:var(--text-dim)">Наряд (м³)</div>
   <input id="plan" type="number" value="3000">
-  <div class="progress"><div class="fill" id="fill"></div></div>
-  <div class="stats" id="stats">0 / 3000 м³</div>
-  <div class="over-text" id="over">+0 м³ 🔥</div>
+  <div class="progress"><div id="fill" class="fill"></div></div>
+  <div id="stats" class="stats">0 / 3000 м³</div>
+  <div id="over" class="over-text">+0 м³</div>
 </div>
 
-<div class="timer" id="timer">Смена: 00:00:00</div>
+<div id="timer" class="timer">Смена: 00:00:00</div>
 
-<div class="trucks" id="list"></div>
+<div id="list" class="trucks"></div>
 
 <div class="bottom">
   <button class="fab fab-blue" onclick="addTruck()">+ БелАЗ</button>
@@ -215,132 +237,144 @@ header {
 </div>
 
 <script>
-const V=37.8;
-let trucks = JSON.parse(localStorage.getItem("exc_trucks")) || [];
-let plan = +localStorage.getItem("exc_plan") || 3000;
-let start = +localStorage.getItem("exc_start") || Date.now();
+const V = 37.8;
+let trucks = JSON.parse(localStorage.getItem("ex_tr")) || [];
+let plan = +localStorage.getItem("ex_plan") || 3000;
+let start = +localStorage.getItem("ex_start") || Date.now();
 
 document.getElementById("plan").value = plan;
 
 function save(){
-  localStorage.setItem("exc_trucks",JSON.stringify(trucks));
-  localStorage.setItem("exc_plan",plan);
-  localStorage.setItem("exc_start",start);
+  localStorage.setItem("ex_tr",JSON.stringify(trucks));
+  localStorage.setItem("ex_plan",plan);
+  localStorage.setItem("ex_start",start);
 }
 
+/* === UPDATE UI === */
 function update(){
-  const total = trucks.reduce((s,t)=>s+t.c*V,0);
-  const fill = document.getElementById("fill");
-  const overEl=document.getElementById("over");
-
+  let total = trucks.reduce((s,t)=>s+t.c*V,0);
   let pct = total/plan*100;
-  fill.style.width = Math.min(pct,200) + "%";
+
+  const fill = document.getElementById("fill");
+  fill.style.width = Math.min(pct,200)+"%";
 
   document.getElementById("stats").textContent =
     `${Math.round(total)} / ${plan} м³`;
 
+  const over = document.getElementById("over");
+
   if(total>plan){
-    overEl.style.display="block";
-    overEl.textContent = `+${Math.round(total-plan)} м³ 🔥`;
+    over.style.display="block";
+    over.textContent = `+${Math.round(total-plan)} м³`;
     fill.classList.add("over");
   } else {
-    overEl.style.display="none";
+    over.style.display="none";
     fill.classList.remove("over");
   }
 }
 
+/* === RENDER LIST === */
 function render(){
   const list=document.getElementById("list");
   list.innerHTML="";
 
   trucks.forEach((t,i)=>{
-    const item=document.createElement("div");
-    item.className="truck";
+    const el=document.createElement("div");
+    el.className="truck";
 
     const del=document.createElement("div");
-    del.className="delete-bg";
+    del.className="delete";
     del.textContent="Удалить";
-    item.append(del);
+    el.append(del);
 
-    const content=document.createElement("div");
-    content.style.display="flex";
-    content.style.width="100%";
-    content.style.alignItems="center";
-    content.innerHTML=`
+    const row=document.createElement("div");
+    row.style.display="flex";
+    row.style.width="100%";
+    row.style.alignItems="center";
+    row.innerHTML=`
       <div class="num">${t.n}</div>
       <button class="btn minus">−</button>
       <div class="count">${t.c}</div>
       <button class="btn plus">+</button>
       <div class="vol">${(t.c*V).toFixed(1)} м³</div>
     `;
-    item.append(content);
+    el.append(row);
 
-    /* логика +/- */
-    content.querySelector(".plus").onclick=()=>{
+    /* + / - */
+    row.querySelector(".plus").onclick=()=>{
       t.c++; save(); render();
     };
-    content.querySelector(".minus").onclick=()=>{
+    row.querySelector(".minus").onclick=()=>{
       t.c=Math.max(0,t.c-1);
-      if(t.c===0){ trucks.splice(i,1); }
+      if(t.c===0) trucks.splice(i,1);
       save(); render();
     };
 
-    /* свайп удаление (ОПТИМИЗИРОВАНО, БЕЗ ДУБЛЕЙ) */
-    let startX=0;
-    item.addEventListener("touchstart",e=>{
-      startX=e.touches[0].clientX;
+    /* === SWIPE DELETE (НОВЫЙ iOS вариант) === */
+    let x0=0;
+    el.addEventListener("touchstart",e=>{
+      x0=e.touches[0].clientX;
     });
 
-    item.addEventListener("touchmove",e=>{
-      let diff=e.touches[0].clientX-startX;
-      if(diff<-40){
-        item.style.transform=`translateX(${diff}px)`;
+    el.addEventListener("touchmove",e=>{
+      let dx=e.touches[0].clientX-x0;
+      if(dx<-30){
+        el.style.transform="translateX(-70px)";
+        del.style.opacity="1";
       }
     });
 
-    item.addEventListener("touchend",e=>{
-      let diff=e.changedTouches[0].clientX-startX;
-      if(diff<-100){
+    el.addEventListener("touchend",e=>{
+      let dx=e.changedTouches[0].clientX-x0;
+      if(dx<-80){
         trucks.splice(i,1);
         save(); render();
       } else {
-        item.style.transform="";
+        el.style.transform="";
+        del.style.opacity="0";
       }
     });
 
-    list.append(item);
+    list.append(el);
   });
 
   update();
 }
 
+/* === ADD === */
 function addTruck(){
-  const n=prompt("Номер БелАЗа")?.trim();
+  let n = prompt("Номер БелАЗа")?.trim().toUpperCase();
   if(!n || trucks.some(t=>t.n===n)) return;
   trucks.push({n,c:0});
   save(); render();
 }
 
+/* === SHARE === */
 function shareShift(){
-  const total=trucks.reduce((s,t)=>s+t.c*V,0);
-  const text=trucks.map(t=>`БелАЗ ${t.n}: ${t.c} рейс`).join("\n") +
-    `\nИтого ${Math.round(total)} / ${plan} м³`;
+  const total = trucks.reduce((s,t)=>s+t.c*V,0);
+  const text = trucks.map(t=>`${t.n}: ${t.c} рейс`).join("\n") +
+    `\nИтого: ${Math.round(total)} м³`;
 
   navigator.share ? navigator.share({text}) : alert(text);
 }
 
+/* === RESET === */
 function resetShift(){
-  if(confirm("Начать заново?")){
-    trucks=[]; start=Date.now();
-    save(); render();
+  if(confirm("Начать новую смену?")){
+    trucks=[];
+    start=Date.now();
+    save();
+    render();
   }
 }
 
+/* === PLAN === */
 document.getElementById("plan").onchange=e=>{
   plan=+e.target.value||3000;
   save(); update();
 };
 
+/* === TIMER === */
 setInterval(()=>{
   let s=Math.floor((Date.now()-start)/1000);
   let h=String(Math.floor(s/3600)).padStart(2,"0");

@@ -2,98 +2,175 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Рейсы БелАЗ — Liquid Glass</title>
+<title>Рейсы БелАЗ — Liquid Glass iOS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#000000">
 
 <style>
+
+/* ------------------- ГЛОБАЛЬНЫЙ ФОН ------------------- */
+
 body {
-  margin:0; padding:18px;
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  background:radial-gradient(circle at 40% 0%, #161720, #050508 70%);
-  color:white;
-}
+  margin: 0;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 
-/* liquid glass container */
-.card {
-  background:rgba(255,255,255,0.06);
-  border-radius:22px;
-  border:1px solid rgba(255,255,255,0.28);
-  backdrop-filter:blur(28px) saturate(180%);
-  -webkit-backdrop-filter:blur(28px) saturate(180%);
-  position:relative;
-  overflow:hidden;
-  padding:16px;
-  margin-bottom:18px;
-  box-shadow:0 20px 40px rgba(0,0,0,0.65);
-}
-.card::before {
-  content:"";
-  position:absolute; inset:0;
+  /* ГЛАВНАЯ ФИШКА — LIQUID GLASS ФОН КАК НА АЙФОНЕ */
   background:
-    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.25), transparent 60%),
-    radial-gradient(circle at 80% 100%, rgba(255,255,255,0.16), transparent 60%);
-  mix-blend-mode:screen; opacity:.75;
-  pointer-events:none;
+      radial-gradient(160% 60% at 50% -20%, #1b1c22, transparent),
+      radial-gradient(120% 80% at 100% 120%, #0f0f15, #000);
+  color: white;
 }
 
-h1 {margin:0 0 6px 0; font-size:22px; display:flex; gap:8px; align-items:center;}
+/* ------------------- LIQUID GLASS КАРТОЧКИ ------------------- */
 
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 18px;
+  margin-bottom: 20px;
+
+  /* стеклянный эффект */
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+
+  box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* жидкие блики */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,0.22), transparent 55%),
+    radial-gradient(circle at 80% 90%, rgba(255,255,255,0.12), transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ------------------- НЕОНОВЫЙ ПРОГРЕСС-БАР ------------------- */
+
+.progress {
+  width: 100%;
+  height: 24px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.15);
+  overflow: hidden;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  position: relative;
+}
+
+.fill {
+  height: 100%;
+  width: 0%;
+
+  /* НЕОНОВАЯ ЛЕНТА */
+  background: linear-gradient(
+     90deg,
+     #7f7fff,
+     #b0c8ff,
+     #ffffff,
+     #85c6ff,
+     #7f7fff
+  );
+  background-size: 200% 100%;
+
+  /* мягкий свечащийся эффект */
+  box-shadow: 0 0 22px rgba(160,180,255,0.85);
+
+  animation: wave 3s linear infinite;
+
+  transition: width .25s ease-out;
+}
+
+@keyframes wave {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+/* ------------------- INPUTS ------------------- */
+
+input, button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  font-size: 16px;
+  margin-top: 10px;
+}
 input {
-  width:100%; padding:12px; font-size:16px;
-  border:none; border-radius:14px;
-  background:rgba(255,255,255,0.12); color:white;
-  margin-top:8px;
+  background: rgba(255,255,255,0.12);
+  color: white;
 }
 button {
-  padding:12px; width:100%;
-  margin-top:10px; font-size:16px;
-  background:rgba(255,255,255,0.15);
-  border:none; border-radius:14px; color:white;
+  background: rgba(255,255,255,0.18);
+  color: white;
+  font-weight: 500;
 }
+
+/* ------------------- КАРТОЧКИ БЕЛАЗОВ ------------------- */
+
 .truck {
-  background:rgba(255,255,255,0.12);
-  border-radius:18px;
-  padding:12px; margin:10px 0;
-  display:flex; justify-content:space-between; align-items:center;
-  backdrop-filter:blur(18px);
+  background: rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 14px;
+  backdrop-filter: blur(18px);
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
 }
+
 .controls button {
-  width:38px; height:38px;
-  border-radius:20px; margin-left:6px;
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  margin-left: 8px;
 }
-.small {font-size:14px;}
+
 </style>
+
 </head>
 <body>
 
+<!-- ---------------- HEADER ---------------- -->
 <div class="card">
-  <h1>⛏️ Рейсы БелАЗ</h1>
+  <h2>⛏️ Рейсы БелАЗ</h2>
   <div>1 рейс = 37.8 м³</div>
+
+  <div class="progress" style="margin-top: 14px;">
+    <div id="fill" class="fill"></div>
+  </div>
+
+  <div id="progressInfo" style="margin-top: 8px; opacity: 0.85;"></div>
 </div>
 
+<!-- ---------------- PLAN INPUT ---------------- -->
 <div class="card">
-  <label>Наряд (м³):</label>
-  <input id="plan">
+  <input id="plan" placeholder="Наряд (м³)">
   <button onclick="setPlan()">OK</button>
-  <div id="planInfo" style="margin-top:8px; opacity:.8;"></div>
 </div>
 
+<!-- ---------------- ADD TRUCK ---------------- -->
 <div class="card">
-  <label>Добавить БелАЗ:</label>
-  <input id="truckNum" placeholder="например, 312">
+  <input id="truckNum" placeholder="Номер БелАЗа">
   <button onclick="addTruck()">Добавить</button>
 </div>
 
+<!-- ---------------- TRUCK LIST ---------------- -->
 <div class="card">
   <div id="list"></div>
-</div>
-
-<div class="card">
-  <div id="footer"></div>
-  <button onclick="copyData()">Скопировать</button>
 </div>
 
 <script>
@@ -101,16 +178,13 @@ let TRIP = 37.8;
 let plan = 0;
 let trucks = [];
 
-function setPlan(){
-  plan = Number(document.getElementById('plan').value) || 0;
-  render();
-}
+function setPlan(){ plan = Number(plan.value)||0; render(); }
 
 function addTruck(){
-  let v = document.getElementById('truckNum').value.trim();
+  let v = truckNum.value.trim();
   if(!v) return;
   trucks.push({id:v, trips:0});
-  document.getElementById('truckNum').value="";
+  truckNum.value="";
   render();
 }
 
@@ -120,61 +194,37 @@ function mod(i,d){
 }
 
 function render(){
-  let list = document.getElementById('list');
+  let total = trucks.reduce((s,t)=>s+t.trips,0);
+  let done = total * TRIP;
+  let over = plan>0 ? Math.max(0, done-plan) : 0;
+
   list.innerHTML="";
-  let totalTrips = trucks.reduce((s,t)=>s+t.trips,0);
-  let done = totalTrips*TRIP;
-  let over = plan>0 ? Math.max(0, done-plan) : 0;
-
   trucks.forEach((t,i)=>{
-    let div=document.createElement('div');
-    div.className='truck';
-    div.innerHTML = `
-      <div>БЕЛАЗ ${t.id}<br><small>${t.trips} рейсов (${(t.trips*TRIP).toFixed(1)} м³)</small></div>
-      <div class="controls">
-        <button onclick="mod(${i},-1)">-</button>
-        <button class="small">${t.trips}</button>
-        <button onclick="mod(${i},1)">+</button>
-      </div>`;
-    list.appendChild(div);
+    list.innerHTML += `
+      <div class='truck'>
+        <div>
+          <b>БЕЛАЗ ${t.id}</b><br>
+          <small>${t.trips} рейсов (${(t.trips*TRIP).toFixed(1)} м³)</small>
+        </div>
+        <div class="controls">
+          <button onclick="mod(${i},-1)">-</button>
+          <button onclick="mod(${i},1)">+</button>
+        </div>
+      </div>
+    `;
   });
 
-  let planInfo = document.getElementById('planInfo');
-  if(plan>0){
-    planInfo.innerHTML = `
-      Выполнено: ${done.toFixed(1)} м³  
-      <br>Осталось: ${(plan-done>0?plan-done:0).toFixed(1)} м³
-      <br>Плюсом: ${over.toFixed(1)} м³`;
-  }
+  // прогресс %
+  let pct = plan>0 ? Math.min(100, (done/plan)*100) : 0;
+  fill.style.width = pct + "%";
 
-  document.getElementById('footer').innerHTML =
-    `Итого: ${totalTrips} рейсов, ${done.toFixed(1)} м³`;
+  progressInfo.innerHTML =
+    `Выполнено: ${done.toFixed(1)} м³<br>
+     Наряд: ${plan} м³<br>
+     Плюсом: ${over.toFixed(1)} м³`;
 }
 
-function copyData(){
-  let totalTrips = trucks.reduce((s,t)=>s+t.trips,0);
-  let done = totalTrips*TRIP;
-  let over = plan>0 ? Math.max(0, done-plan) : 0;
-
-  let text = `Рейсы
-
-`;
-  trucks.forEach(t=>{
-    text+=` ${t.id}: ${t.trips} рейсов)
-`;
-  });
-
-  navigator.clipboard.writeText(text);
-  alert("Скопировано");
-}
 </script>
 
 </body>
 </html>
-Рейсы
-12 рейсов, 453.6 
-
-
- 23: 12 рейсов)
-
-

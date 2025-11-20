@@ -2,389 +2,484 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Volvo 26</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Шахта Майнер 2.0</title>
 
 <style>
-/* === iOS 26 Liquid Glass Variables === */
-:root {
-  --bg1: #0b0b10;
-  --bg2: #15151d;
-  --glass: rgba(255,255,255,0.07);
-  --glass-strong: rgba(255,255,255,0.12);
-  --border: rgba(255,255,255,0.18);
-  --text: #fff;
-  --text-dim: rgba(255,255,255,0.55);
-  --blue: #0a84ff;
-  --green: #30d158;
-  --red: #ff453a;
-  --orange: #ff9f0a;
-}
-
-/* === GLOBAL === */
+/* ============= ОСНОВА UI =============== */
 body {
-  margin:0;
-  background: radial-gradient(circle at top, var(--bg2), var(--bg1) 70%);
+  margin: 0;
+  padding: 0;
+  background: #050510;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--text);
-  height:100vh;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
+  color: #fff;
+  overflow: hidden;
+  user-select: none;
 }
 
-/* === LIQUID TITLE === */
-header {
-  text-align:center;
-  padding:36px 0 20px;
-  font-size:34px;
-  font-weight:800;
-  background:linear-gradient(90deg,var(--blue),var(--green));
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+.screen {
+  display: none;
+  height: 100vh;
+  width: 100vw;
+  padding-top: 20px;
+  box-sizing: border-box;
 }
 
-/* === GLASS PANELS === */
-.glass {
-  margin:12px 18px;
-  padding:18px;
-  border-radius:22px;
-  background:var(--glass);
-  border:1px solid var(--border);
-  backdrop-filter: blur(24px);
-  box-shadow:0 10px 30px rgba(0,0,0,0.35);
+.active {
+  display: block;
 }
 
-/* Plan input */
-#plan {
-  width:100%;
-  padding:10px;
-  font-size:32px;
-  text-align:center;
-  background:var(--glass-strong);
-  border-radius:16px;
-  border:1px solid var(--border);
-  color:var(--text);
+h2 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 10px;
 }
 
-/* Progress */
-.progress {
-  height:14px;
-  margin-top:12px;
-  background:rgba(255,255,255,.12);
-  border-radius:8px;
-  overflow:hidden;
+.container {
+  width: 92%;
+  max-width: 500px;
+  margin: auto;
 }
 
-.fill {
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,var(--blue),var(--green));
-  transition:width .4s ease;
+/* ============= ПАРАЛЛАКС ШАХТА =============== */
+.mine-box {
+  width: 100%;
+  height: 220px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  position: relative;
+  background: #0b0b15;
+  box-shadow: 0 0 25px rgba(0,0,0,0.4);
 }
 
-.fill.over {
-  background:linear-gradient(90deg,var(--green),var(--orange));
+.layer {
+  position: absolute;
+  width: 100%;
+  height: 200%;
+  background-size: cover;
+  animation: scrollLayer linear infinite;
 }
 
-.stats {
-  margin-top:10px;
-  font-size:24px;
-  font-weight:700;
-  text-align:center;
+@keyframes scrollLayer {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
 }
 
-.over-text {
-  display:none;
-  text-align:center;
-  margin-top:6px;
-  font-size:26px;
-  color:var(--orange);
+.l1 { background-image: url("https://i.ibb.co/4VPGj1L/layer1.jpg"); animation-duration: 8s; opacity: 0.35; }
+.l2 { background-image: url("https://i.ibb.co/9h6PbpH/layer2.jpg"); animation-duration: 12s; opacity: 0.25; }
+.l3 { background-image: url("https://i.ibb.co/LddXYFn/layer3.jpg"); animation-duration: 16s; opacity: 0.15; }
+
+/* ============= КНОПКА МАЙНИНГА =============== */
+#mineButton {
+  width: 100%;
+  padding: 20px;
+  font-size: 26px;
+  border: none;
+  border-radius: 22px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, #5fa8ff, #006aff);
+  box-shadow: 0 12px 40px rgba(0,110,255,0.4);
+  transition: 0.1s;
+}
+#mineButton:active { transform: scale(0.92); }
+
+/* ============= POPUP ЦИФРЫ =============== */
+.pop {
+  position: absolute;
+  font-size: 20px;
+  color: #9cf;
+  animation: floatUp 0.9s ease-out forwards;
+  pointer-events: none;
 }
 
-.timer {
-  text-align:center;
-  font-size:16px;
-  color:var(--text-dim);
-  margin-bottom:6px;
+@keyframes floatUp {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(-40px); opacity: 0; }
 }
 
-/* === TRUCK LIST === */
-.trucks {
-  padding:0 18px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  max-height:360px;
-  overflow:hidden;
+/* ============= ПЛАВАЮЩАЯ КНОПКА МЕНЮ =============== */
+.menu-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 25px;
+  width: 65px;
+  height: 65px;
+  background: rgba(100,120,255,0.28);
+  border-radius: 50%;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 0 20px rgba(80,100,255,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  cursor: pointer;
+  transition: 0.25s;
+  z-index: 99;
+}
+.menu-btn:active { transform: scale(0.9); }
+
+/* ============= ВЫЕЗЖАЮЩЕЕ МЕНЮ =============== */
+.side-menu {
+  position: fixed;
+  right: -240px;
+  top: 0;
+  height: 100vh;
+  width: 240px;
+  background: rgba(50,60,140,0.25);
+  backdrop-filter: blur(25px);
+  box-shadow: -5px 0 25px rgba(0,0,40,0.5);
+  transition: 0.4s;
+  padding-top: 80px;
+  z-index: 98;
 }
 
-.truck {
-  position:relative;
-  height:70px;
-  display:flex;
-  align-items:center;
-  padding:12px 16px;
-  background:var(--glass-strong);
-  border-radius:18px;
-  border:1px solid var(--border);
-  transition:transform .15s ease;
+.side-menu.active {
+  right: 0;
 }
 
-/* DELETE BG (hidden until swipe) */
-.truck .delete {
-  position:absolute;
-  left:0; top:0; bottom:0;
-  width:90px;
-  background:var(--red);
-  color:#fff;
-  font-size:20px;
-  font-weight:600;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:18px 0 0 18px;
-  pointer-events:none;
-  opacity:0;
+.menu-item {
+  padding: 18px;
+  font-size: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
 }
 
-/* Content */
-.num {
-  font-size:26px;
-  font-weight:800;
-  width:65px;
-  text-align:center;
+/* ============= КАРТОЧКИ / КНОПКИ =============== */
+.card {
+  backdrop-filter: blur(18px);
+  background: rgba(255,255,255,0.06);
+  padding: 15px;
+  border-radius: 16px;
+  margin-bottom: 14px;
 }
 
-.count {
-  width:70px;
-  text-align:center;
-  font-size:42px;
-  font-weight:800;
-}
-
-.vol {
-  margin-left:auto;
-  font-size:22px;
-  color:var(--text-dim);
-}
-
-/* Buttons */
 .btn {
-  width:46px;
-  height:46px;
-  border:none;
-  border-radius:12px;
-  font-size:28px;
-  font-weight:700;
-  color:white;
-  margin:0 6px;
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 15px;
+  background: rgba(130,160,255,0.25);
+  color: #fff;
+  font-size: 18px;
+  margin-top: 10px;
 }
 
-.plus { background:var(--blue); }
-.minus { background:var(--red); }
-
-/* === BOTTOM BAR === */
-.bottom {
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  padding:16px;
-  background:var(--glass);
-  border-top:1px solid var(--border);
-  backdrop-filter:blur(25px);
-  display:flex;
-  gap:12px;
+/* ============= БИТВА С БОССОМ =============== */
+.boss-box {
+  width: 92%;
+  max-width: 500px;
+  margin: auto;
+  margin-top: 30px;
+  text-align: center;
 }
 
-.fab {
-  flex:1;
-  padding:14px;
-  border:none;
-  border-radius:16px;
-  color:#fff;
-  font-weight:700;
-  font-size:18px;
+.bar {
+  width: 100%;
+  height: 18px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
 }
 
-.fab-blue { background:var(--blue); }
-.fab-green { background:var(--green); }
-.fab-orange { background:var(--orange); }
+.slider {
+  width: 30%;
+  height: 100%;
+  background: #6af;
+  position: absolute;
+  animation: slideBar 1s linear infinite alternate;
+}
+
+.target {
+  position: absolute;
+  left: 40%;
+  width: 20%;
+  height: 100%;
+  background: rgba(255,255,0,0.3);
+}
+
+@keyframes slideBar {
+  from { left: 0; }
+  to   { left: 70%; }
+}
 </style>
 </head>
 
 <body>
 
-<header>Volvo 26</header>
-
-<div class="glass">
-  <div style="text-align:center; font-size:18px; color:var(--text-dim)">Наряд (м³)</div>
-  <input id="plan" type="number" value="3000">
-  <div class="progress"><div id="fill" class="fill"></div></div>
-  <div id="stats" class="stats">0 / 3000 кубов</div>
-  <div id="over" class="over-text">+0 кубов</div>
+<!-- ========================= Боковое меню ========================= -->
+<div class="side-menu" id="sideMenu">
+  <div class="menu-item" onclick="openScreen('main')">🏠 Главная</div>
+  <div class="menu-item" onclick="openScreen('shop')">🛒 Магазин</div>
+  <div class="menu-item" onclick="openScreen('pets')">🐾 Питомцы</div>
+  <div class="menu-item" onclick="openScreen('inv')">🎁 Инвентарь</div>
+  <div class="menu-item" onclick="openScreen('boss')">💀 Босс</div>
 </div>
 
-<div id="timer" class="timer">Смена: 00:00:00</div>
+<!-- Плавающая кнопка -->
+<div class="menu-btn" onclick="toggleMenu()">⚙</div>
 
-<div id="list" class="trucks"></div>
+<!-- ========================= ГЛАВНЫЙ ЭКРАН ========================= -->
+<div class="screen active" id="main">
+  <div class="container">
+    <h2>⛏ Шахта</h2>
+    <div id="stats">Глубина: 0 м | Золото: 0 | Ключи: 0</div>
 
-<div class="bottom">
-  <button class="fab fab-blue" onclick="addTruck()">+ БелАЗ</button>
-  <button class="fab fab-green" onclick="shareShift()">Поделиться</button>
-  <button class="fab fab-orange" onclick="resetShift()">Сброс</button>
+    <div class="mine-box">
+      <div class="layer l1"></div>
+      <div class="layer l2"></div>
+      <div class="layer l3"></div>
+    </div>
+
+    <button id="mineButton">МАЙНИТЬ</button>
+  </div>
+</div>
+
+<!-- ========================= МАГАЗИН ========================= -->
+<div class="screen" id="shop">
+  <div class="container">
+    <h2>🛒 Магазин</h2>
+
+    <div class="card">
+      Улучшить кирку (+1 мощность) — 200 золота
+      <button class="btn" onclick="buyPower()">Купить</button>
+    </div>
+
+    <div class="card">
+      Купить робота-майнера (+1 золото/сек) — 500 золота
+      <button class="btn" onclick="buyMiner()">Купить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= ПИТОМЦЫ ========================= -->
+<div class="screen" id="pets">
+  <div class="container">
+    <h2>🐾 Питомцы</h2>
+
+    <div class="card">
+      Крот — +10% добычи — 1000 золота
+      <button class="btn" onclick="buyPet('krot',1000)">Купить</button>
+    </div>
+
+    <div class="card">
+      Гном — +1 материал при клике — 1800 золота
+      <button class="btn" onclick="buyPet('gnom',1800)">Купить</button>
+    </div>
+
+    <div class="card">
+      Дракончик — +5% шанс редкости — 3000 золота
+      <button class="btn" onclick="buyPet('dragon',3000)">Купить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= ИНВЕНТАРЬ ========================= -->
+<div class="screen" id="inv">
+  <div class="container">
+    <h2>🎁 Инвентарь</h2>
+
+    <div class="card">
+      Ключи: <span id="keysText">0</span>
+    </div>
+
+    <div class="card">
+      Обычный сундук — требует 1 ключ  
+      <button class="btn" onclick="openChest('normal')">Открыть</button>
+    </div>
+
+    <div class="card">
+      Магический сундук — требует 3 ключа  
+      <button class="btn" onclick="openChest('magic')">Открыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= БОСС ========================= -->
+<div class="screen" id="boss">
+  <h2>💀 Битва с боссом</h2>
+  <div class="boss-box">
+    <p>Попади в зону!</p>
+
+    <div class="bar">
+      <div class="target"></div>
+      <div class="slider" id="slider"></div>
+    </div>
+
+    <button class="btn" onclick="attackBoss()">Атаковать</button>
+
+    <div style="margin-top:20px;" id="bossInfo"></div>
+  </div>
 </div>
 
 <script>
-const V = 37.8;
-let trucks = JSON.parse(localStorage.getItem("ex_tr")) || [];
-let plan = +localStorage.getItem("ex_plan") || 3000;
-let start = +localStorage.getItem("ex_start") || Date.now();
+/* ================================================================
+                        ПЕРЕМЕННЫЕ И ДАННЫЕ
+================================================================ */
+let depth = 0;
+let gold = 0;
+let keys = 0;
 
-document.getElementById("plan").value = plan;
+let power = 1;
+let miners = 0;
 
-function save(){
-  localStorage.setItem("ex_tr",JSON.stringify(trucks));
-  localStorage.setItem("ex_plan",plan);
-  localStorage.setItem("ex_start",start);
-}
-
-/* === UPDATE UI === */
-function update(){
-  let total = trucks.reduce((s,t)=>s+t.c*V,0);
-  let pct = total/plan*100;
-
-  const fill = document.getElementById("fill");
-  fill.style.width = Math.min(pct,200)+"%";
-
-  document.getElementById("stats").textContent =
-    `${Math.round(total)} / ${plan} кубов`;
-
-  const over = document.getElementById("over");
-
-  if(total>plan){
-    over.style.display="block";
-    over.textContent = `+${Math.round(total-plan)} кубов`;
-    fill.classList.add("over");
-  } else {
-    over.style.display="none";
-    fill.classList.remove("over");
-  }
-}
-
-/* === RENDER LIST === */
-function render(){
-  const list=document.getElementById("list");
-  list.innerHTML="";
-
-  trucks.forEach((t,i)=>{
-    const el=document.createElement("div");
-    el.className="truck";
-
-    const del=document.createElement("div");
-    del.className="delete";
-    del.textContent="Удалить";
-    el.append(del);
-
-    const row=document.createElement("div");
-    row.style.display="flex";
-    row.style.width="100%";
-    row.style.alignItems="center";
-    row.innerHTML=`
-      <div class="num">${t.n}</div>
-      <button class="btn minus">−</button>
-      <div class="count">${t.c}</div>
-      <button class="btn plus">+</button>
-      <div class="vol">${(t.c*V).toFixed(1)} кубов³</div>
-    `;
-    el.append(row);
-
-    /* + / - */
-    row.querySelector(".plus").onclick=()=>{
-      t.c++; save(); render();
-    };
-    row.querySelector(".minus").onclick=()=>{
-      t.c=Math.max(0,t.c-1);
-      if(t.c===0) trucks.splice(i,1);
-      save(); render();
-    };
-
-    /* === SWIPE DELETE (НОВЫЙ iOS вариант) === */
-    let x0=0;
-    el.addEventListener("touchstart",e=>{
-      x0=e.touches[0].clientX;
-    });
-
-    el.addEventListener("touchmove",e=>{
-      let dx=e.touches[0].clientX-x0;
-      if(dx<-30){
-        el.style.transform="translateX(-70px)";
-        del.style.opacity="1";
-      }
-    });
-
-    el.addEventListener("touchend",e=>{
-      let dx=e.changedTouches[0].clientX-x0;
-      if(dx<-80){
-        trucks.splice(i,1);
-        save(); render();
-      } else {
-        el.style.transform="";
-        del.style.opacity="0";
-      }
-    });
-
-    list.append(el);
-  });
-
-  update();
-}
-
-/* === ADD === */
-function addTruck(){
-  let n = prompt("Номер машины")?.trim().toUpperCase();
-  if(!n || trucks.some(t=>t.n===n)) return;
-  trucks.push({n,c:0});
-  save(); render();
-}
-
-/* === SHARE === */
-function shareShift(){
-  const total = trucks.reduce((s,t)=>s+t.c*V,0);
-  const text = trucks.map(t=>`${t.n}: ${t.c} рейс`).join("\n") +
-    `\nИтого: ${Math.round(total)} кубов`;
-
-  navigator.share ? navigator.share({text}) : alert(text);
-}
-
-/* === RESET === */
-function resetShift(){
-  if(confirm("Начать новую смену?")){
-    trucks=[];
-    start=Date.now();
-    save();
-    render();
-  }
-}
-
-/* === PLAN === */
-document.getElementById("plan").onchange=e=>{
-  plan=+e.target.value||3000;
-  save(); update();
+let pets = {
+  krot: false,
+  gnom: false,
+  dragon: false
 };
 
-/* === TIMER === */
-setInterval(()=>{
-  let s=Math.floor((Date.now()-start)/1000);
-  let h=String(Math.floor(s/3600)).padStart(2,"0");
-  let m=String(Math.floor((s%3600)/60)).padStart(2,"0");
-  let sec=String(s%60).padStart(2,"0");
-  document.getElementById("timer").textContent=`Смена: ${h}:${m}:${sec}`;
-},1000);
+function save() {
+  localStorage.setItem("miner2", JSON.stringify({ depth, gold, keys, power, miners, pets }));
+}
+function load() {
+  let data = localStorage.getItem("miner2");
+  if (data) {
+    let g = JSON.parse(data);
+    depth = g.depth;
+    gold = g.gold;
+    keys = g.keys;
+    power = g.power;
+    miners = g.miners;
+    pets = g.pets;
+  }
+}
+load();
 
-render();
+function updateUI() {
+  document.getElementById("stats").textContent =
+    `Глубина: ${Math.floor(depth)} м | Золото: ${gold} | Ключи: ${keys}`;
+  document.getElementById("keysText").textContent = keys;
+  save();
+}
+updateUI();
+
+/* ================================================================
+                        НАВИГАЦИЯ ЭКРАНОВ
+================================================================ */
+function openScreen(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screen).classList.add('active');
+  sideMenu.classList.remove('active');
+}
+
+function toggleMenu() {
+  sideMenu.classList.toggle('active');
+}
+
+/* ================================================================
+                            МАЙНИНГ
+================================================================ */
+function getMaterial() {
+  let r = Math.random();
+  let mult = 1;
+  if (pets.krot) mult += 0.1;
+  if (pets.dragon) r -= 0.05;
+
+  if (r < 0.6) return { name:"Уголь", value:1 * mult };
+  if (r < 0.85) return { name:"Железо", value:3 * mult };
+  if (r < 0.95) return { name:"Золото", value:7 * mult };
+  if (r < 0.985) return { name:"Алмаз", value:15 * mult };
+  if (r < 0.997) return { name:"Титан", value:35 * mult };
+  return { name:"Мифрил", value:100 * mult };
+}
+
+mineButton.onclick = (e) => {
+  depth += power;
+
+  let mat = getMaterial();
+  let added = Math.floor(mat.value);
+
+  gold += added;
+  if (pets.gnom) gold += 1;
+
+  let p = document.createElement("div");
+  p.className = "pop";
+  p.textContent = "+" + added;
+  p.style.left = e.clientX + "px";
+  p.style.top = e.clientY + "px";
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), 900);
+
+  updateUI();
+};
+
+/* ================================================================
+                          АВТОДОБЫЧА
+================================================================ */
+setInterval(() => {
+  if (miners > 0) {
+    gold += miners;
+    depth += miners * 0.2;
+    updateUI();
+  }
+}, 1000);
+
+/* ================================================================
+                           МАГАЗИН
+================================================================ */
+function buyPower() {
+  if (gold >= 200) {
+    gold -= 200;
+    power++;
+    updateUI();
+  }
+}
+function buyMiner() {
+  if (gold >= 500) {
+    gold -= 500;
+    miners++;
+    updateUI();
+  }
+}
+
+/* ================================================================
+                           ПИТОМЦЫ
+================================================================ */
+function buyPet(p, cost) {
+  if (!pets[p] && gold >= cost) {
+    gold -= cost;
+    pets[p] = true;
+    updateUI();
+  }
+}
+
+/* ================================================================
+                           СУНДУКИ
+================================================================ */
+function openChest(type) {
+  if (type === "normal") {
+    if (keys < 1) return;
+    keys--;
+    gold += Math.floor(50 + Math.random()*100);
+  } else {
+    if (keys < 3) return;
+    keys -= 3;
+    gold += Math.floor(200 + Math.random()*300);
+  }
+  updateUI();
+}
+
+/* ================================================================
+                          БОСС (тайминг)
+================================================================ */
+function attackBoss() {
+  let slider = document.getElementById("slider");
+  let pos = parseInt(slider.style.left) || 0;
+
+  if (pos > 40 && pos < 60) {
+    keys++;
+    gold += 200;
+    document.getElementById("bossInfo").textContent = "Победа! +200 золота и ключ!";
+  } else {
+    document.getElementById("bossInfo").textContent = "Промах!";
+  }
+  updateUI();
+}
+
+/* ================================================================ */
 </script>
-
 </body>
 </html>

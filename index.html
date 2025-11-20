@@ -2,603 +2,515 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Шахта Майнер 3.0</title>
-
+<title>Mine • AAA Clicker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-/* ===========================================================
-                    ГЛОБАЛЬНЫЙ СТИЛЬ
-=========================================================== */
-body {
-  margin: 0;
-  padding: 0;
-  background: #040414;
-  color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  user-select: none;
-  overflow: hidden;
-}
-
-.screen {
-  display: none;
-  height: 100vh;
-  width: 100vw;
-  padding: 20px 0;
-  overflow-y: auto;
-  box-sizing: border-box;
-}
-
-.active {
-  display: block;
-}
-
-h2 {
-  text-align: center;
-  font-size: 28px;
-  margin-bottom: 15px;
-}
-
-.container {
-  width: 92%;
-  max-width: 520px;
-  margin: auto;
-}
-
-/* ===========================================================
-                      ПАРАЛЛАКС ШАХТЫ
-=========================================================== */
-.mine-box {
-  width: 100%;
-  height: 240px;
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  position: relative;
-  background: #0b0b15;
-  box-shadow: 0 0 25px rgba(0,0,0,0.4);
-}
-
-.layer {
-  position: absolute;
-  width: 100%;
-  height: 200%;
-  background-size: cover;
-  animation: scroll linear infinite;
-}
-
-@keyframes scroll {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-50%); }
-}
-
-.l1 {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhC...); 
-  animation-duration: 8s;
-  opacity: 0.40;
-}
-
-.l2 {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhC...);
-  animation-duration: 12s;
-  opacity: 0.30;
-}
-
-.l3 {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhC...);
-  animation-duration: 16s;
-  opacity: 0.22;
-}
-
-/* ===========================================================
-                     КНОПКА МАЙНИНГА
-=========================================================== */
-#mineButton {
-  width: 100%;
-  padding: 22px;
-  border: none;
-  border-radius: 20px;
-  font-size: 28px;
-  font-weight: bold;
-  color: #fff;
-  background: linear-gradient(180deg, #79a8ff, #246bff);
-  box-shadow: 0 10px 35px rgba(50,120,255,0.5);
-  margin-bottom: 20px;
-}
-#mineButton:active {
-  transform: scale(0.92);
-}
-
-/* ===========================================================
-                      POPUP + ВИБРАЦИИ
-=========================================================== */
-.pop {
-  position: absolute;
-  font-size: 22px;
-  font-weight: bold;
-  color: #9cf;
-  animation: floatUp 0.9s ease-out forwards;
-  pointer-events: none;
-}
-
-@keyframes floatUp {
-  from { transform: translateY(0); opacity: 1; }
-  to   { transform: translateY(-45px); opacity: 0; }
-}
-
-/* ===========================================================
-                   ПЛАВАЮЩЕЕ МЕНЮ ⚙
-=========================================================== */
-.menu-btn {
-  position: fixed;
-  right: 22px;
-  bottom: 25px;
-  width: 68px;
-  height: 68px;
-  background: rgba(120,140,255,0.32);
-  border-radius: 50%;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 25px rgba(100,120,255,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 34px;
-  cursor: pointer;
-  z-index: 999;
-}
-.menu-btn:active {
-  transform: scale(0.9);
-}
-
-/* ===========================================================
-                   БОКОВОЕ ВЫЕЗЖАЮЩЕЕ МЕНЮ
-=========================================================== */
-.side-menu {
-  position: fixed;
-  right: -260px;
-  top: 0;
-  width: 260px;
-  height: 100vh;
-  background: rgba(60,80,200,0.24);
-  backdrop-filter: blur(25px);
-  box-shadow: -5px 0 35px rgba(0,0,60,0.6);
-  padding-top: 80px;
-  transition: 0.4s;
-  z-index: 998;
-}
-
-.side-menu.active {
-  right: 0;
-}
-
-.menu-item {
-  padding: 20px;
-  font-size: 22px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  cursor: pointer;
-}
-
-/* ===========================================================
-              ПЛИТКИ (CLASH ROYALE STYLE)
-=========================================================== */
-.tile {
-  width: 100%;
-  background: linear-gradient(180deg, #1c1f45, #0e1033);
-  border-radius: 18px;
-  padding: 15px;
-  margin-bottom: 18px;
-  box-shadow: 0 6px 18px rgba(0,0,50,0.6);
-  position: relative;
-}
-
-.tile-icon {
-  width: 72px;
-  height: 72px;
-  background-size: cover;
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
-
-.tile-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 5px;
-}
-
-.tile-desc {
-  font-size: 16px;
-  opacity: 0.8;
-  margin-bottom: 10px;
-}
-
-.tile-price {
-  font-size: 18px;
-  color: #9cf;
-  margin-bottom: 10px;
-}
-
-.buy-btn {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 14px;
-  font-size: 18px;
-  background: linear-gradient(180deg, #5fa0ff, #2070ff);
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 6px 14px rgba(40,110,255,0.4);
-}
-.buy-btn:active {
-  transform: scale(0.94);
-}
-
-/* ===========================================================
-                     БОСС — ТАЙМИНГ
-=========================================================== */
-.boss-box {
-  text-align: center;
-  width: 92%;
-  margin: auto;
-  margin-top: 20px;
-}
-
-.bar {
-  width: 100%;
-  height: 18px;
-  background: rgba(255,255,255,0.12);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  position: relative;
-}
-
-.target {
-  width: 20%;
-  height: 100%;
-  background: rgba(255,240,0,0.35);
-  position: absolute;
-  left: 40%;
-}
-
-.slider {
-  width: 25%;
-  height: 100%;
-  background: #6af;
-  position: absolute;
-  animation: slideBar 1s linear infinite alternate;
-}
-
-@keyframes slideBar {
-  from { left: 0; }
-  to   { left: 75%; }
-}
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700;900&display=swap');
+    
+    :root {
+        --bg: #000000;
+        --card: rgba(30,30,30,0.75);
+        --accent: #007AFF;
+        --text: #FFFFFF;
+        --text-secondary: rgba(255,255,255,0.65);
+        --gold: #FFD60A;
+        --success: #30D158;
+        --danger: #FF453A;
+    }
+    
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        height: 100dvh;
+        overflow: hidden;
+        touch-action: manipulation;
+        background: radial-gradient(circle at 50% 30%, #1a1a1a, #000);
+    }
+    
+    .container {
+        max-width: 500px;
+        margin: 0 auto;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        backdrop-filter: blur(20px);
+    }
+    
+    header {
+        padding: 50px 20px 20px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    
+    h1 {
+        font-size: 42px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        background: linear-gradient(90deg, #fff, #aaa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .balance {
+        font-size: 64px;
+        font-weight: 900;
+        margin: 20px 0;
+        letter-spacing: -2px;
+    }
+    
+    .per-sec {
+        font-size: 24px;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+    
+    .mine-area {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    
+    #mine {
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #333, #111);
+        box-shadow: 
+            inset 0 20px 40px rgba(0,0,0,0.8),
+            0 20px 80px rgba(0,0,0,0.9),
+            0 0 200px rgba(0,122,255,0.3);
+        cursor: pointer;
+        user-select: none;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.1s;
+    }
+    
+    #mine:active { transform: scale(0.92); }
+    
+    .particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+    
+    .particle {
+        position: absolute;
+        font-size: 40px;
+        pointer-events: none;
+        animation: float 1.2s ease-out forwards;
+        opacity: 0;
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0) scale(0); opacity: 1; }
+        100% { transform: translateY(-200px) scale(1); opacity: 0; }
+    }
+    
+    .upgrades {
+        flex-shrink: 0;
+        padding: 20px;
+        background: rgba(20,20,20,0.8);
+        border-radius: 30px 30px 0 0;
+        backdrop-filter: blur(20px);
+    }
+    
+    .tab-bar {
+        display: flex;
+        margin-bottom: 20px;
+        background: rgba(50,50,50,0.5);
+        border-radius: 16px;
+        padding: 6px;
+    }
+    
+    .tab {
+        flex: 1;
+        padding: 14px;
+        text-align: center;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .tab.active {
+        background: white;
+        color: black;
+    }
+    
+    .upgrade-item {
+        background: var(--card);
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: all 0.3s;
+    }
+    
+    .upgrade-item.affordable { border-color: var(--accent); box-shadow: 0 0 30px rgba(0,122,255,0.2); }
+    
+    .upgrade-left {
+        display: flex;
+        align-items: center;
+    }
+    
+    .upgrade-icon {
+        font-size: 48px;
+        margin-right: 20px;
+    }
+    
+    .upgrade-info h3 {
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+    
+    .upgrade-info p {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+    
+    .upgrade-cost {
+        text-align: right;
+    }
+    
+    .cost {
+        font-size: 20px;
+        font-weight: 700;
+    }
+    
+    .owned {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+    }
+    
+    .prestige {
+        background: linear-gradient(135deg, #FFD60A, #FFC107);
+        color: black;
+        margin: 20px;
+        border-radius: 20px;
+        padding: 24px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 24px;
+    }
+    
+    .achievement {
+        position: fixed;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(90deg, #30D158, #32D74B);
+        color: white;
+        padding: 16px 32px;
+        border-radius: 16px;
+        font-weight: 700;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        z-index: 1000;
+        animation: slideDown 0.5s ease-out;
+        pointer-events: none;
+    }
+    
+    @keyframes slideDown {
+        from { transform: translate(-50%, -100px); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+    }
+    
+    .vibration { animation: vibrate 0.2s; }
+    @keyframes vibrate {
+        0%,100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
 </style>
 </head>
-
 <body>
-
-<!-- ===========================================================
-                       БОКОВОЕ МЕНЮ
-=========================================================== -->
-<div class="side-menu" id="sideMenu">
-  <div class="menu-item" onclick="openScreen('main')">🏠 Главная</div>
-  <div class="menu-item" onclick="openScreen('shop')">🛒 Магазин</div>
-  <div class="menu-item" onclick="openScreen('pets')">🐾 Питомцы</div>
-  <div class="menu-item" onclick="openScreen('inv')">🎁 Инвентарь</div>
-  <div class="menu-item" onclick="openScreen('boss')">💀 Босс</div>
+<div class="container">
+    <header>
+        <h1>Mine</h1>
+        <div class="balance" id="balance">0</div>
+        <div class="per-sec" id="perSec">0 / сек</div>
+    </header>
+    
+    <div class="mine-area">
+        <div id="mine">
+            <div class="particles" id="particles"></div>
+        </div>
+    </div>
+    
+    <div class="upgrades">
+        <div class="tab-bar">
+            <div class="tab active" data-tab="upgrades">Улучшения</div>
+            <div class="tab" data-tab="prestige">Престиж</div>
+        </div>
+        
+        <div id="upgrades-tab">
+            <!-- Улучшения будут здесь -->
+        </div>
+        
+        <div id="prestige-tab" style="display:none; text-align:center;">
+            <div class="prestige" id="prestigeBtn">
+                Престиж<br>
+                <span style="font-size:48px;" id="prestigeGain">+0</span> алмазов навсегда
+            </div>
+        </div>
+    </div>
 </div>
-<div class="menu-btn" onclick="toggleMenu()">⚙</div>
-
-
-<!-- ===========================================================
-                        ГЛАВНЫЙ ЭКРАН
-=========================================================== -->
-<div class="screen active" id="main">
-  <div class="container">
-    <h2>⛏ Шахта</h2>
-    <div id="stats" style="text-align:center; margin-bottom:15px;">Глубина: 0 м | Золото: 0 | Ключи: 0</div>
-
-    <div class="mine-box">
-      <div class="layer l1"></div>
-      <div class="layer l2"></div>
-      <div class="layer l3"></div>
-    </div>
-
-    <button id="mineButton">МАЙНИТЬ</button>
-  </div>
-</div>
-
-
-<!-- ===========================================================
-                         МАГАЗИН
-=========================================================== -->
-<div class="screen" id="shop">
-  <div class="container">
-    <h2>🛒 Магазин</h2>
-
-    <!-- Кирка -->
-    <div class="tile">
-      <div class="tile-icon" style="background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA...);"></div>
-      <div class="tile-title">Улучшить Кирку</div>
-      <div class="tile-desc">+1 мощность клика</div>
-      <div class="tile-price">Цена: 200</div>
-      <button class="buy-btn" onclick="buyPower()">Купить</button>
-    </div>
-
-    <!-- Робот-майнер -->
-    <div class="tile">
-      <div class="tile-icon" style="background-image:url(data:image/png;base64,iVBORw0KGgoAA...);"></div>
-      <div class="tile-title">Робот-майнер</div>
-      <div class="tile-desc">+1 золото в секунду</div>
-      <div class="tile-price">Цена: 500</div>
-      <button class="buy-btn" onclick="buyMiner()">Купить</button>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- ===========================================================
-                         ПИТОМЦЫ
-=========================================================== -->
-<div class="screen" id="pets">
-  <div class="container">
-    <h2>🐾 Питомцы</h2>
-
-    <!-- Крот -->
-    <div class="tile">
-      <div class="tile-icon" style="background-image:url(data:image/png;base64,iVBORw0KGg...);"></div>
-      <div class="tile-title">Крот</div>
-      <div class="tile-desc">+10% добычи</div>
-      <div class="tile-price">Цена: 1000</div>
-      <button class="buy-btn" onclick="buyPet('krot',1000)">Купить</button>
-    </div>
-
-    <!-- Гном -->
-    <div class="tile">
-      <div class="tile-icon" style="background-image:url(data:image/png;base64,iVBORw0KGgoAAA...);"></div>
-      <div class="tile-title">Гном</div>
-      <div class="tile-desc">+1 золото при клике</div>
-      <div class="tile-price">Цена: 1800</div>
-      <button class="buy-btn" onclick="buyPet('gnom',1800)">Купить</button>
-    </div>
-
-    <!-- Дракон -->
-    <div class="tile">
-      <div class="tile-icon" style="background-image:url(data:image/png;base64,iVBOR...);"></div>
-      <div class="tile-title">Дракончик</div>
-      <div class="tile-desc">+5% шанс редкости</div>
-      <div class="tile-price">Цена: 3000</div>
-      <button class="buy-btn" onclick="buyPet('dragon',3000)">Купить</button>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- ===========================================================
-                        ИНВЕНТАРЬ
-=========================================================== -->
-<div class="screen" id="inv">
-  <div class="container">
-    <h2>🎁 Инвентарь</h2>
-
-    <div class="tile">
-      <div class="tile-title">Ваши ключи</div>
-      <div class="tile-desc">Используются для сундуков</div>
-      <div class="tile-price">Ключи: <span id="keysText">0</span></div>
-    </div>
-
-    <div class="tile">
-      <div class="tile-title">Обычный сундук</div>
-      <div class="tile-desc">1 ключ → +50–150 золота</div>
-      <button class="buy-btn" onclick="openChest('normal')">Открыть</button>
-    </div>
-
-    <div class="tile">
-      <div class="tile-title">Магический сундук</div>
-      <div class="tile-desc">3 ключа → +200–500 золота</div>
-      <button class="buy-btn" onclick="openChest('magic')">Открыть</button>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- ===========================================================
-                          БОСС
-=========================================================== -->
-<div class="screen" id="boss">
-  <h2>💀 Битва с боссом</h2>
-
-  <div class="boss-box">
-    <p>Попади по таймингу!</p>
-
-    <div class="bar">
-      <div class="target"></div>
-      <div class="slider" id="slider"></div>
-    </div>
-
-    <button class="buy-btn" onclick="attackBoss()">Атаковать</button>
-
-    <div style="margin-top:20px;" id="bossInfo"></div>
-  </div>
-</div>
-
 
 <script>
-/* ===========================================================
-                       ОСНОВНЫЕ ПЕРЕМЕННЫЕ
-=========================================================== */
-let depth = 0;
-let gold = 0;
-let keys = 0;
+const upgrades = [
+    {id: "pickaxe", name: "Кирка", icon: "⛏️", baseCost: 15, costMult: 1.15, power: 1, owned: 0, type: "click"},
+    {id: "miner", name: "Шахтёр", icon: "👷", baseCost: 100, costMult: 1.15, power: 1, owned: 0, type: "auto"},
+    {id: "drill", name: "Бур", icon: "🗡️", baseCost: 1100, costMult: 1.15, power: 8, owned: 0, type: "auto"},
+    {id: "tnt", name: "Динамит", icon: "💣", baseCost: 12000, costMult: 1.15, power: 47, owned: 0, type: "auto"},
+    {id: "laser", name: "Лазер", icon: "🔥", baseCost: 130000, costMult: 1.15, power: 260, owned: 0, type: "auto"},
+    {id: "robot", name: "Робот", icon: "🤖", baseCost: 1.4e6, costMult: 1.15, power: 1400, owned: 0, type: "auto"},
+    {id: "factory", name: "Фабрика", icon: "🏭", baseCost: 2e7, costMult: 1.15, power: 7800, owned: 0, type: "auto"},
+    {id: "portal", name: "Портал", icon: "🌀", baseCost: 3.3e8, costMult: 1.15, power: 44000, owned: 0, type: "auto"},
+    {id: "blackhole", name: "Чёрная дыра", icon: "🕳️", baseCost: 5.1e10, costMult: 1.15, power: 2600000, owned: 0, type: "auto"},
+    {id: "timemachine", name: "Машина времени", icon: "⏰", baseCost: 7.5e12, costMult: 1.15, power: 1.6e8, owned: 0, type: "auto"}
+];
 
-let power = 1;
-let miners = 0;
+const achievements = [
+    {id: "first", name: "Первый клик", desc: "Нажми на шахту", goal: 1, type: "clicks", reward: "x2 клики навсегда"},
+    {id: "hundred", name: "Сто кликов", desc: "Нажми 100 раз", goal: 100, type: "clicks", reward: "x3 клики"},
+    {id: "thousand", name: "Тысяча", desc: "Нажми 1000 раз", goal: 1000, type: "clicks", reward: "x5 клики"},
+    {id: "million", name: "Миллионер", desc: "Заработай 1 000 000", goal: 1e6, type: "total", reward: "+50% авто"},
+    {id: "billion", name: "Миллиардер", desc: "Заработай 1 000 000 000", goal: 1e9, type: "total", reward: "+100% авто"},
+    {id: "prestige1", name: "Новый старт", desc: "Сделай первый престиж", goal: 1, type: "prestige", reward: "x10 алмазов"}
+];
 
-let pets = {
-  krot: false,
-  gnom: false,
-  dragon: false
+let game = {
+    balance: 0,
+    totalEarned: 0,
+    clicks: 0,
+    clickPower: 1,
+    autoPower: 0,
+    diamonds: 0,
+    prestigeMultiplier: 1,
+    achievements: {}
 };
 
-/* ===========================================================
-                       СОХРАНЕНИЕ
-=========================================================== */
-function save() {
-  localStorage.setItem("miner3", JSON.stringify({depth,gold,keys,power,miners,pets}));
+function loadGame() {
+    const saved = localStorage.getItem("mineAAA");
+    if (saved) {
+        const data = JSON.parse(saved);
+        game = { ...game, ...data };
+        upgrades.forEach(u => {
+            if (data.upgrades && data.upgrades[u.id]) {
+                u.owned = data.upgrades[u.id].owned || 0;
+            }
+        });
+        if (data.achievements) game.achievements = data.achievements;
+    }
+    renderAll();
 }
 
-function load() {
-  let data = localStorage.getItem("miner3");
-  if (!data) return;
-  let g = JSON.parse(data);
-  depth = g.depth;
-  gold = g.gold;
-  keys = g.keys;
-  power = g.power;
-  miners = g.miners;
-  pets = g.pets;
-}
-load();
-
-/* ===========================================================
-                       ОБНОВЛЕНИЕ UI
-=========================================================== */
-function updateUI() {
-  document.getElementById("stats").textContent =
-    `Глубина: ${Math.floor(depth)} м | Золото: ${gold} | Ключи: ${keys}`;
-  document.getElementById("keysText").textContent = keys;
-
-  save();
-}
-updateUI();
-
-/* ===========================================================
-                       НАВИГАЦИЯ
-=========================================================== */
-function openScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  sideMenu.classList.remove('active');
+function saveGame() {
+    const toSave = {
+        ...game,
+        upgrades: {}
+    };
+    upgrades.forEach(u => {
+        toSave.upgrades[u.id] = { owned: u.owned };
+    });
+    localStorage.setItem("mineAAA", JSON.stringify(toSave));
 }
 
-function toggleMenu() {
-  document.getElementById("sideMenu").classList.toggle("active");
+function format(num) {
+    if (num >= 1e12) return (num/1e12).toFixed(2) + "T";
+    if (num >= 1e9) return (num/1e9).toFixed(2) + "B";
+    if (num >= 1e6) return (num/1e6).toFixed(2) + "M";
+    if (num >= 1e3) return (num/1e3).toFixed(1) + "K";
+    return Math.floor(num).toLocaleString();
 }
 
-/* ===========================================================
-                        МАЙНИНГ
-=========================================================== */
-function getMaterial() {
-  let r = Math.random();
-
-  if (pets.dragon) r -= 0.04;
-
-  let multiplier = pets.krot ? 1.1 : 1;
-
-  if (r < 0.6) return {name:"Уголь", value:1*multiplier};
-  if (r < 0.85) return {name:"Железо", value:3*multiplier};
-  if (r < 0.95) return {name:"Золото", value:7*multiplier};
-  if (r < 0.985) return {name:"Алмаз", value:15*multiplier};
-  if (r < 0.997) return {name:"Титан", value:35*multiplier};
-  return {name:"Мифрил", value:100*multiplier};
+function getUpgradeCost(u) {
+    return Math.floor(u.baseCost * Math.pow(u.costMult, u.owned));
 }
 
-mineButton.onclick = (e) => {
-  depth += power;
-
-  let m = getMaterial();
-  let add = Math.floor(m.value);
-
-  gold += add;
-  if (pets.gnom) gold += 1;
-
-  let p = document.createElement("div");
-  p.className = "pop";
-  p.textContent = "+" + add;
-  p.style.left = e.clientX + "px";
-  p.style.top = e.clientY + "px";
-  document.body.appendChild(p);
-  setTimeout(() => p.remove(), 900);
-
-  updateUI();
-};
-
-/* ===========================================================
-                    АВТОДОБЫЧА
-=========================================================== */
-setInterval(() => {
-  if (miners > 0) {
-    gold += miners;
-    depth += miners * 0.25;
-    updateUI();
-  }
-}, 1000);
-
-/* ===========================================================
-                     МАГАЗИН — КУПИТЬ
-=========================================================== */
-function buyPower() {
-  if (gold < 200) return;
-  gold -= 200;
-  power++;
-  updateUI();
+function createParticle(x, y) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.innerText = ["💎","🪙","✦","⭐","🔹"][Math.floor(Math.random()*5)];
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    document.getElementById("particles").appendChild(p);
+    setTimeout(() => p.remove(), 1500);
 }
 
-function buyMiner() {
-  if (gold < 500) return;
-  gold -= 500;
-  miners++;
-  updateUI();
+function clickMine(e) {
+    const rect = document.getElementById("mine").getBoundingClientRect();
+    const x = e.touches ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
+    const y = e.touches ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    
+    game.clicks++;
+    game.balance += game.clickPower * game.prestigeMultiplier;
+    game.totalEarned += game.clickPower * game.prestigeMultiplier;
+    
+    createParticle(x - 30, y - 30);
+    document.getElementById("mine").classList.add("vibration");
+    setTimeout(() => document.getElementById("mine").classList.remove("vibration"), 200);
+    
+    checkAchievements();
+    renderBalance();
 }
 
-/* ===========================================================
-                     ПОКУПКА ПИТОМЦЕВ
-=========================================================== */
-function buyPet(p, cost) {
-  if (pets[p]) return;
-  if (gold < cost) return;
-
-  pets[p] = true;
-  gold -= cost;
-  updateUI();
+function calculateAuto() {
+    game.autoPower = upgrades.filter(u => u.type === "auto").reduce((sum, u) => sum + u.power * u.owned, 0);
 }
 
-/* ===========================================================
-                       СУНДУКИ
-=========================================================== */
-function openChest(type) {
-  if (type === "normal") {
-    if (keys < 1) return;
-    keys--;
-    gold += 50 + Math.floor(Math.random()*100);
-  } else {
-    if (keys < 3) return;
-    keys -= 3;
-    gold += 200 + Math.floor(Math.random()*300);
-  }
-  updateUI();
+function autoTick() {
+    if (game.autoPower > 0) {
+        const earn = game.autoPower * game.prestigeMultiplier;
+        game.balance += earn;
+        game.totalEarned += earn;
+        renderBalance();
+    }
 }
 
-/* ===========================================================
-                        БОСС
-=========================================================== */
-function attackBoss() {
-  let slider = document.getElementById("slider");
-  let sliderLeft = parseInt(slider.style.left) || 0;
-
-  if (sliderLeft > 40 && sliderLeft < 60) {
-    keys++;
-    gold += 200;
-    bossInfo.textContent = "🔥 КРИТИЧЕСКИЙ УДАР! +200 золота + ключ";
-  } else {
-    bossInfo.textContent = "Мимо! Попробуй ещё!";
-  }
-
-  updateUI();
+function prestige() {
+    if (game.totalEarned < 1e9) return;
+    
+    const diamondsGain = Math.floor(Math.sqrt(game.totalEarned / 1e9));
+    if (diamondsGain <= game.diamonds) return;
+    
+    game.diamonds += diamondsGain - game.diamonds;
+    game.prestigeMultiplier = 1 + game.diamonds * 2;
+    
+    // Сброс
+    game.balance = 0;
+    game.totalEarned = 0;
+    game.clicks = 0;
+    game.clickPower = 1;
+    upgrades.forEach(u => u.owned = 0);
+    
+    checkAchievements();
+    renderAll();
 }
+
+function buyUpgrade(id) {
+    const u = upgrades.find(x => x.id === id);
+    const cost = getUpgradeCost(u);
+    
+    if (game.balance >= cost) {
+        game.balance -= cost;
+        u.owned++;
+        
+        if (u.type === "click") {
+            game.clickPower += u.power;
+        }
+        
+        calculateAuto();
+        renderAll();
+        saveGame();
+    }
+}
+
+function checkAchievements() {
+    achievements.forEach(a => {
+        if (game.achievements[a.id]) return;
+        
+        let reached = false;
+        if (a.type === "clicks" && game.clicks >= a.goal) reached = true;
+        if (a.type === "total" && game.totalEarned >= a.goal) reached = true;
+        if (a.type === "prestige" && game.diamonds >= a.goal) reached = true;
+        
+        if (reached) {
+            game.achievements[a.id] = true;
+            showAchievement(a.name + " разблокировано!");
+            
+            // Применяем награду
+            if (a.id === "first") game.clickPower *= 2;
+            if (a.id === "hundred") game.clickPower *= 1.5;
+            if (a.id === "thousand") game.clickPower *= 5;
+            if (a.id.includes("million") || a.id.includes("billion")) game.autoPower *= 1.5;
+            if (a.id === "prestige1") game.prestigeMultiplier *= 10;
+        }
+    });
+}
+
+function showAchievement(text) {
+    const div = document.createElement("div");
+    div.className = "achievement";
+    div.innerText = text;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 4000);
+}
+
+function renderBalance() {
+    document.getElementById("balance").innerText = format(game.balance);
+    document.getElementById("perSec").innerText = format(game.autoPower * game.prestigeMultiplier) + " / сек";
+    
+    const prestigeGain = game.totalEarned >= 1e9 ? Math.floor(Math.sqrt(game.totalEarned / 1e9)) : 0;
+    document.getElementById("prestigeGain").innerText = "+" + prestigeGain;
+}
+
+function renderUpgrades() {
+    const container = document.getElementById("upgrades-tab");
+    container.innerHTML = "";
+    
+    upgrades.forEach(u => {
+        const cost = getUpgradeCost(u);
+        const item = document.createElement("div");
+        item.className = "upgrade-item" + (game.balance >= cost ? " affordable" : "");
+        item.onclick = () => buyUpgrade(u.id);
+        
+        item.innerHTML = `
+            <div class="upgrade-left">
+                <div class="upgrade-icon">${u.icon}</div>
+                <div class="upgrade-info">
+                    <h3>${u.name}</h3>
+                    <p>${u.type === "click" ? "+" + u.power + " за клик" : "+" + format(u.power) + "/сек"}</p>
+                </div>
+            </div>
+            <div class="upgrade-cost">
+                <div class="cost">${format(cost)}</div>
+                <div class="owned">${u.owned > 0 ? "Владеешь: " + u.owned : ""}</div>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function renderAll() {
+    renderBalance();
+    renderUpgrades();
+    saveGame();
+}
+
+// Табы
+document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        
+        const target = tab.dataset.tab + "-tab";
+        document.querySelectorAll("#upgrades-tab, #prestige-tab").forEach(t => t.style.display = "none");
+        document.getElementById(target).style.display = "block";
+    });
+});
+
+document.getElementById("mine").addEventListener("click", clickMine);
+document.getElementById("mine").addEventListener("touchstart", e => { e.preventDefault(); clickMine(e); });
+document.getElementById("prestigeBtn").addEventListener("click", prestige);
+
+// Автосохранение и автозаработок
+setInterval(autoTick, 1000);
+setInterval(saveGame, 5000);
+
+loadGame();
+setInterval(renderBalance, 100);
 </script>
-
 </body>
 </html>

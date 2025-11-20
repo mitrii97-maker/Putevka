@@ -216,14 +216,14 @@ header {
 
 <body>
 
-<header>Экскаватор</header>
+<header>Volvo 26</header>
 
 <div class="glass">
   <div style="text-align:center; font-size:18px; color:var(--text-dim)">Наряд (м³)</div>
   <input id="plan" type="number" value="3000">
   <div class="progress"><div id="fill" class="fill"></div></div>
-  <div id="stats" class="stats">0 / 3000 м³</div>
-  <div id="over" class="over-text">+0 м³</div>
+  <div id="stats" class="stats">0 / 3000 кубов</div>
+  <div id="over" class="over-text">+0 кубов</div>
 </div>
 
 <div id="timer" class="timer">Смена: 00:00:00</div>
@@ -259,13 +259,13 @@ function update(){
   fill.style.width = Math.min(pct,200)+"%";
 
   document.getElementById("stats").textContent =
-    `${Math.round(total)} / ${plan} м³`;
+    `${Math.round(total)} / ${plan} кубов`;
 
   const over = document.getElementById("over");
 
   if(total>plan){
     over.style.display="block";
-    over.textContent = `+${Math.round(total-plan)} м³`;
+    over.textContent = `+${Math.round(total-plan)} кубов`;
     fill.classList.add("over");
   } else {
     over.style.display="none";
@@ -296,7 +296,7 @@ function render(){
       <button class="btn minus">−</button>
       <div class="count">${t.c}</div>
       <button class="btn plus">+</button>
-      <div class="vol">${(t.c*V).toFixed(1)} м³</div>
+      <div class="vol">${(t.c*V).toFixed(1)} кубов³</div>
     `;
     el.append(row);
 
@@ -343,7 +343,7 @@ function render(){
 
 /* === ADD === */
 function addTruck(){
-  let n = prompt("Номер БелАЗа")?.trim().toUpperCase();
+  let n = prompt("Номер машины")?.trim().toUpperCase();
   if(!n || trucks.some(t=>t.n===n)) return;
   trucks.push({n,c:0});
   save(); render();
@@ -353,7 +353,7 @@ function addTruck(){
 function shareShift(){
   const total = trucks.reduce((s,t)=>s+t.c*V,0);
   const text = trucks.map(t=>`${t.n}: ${t.c} рейс`).join("\n") +
-    `\nИтого: ${Math.round(total)} м³`;
+    `\nИтого: ${Math.round(total)} кубов`;
 
   navigator.share ? navigator.share({text}) : alert(text);
 }

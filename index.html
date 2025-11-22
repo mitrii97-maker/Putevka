@@ -5,28 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Экскаватор</title>
+<title>Точковка</title>
 <style>
+  :root{--glass:rgba(255,255,255,0.07);--glass2:rgba(255,255,255,0.12);--border:rgba(255,255,255,0.15);--txt:#fff;--dim:rgba(255,255,255,0.7);--green:#30d158;--orange:#ff9f0a}
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{height:100dvh;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,system-ui,sans-serif}
-  header{text-align:center;padding:38px 0 10px;font-size:32px;font-weight:800}
-  .plan{margin:0 12px 10px;padding:14px;background:rgba(255,255,255,0.08);border-radius:16px}
-  #plan{width:100%;padding:8px;font-size:38px;font-weight:800;text-align:center;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px}
+  html,body{height:100dvh;overflow:hidden;background:#000;color:var(--txt);font-family:-apple-system,system-ui,sans-serif}
+  header{text-align:center;padding:36px 0 8px;font-size:36px;font-weight:800;letter-spacing:-1px}
+  .wall{position:fixed;inset:0;background:radial-gradient(circle at 50% 0%,#001f3f,#000);z-index:-2}
+  .blur{position:fixed;inset:0;backdrop-filter:blur(60px);z-index:-1}
+  .timeline{margin:0 16px 12px;padding:16px;background:var(--glass);border-radius:20px;border:1px solid var(--border);display:grid;grid-template-columns:repeat(6,1fr);gap:8px;font-size:13px}
+  .seg{text-align:center}
+  .seg div:first-child{font-weight:600;color:var(--dim)}
+  .seg div:last-child{font-weight:800;font-size:14px;margin-top:4px}
+  .plus{color:var(--green)}
+  .minus{color:var(--orange)}
+  .plan{margin:0 16px 10px;padding:14px;background:var(--glass);border-radius:18px;border:1px solid var(--border)}
+  #plan{width:100%;padding:8px;font-size:36px;font-weight:800;text-align:center;background:var(--glass2);border:1px solid var(--border);border-radius:14px}
   .pr{height:10px;background:rgba(255,255,255,0.15);border-radius:5px;overflow:hidden;margin:12px 0 8px}
-  .fill{height:100%;width:0%;background:#30d158;transition:width .5s}
-  .fill.over{background:#ff9f0a}
-  .done{text-align:center;font-size:26px;font-weight:800}
-  .left{text-align:center;font-size:19px;color:#ff9f0a;margin-top:4px;font-weight:600}
-  .list{flex:1;padding:0 12px 80px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .t{display:flex;align-items:center;padding:11px 14px;background:rgba(255,255,255,0.08);border-radius:14px;margin-bottom:7px;position:relative;overflow:hidden}
-  .n{font-size:30px;font-weight:800;width:64px;text-align:center}
-  .c{font-size:44px;font-weight:900;min-width:90px;text-align:center}
+  .fill{height:100%;width:0%;background:var(--green);transition:width .6s}
+  .fill.over{background:var(--orange)}
+  .done{text-align:center;font-size:24px;font-weight:800}
+  .left{text-align:center;font-size:18px;color:var(--orange);margin-top:4px}
+  .list{flex:1;padding:0 16px 80px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .t{display:flex;align-items:center;padding:12px 14px;background:var(--glass);border-radius:16px;margin-bottom:8px;position:relative;overflow:hidden;border:1px solid var(--border)}
+  .check{width:36px;height:36px;border-radius:10px;border:2px solid var(--dim);margin-right:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+  .check.active{background:var(--green);border-color:var(--green);color:#000}
+  .n{font-size:30px;font-weight:800;width:60px;text-align:center}
+  .c{font-size:42px;font-weight:900;min-width:88px;text-align:center}
   .v{margin-left:auto;padding:5px 10px;background:rgba(0,122,255,0.2);border-radius:9px;font-size:18px;font-weight:700}
-  .b{width:52px;height:52px;border-radius:26px;border:none;font-size:32px;color:#fff;margin:0 10px}
-  .p{background:#007aff}
-  .m{background:#ff3b30}
-  .fab{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:52px;height:52px;background:#007aff;border-radius:26px;font-size:28px;border:none;box-shadow:0 6px 20px rgba(0,122,255,0.4);z-index:99}
-  .sh{position:fixed;bottom:-300px;left:0;right:0;background:rgba(30,30,30,0.97);backdrop-filter:blur(30px);border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(40px,env(safe-area-inset-bottom));transition:bottom .4s;z-index:100}
+  .b{width:50px;height:50px;border-radius:25px;border:none;font-size:30px;color:#fff;margin:0 10px;opacity:0.9}
+  .p{background:rgba(0,122,255,0.4);backdrop-filter:blur(10px)}
+  .m{background:rgba(255,59,48,0.4);backdrop-filter:blur(10px)}
+  .fab{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:52px;height:52px;background:var(--glass2);border-radius:26px;font-size:28px;border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,0.5);z-index:99}
+  .sh{position:fixed;bottom:-300px;left:0;right:0;background:var(--glass2);backdrop-filter:blur(40px);border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(40px,env(safe-area-inset-bottom));transition:bottom .4s;z-index:100;border-top:1px solid var(--border)}
   .sh.open{bottom:0}
   .h{width:40px;height:5px;background:#666;border-radius:3px;margin:0 auto 20px}
   .sh button{width:100%;padding:16px;margin-bottom:10px;background:rgba(255,255,255,0.1);border:none;border-radius:14px;color:#fff;font-size:19px;font-weight:600}
@@ -34,7 +45,12 @@
 </head>
 <body>
 
-<header>Экскаватор</header>
+<div class="wall"></div>
+<div class="blur"></div>
+
+<header>Точковка</header>
+
+<div class="timeline" id="timeline"></div>
 
 <div class="plan">
   <input id="plan" type="number" value="3000">
@@ -55,21 +71,43 @@
 </div>
 
 <script>
-  let t = JSON.parse(localStorage.getItem('exc10')) || [];
+  let t = JSON.parse(localStorage.getItem('toch2025')) || [];
   let tar = +localStorage.getItem('tar') || 3000;
+  let start = localStorage.getItem('day')===new Date().toDateString() ? +localStorage.getItem('st') : Date.now();
+  if(localStorage.getItem('day')!==new Date().toDateString()){start=Date.now();localStorage.setItem('day',new Date().toDateString())}
+  localStorage.setItem('st',start);
+
   document.getElementById('plan').value = tar;
 
-  t = t.map(x=>({n:x.n||'??',c:x.c||0,v:x.v||37.8}));
+  t = t.map(x=>({n:x.n||'??',c:x.c||0,v:x.v||37.8,on:x.on===false?false:true}));
 
-  function sv(){localStorage.setItem('exc10',JSON.stringify(t));localStorage.setItem('tar',tar)}
+  function sv(){localStorage.setItem('toch2025',JSON.stringify(t));localStorage.setItem('tar',tar)}
+
+  function timeline(){
+    const now = (Date.now()-start)/1000/3600;
+    const per2h = tar/6;
+    let html='';
+    for(let i=0;i<6;i++){
+      const from = i*2, to=(i+1)*2;
+      const need = per2h;
+      const done = t.reduce((s,x)=>s + x.c*x.v*(now>from?Math.min(now-to,2)/2:0),0);
+      const diff = done - need*(now>from?Math.min(now-from,2)/2:0);
+      const sign = diff>0?'+' : '';
+      const color = diff>30?'plus':diff<-30?'minus':'';
+      html+=`<div class="seg"><div>${from}-${to}ч</div><div class="${color}">${Math.round(done)}/${Math.round(need)} ${diff>5?sign+Math.round(diff):''}</div></div>`;
+    }
+    document.getElementById('timeline').innerHTML=html;
+  }
+
   function up(){
-    const tot = t.reduce((s,x)=>s+x.c*x.v,0);
-    const lef = Math.max(0,tar-tot);
+    const tot = t.reduce((s,x)=>s + x.c*x.v,0);
     document.getElementById('f').style.width = Math.min(tot/tar*100,200)+'%';
     document.getElementById('done').textContent = Math.round(tot).toLocaleString()+' м³';
-    document.getElementById('left').textContent = lef===0?'НОРМА ВЫПОЛНЕНА':`Осталось: ${Math.round(lef).toLocaleString()} м³`;
+    document.getElementById('left').textContent = tot>=ar?'Осталось: '+Math.round(tar-tot).toLocaleString()+' м³':'НОРМА ВЫПОЛНЕНА';
     document.getElementById('f').classList.toggle('over',tot>tar);
+    timeline();
   }
+
   function ren(){
     document.getElementById('list').innerHTML = t.map((x,i)=>`
       <div class="t" data-i="${i}" onpointerdown="sw(event,this)">
@@ -77,6 +115,7 @@
           Удалить
         </div>
         <div style="width:100%;display:flex;align-items:center">
+          <div class="check ${x.on?'active':''}" onclick="event.stopPropagation();tg(${i})">${x.on?'✓':''}</div>
           <div class="n">${x.n}</div>
           <button class="b m" onclick="event.stopPropagation();ch(${i},-1)">–</button>
           <div class="c" onclick="event.stopPropagation();ch(${i},5)" style="cursor:pointer">${x.c}</div>
@@ -87,31 +126,20 @@
     `).join('');
     up();
   }
+
   window.ch=(i,d)=>{t[i].c=Math.max(0,t[i].c+d);sv();ren();navigator.vibrate?.(30)}
   window.cv=(i)=>{let v=prompt('Кубатура',t[i].v);if(v&&!isNaN(v)){t[i].v=+v;sv();ren()}}
+  window.tg=(i)=>{t[i].on=!t[i].on;sv();ren()}
   let sx=0;
-  window.sw=(e,l)=>{
-    if(e.pointerType==='mouse')return;
-    sx=e.touches[0].clientX;
-    const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};
-    const en=()=>{if(e.changedTouches[0].clientX-sx<-100){t.splice(l.dataset.i,1);sv();ren()}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};
-    document.addEventListener('touchmove',m);
-    document.addEventListener('touchend',en);
-  }
-  window.add=()=>{
-    let n=prompt('Номер БелАЗа')?.trim().toUpperCase();
-    if(!n||t.some(x=>x.n===n))return;
-    let v=prompt('Кубатура',37.8)||37.8;
-    t.push({n,c:0,v:+v});
-    sv();ren();
-  }
+  window.sw=(e,l)=>{if(e.pointerType==='mouse')return;sx=e.touches[0].clientX;const m=e=> {let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};const en=()=>{if(e.changedTouches[0].clientX-sx<-100){t.splice(l.dataset.i,1);sv();ren()}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};document.addEventListener('touchmove',m);document.addEventListener('touchend',en)}
+  window.add=()=>{let n=prompt('Номер БелАЗа')?.trim().toUpperCase();if(!n||t.some(x=>x.n===n))return;let v=prompt('Кубатура',37.8)||37.8;t.push({n,c:0,v:+v,on:true});sv();ren()}
   window.wa=()=>{
-    const txt = t.filter(x=>x.c>0).map(x=>`${x.n} — ${x.c} рейс${x.c>1?'а':''}`).join('\n')||'Рейсов нет';
-    const url = 'whatsapp://send?text='+encodeURIComponent(txt);
-    location.href = url;
+    const txt = t.filter(x=>x.on && x.c>0).map(x=>`${x.n} - ${x.c}`).join('\n')||'Пока пусто';
+    location.href='whatsapp://send?text='+encodeURIComponent(txt);
   }
-  window.res=()=>confirm('Сбросить смену?')&&(t=[],sv(),ren());
+  window.res=()=>confirm('Сбросить смену?')&&(t=[],start=Date.now(),sv(),ren());
   document.getElementById('plan').onchange=e=>{tar=+e.target.value||3000;sv();up()};
+  setInterval(()=>{up()},5000);
   ren();
 </script>
 </body>

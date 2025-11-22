@@ -7,274 +7,112 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Экскаватор</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html, body {
-    height: 100dvh;
-    overflow: hidden;
-    font-family: -apple-system, SF Pro Display, sans-serif;
-    background: #000;
-    color: #fff;
-  }
-
-  header {
-    text-align: center;
-    padding: 44px 20px 16px;
-    font-size: 36px;
-    font-weight: 800;
-    letter-spacing: -0.8px;
-  }
-
-  .plan-card {
-    margin: 0 16px 16px;
-    padding: 20px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 20px;
-    backdrop-filter: blur(20px);
-  }
-
-  #plan {
-    width: 100%;
-    padding: 12px;
-    font-size: 48px;
-    font-weight: 800;
-    text-align: center;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 16px;
-    color: #fff;
-  }
-
-  .progress {
-    height: 14px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 7px;
-    overflow: hidden;
-    margin: 16px 0;
-  }
-  .fill {
-    height: 100%;
-    width: 0%;
-    background: #30d158;
-    transition: width 0.6s ease;
-  }
-  .over { background: #ff9f0a; }
-
-  .stats {
-    text-align: center;
-    font-size: 32px;
-    font-weight: 800;
-  }
-  .remain {
-    text-align: center;
-    font-size: 24px;
-    color: #ff9f0a;
-    margin-top: 8px;
-    font-weight: 600;
-  }
-
-  .trucks {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0 16px 100px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .truck {
-    display: flex;
-    align-items: center;
-    padding: 18px 20px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 18px;
-    margin-bottom: 12px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .num { font-size: 36px; font-weight: 800; width: 80px; text-align: center; }
-  .count { font-size: 56px; font-weight: 900; min-width: 110px; text-align: center; }
-  .vol {
-    margin-left: auto;
-    padding: 8px 16px;
-    background: rgba(0,122,255,0.2);
-    border-radius: 12px;
-    font-size: 24px;
-    font-weight: 700;
-  }
-
-  .btn {
-    width: 68px; height: 68px; border-radius: 34px; border: none;
-    font-size: 40px; color: white; font-weight: bold;
-    margin: 0 16px;
-  }
-  .plus { background: #007aff; }
-  .minus { background: #ff3b30; }
-
-  /* Нижнее выезжающее меню */
-  .sheet {
-    position: fixed;
-    bottom: -300px;
-    left: 0; right: 0;
-    background: rgba(30,30,30,0.95);
-    backdrop-filter: blur(30px);
-    border-radius: 24px 24px 0 0;
-    padding: 20px;
-    padding-bottom: max(40px, env(safe-area-inset-bottom));
-    transition: bottom 0.4s cubic-bezier(0.16,1,0.3,1);
-    z-index: 100;
-  }
-  .sheet.open { bottom: 0; }
-
-  .handle {
-    width: 40px; height: 5px; background: #666; border-radius: 3px;
-    margin: 0 auto 20px;
-  }
-
-  .sheet button {
-    width: 100%;
-    padding: 18px;
-    margin-bottom: 12px;
-    background: rgba(255,255,255,0.1);
-    border: none;
-    border-radius: 16px;
-    color: white;
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  .fab {
-    position: fixed;
-    bottom: max(24px, env(safe-area-inset-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    width: 64px; height: 64px;
-    background: #007aff;
-    border-radius: 32px;
-    font-size: 32px;
-    color: white;
-    border: none;
-    box-shadow: 0 8px 30px rgba(0,122,255,0.4);
-    z-index: 99;
-  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100dvh;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,system-ui,sans-serif}
+  header{text-align:center;padding:38px 0 10px;font-size:32px;font-weight:800}
+  .plan{margin:0 12px 10px;padding:14px;background:rgba(255,255,255,0.08);border-radius:16px}
+  #plan{width:100%;padding:8px;font-size:38px;font-weight:800;text-align:center;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px}
+  .pr{height:10px;background:rgba(255,255,255,0.15);border-radius:5px;overflow:hidden;margin:12px 0 8px}
+  .fill{height:100%;width:0%;background:#30d158;transition:width .5s}
+  .fill.over{background:#ff9f0a}
+  .done{text-align:center;font-size:26px;font-weight:800}
+  .left{text-align:center;font-size:19px;color:#ff9f0a;margin-top:4px;font-weight:600}
+  .list{flex:1;padding:0 12px 80px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .t{display:flex;align-items:center;padding:11px 14px;background:rgba(255,255,255,0.08);border-radius:14px;margin-bottom:7px;position:relative;overflow:hidden}
+  .n{font-size:30px;font-weight:800;width:64px;text-align:center}
+  .c{font-size:44px;font-weight:900;min-width:90px;text-align:center}
+  .v{margin-left:auto;padding:5px 10px;background:rgba(0,122,255,0.2);border-radius:9px;font-size:18px;font-weight:700}
+  .b{width:52px;height:52px;border-radius:26px;border:none;font-size:32px;color:#fff;margin:0 10px}
+  .p{background:#007aff}
+  .m{background:#ff3b30}
+  .fab{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:52px;height:52px;background:#007aff;border-radius:26px;font-size:28px;border:none;box-shadow:0 6px 20px rgba(0,122,255,0.4);z-index:99}
+  .sh{position:fixed;bottom:-300px;left:0;right:0;background:rgba(30,30,30,0.97);backdrop-filter:blur(30px);border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(40px,env(safe-area-inset-bottom));transition:bottom .4s;z-index:100}
+  .sh.open{bottom:0}
+  .h{width:40px;height:5px;background:#666;border-radius:3px;margin:0 auto 20px}
+  .sh button{width:100%;padding:16px;margin-bottom:10px;background:rgba(255,255,255,0.1);border:none;border-radius:14px;color:#fff;font-size:19px;font-weight:600}
 </style>
 </head>
 <body>
 
 <header>Экскаватор</header>
 
-<div class="plan-card">
+<div class="plan">
   <input id="plan" type="number" value="3000">
-  <div class="progress"><div class="fill" id="fill"></div></div>
-  <div class="stats" id="done">0 м³</div>
-  <div class="remain" id="remain">Осталось: 3000 м³</div>
+  <div class="pr"><div class="fill" id="f"></div></div>
+  <div class="done" id="done">0 м³</div>
+  <div class="left" id="left">Осталось: 3000 м³</div>
 </div>
 
-<div class="trucks" id="list"></div>
+<div class="list" id="list"></div>
 
-<button class="fab" onclick="toggleSheet()">⋯</button>
+<button class="fab" onclick="s.classList.toggle('open')">⋯</button>
 
-<div class="sheet" id="sheet">
-  <div class="handle"></div>
-  <button onclick="addTruck(); toggleSheet()">+ Добавить БелАЗ</button>
-  <button onclick="shareShift(); toggleSheet()">Поделиться сменой</button>
-  <button onclick="resetShift(); toggleSheet()" style="background:rgba(255,59,48,0.3)">Сбросить смену</button>
+<div class="sh" id="s">
+  <div class="h"></div>
+  <button onclick="add();s.classList.toggle('open')">+ Добавить БелАЗ</button>
+  <button onclick="wa();s.classList.toggle('open')">Диспетчеру в WhatsApp</button>
+  <button onclick="res();s.classList.toggle('open')" style="background:rgba(255,59,48,0.3)">Сбросить смену</button>
 </div>
 
 <script>
-  let trucks = JSON.parse(localStorage.getItem('exc_strict')) || [];
-  let target = +localStorage.getItem('exc_target') || 3000;
+  let t = JSON.parse(localStorage.getItem('exc10')) || [];
+  let tar = +localStorage.getItem('tar') || 3000;
+  document.getElementById('plan').value = tar;
 
-  // Совместимость со старыми данными
-  trucks = trucks.map(t => ({
-    n: t.n || t.num || '??',
-    c: t.c || t.trips || 0,
-    v: t.v || 37.8
-  }));
+  t = t.map(x=>({n:x.n||'??',c:x.c||0,v:x.v||37.8}));
 
-  document.getElementById('plan').value = target;
-
-  function save() {
-    localStorage.setItem('exc_strict', JSON.stringify(trucks));
-    localStorage.setItem('exc_target', target);
+  function sv(){localStorage.setItem('exc10',JSON.stringify(t));localStorage.setItem('tar',tar)}
+  function up(){
+    const tot = t.reduce((s,x)=>s+x.c*x.v,0);
+    const lef = Math.max(0,tar-tot);
+    document.getElementById('f').style.width = Math.min(tot/tar*100,200)+'%';
+    document.getElementById('done').textContent = Math.round(tot).toLocaleString()+' м³';
+    document.getElementById('left').textContent = lef===0?'НОРМА ВЫПОЛНЕНА':`Осталось: ${Math.round(lef).toLocaleString()} м³`;
+    document.getElementById('f').classList.toggle('over',tot>tar);
   }
-
-  function update() {
-    const done = trucks.reduce((s,t) => s + t.c * t.v, 0);
-    const left = Math.max(0, target - done);
-    const perc = Math.min((done / target) * 100, 200);
-
-    document.getElementById('fill').style.width = perc + '%';
-    document.getElementById('done').textContent = `${Math.round(done).toLocaleString()} м³`;
-    document.getElementById('remain').textContent = left === 0 ? 'Норма выполнена!' : `Осталось: ${Math.round(left).toLocaleString()} м³`;
-    document.getElementById('fill').classList.toggle('over', done > target);
-  }
-
-  function render() {
-    document.getElementById('list').innerHTML = trucks.map((t,i) => `
-      <div class="truck" data-i="${i}" onpointerdown="swipeStart(event,this)">
-        <div style="position:absolute;left:0;top:0;bottom:0;width:90px;background:#ff3b30;color:white;display:flex;align-items:center;justify-content:center;font-size:24px;transform:translateX(-100%)">
+  function ren(){
+    document.getElementById('list').innerHTML = t.map((x,i)=>`
+      <div class="t" data-i="${i}" onpointerdown="sw(event,this)">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:80px;background:#ff3b30;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;transform:translateX(-100%)">
           Удалить
         </div>
-        <div style="widthрева:100%;display:flex;align-items:center">
-          <div class="num">${t.n}</div>
-          <button class="btn minus" onclick="event.stopPropagation(); ch(${i},-1)">–</button>
-          <div class="count" onclick="event.stopPropagation(); ch(${i},5)" style="cursor:pointer">${t.c}</div>
-          <button class="btn plus" onclick="event.stopPropagation(); ch(${i},1)">+</button>
-          <div class="vol" onclick="event.stopPropagation(); changeV(${i})">${t.v} м³</div>
+        <div style="width:100%;display:flex;align-items:center">
+          <div class="n">${x.n}</div>
+          <button class="b m" onclick="event.stopPropagation();ch(${i},-1)">–</button>
+          <div class="c" onclick="event.stopPropagation();ch(${i},5)" style="cursor:pointer">${x.c}</div>
+          <button class="b p" onclick="event.stopPropagation();ch(${i},1)">+</button>
+          <div class="v" onclick="event.stopPropagation();cv(${i})">${x.v} м³</div>
         </div>
       </div>
     `).join('');
-    update();
+    up();
   }
-
-  window.ch = (i,d) => { trucks[i].c = Math.max(0, trucks[i].c + d); save(); render(); navigator.vibrate?.(30); }
-  window.changeV = (i) => {
-    const v = prompt(`Кубатура ${trucks[i].n}`, trucks[i].v);
-    if (v && !isNaN(v)) { trucks[i].v = +(+v).toFixed(1); save(); render(); }
+  window.ch=(i,d)=>{t[i].c=Math.max(0,t[i].c+d);sv();ren();navigator.vibrate?.(30)}
+  window.cv=(i)=>{let v=prompt('Кубатура',t[i].v);if(v&&!isNaN(v)){t[i].v=+v;sv();ren()}}
+  let sx=0;
+  window.sw=(e,l)=>{
+    if(e.pointerType==='mouse')return;
+    sx=e.touches[0].clientX;
+    const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};
+    const en=()=>{if(e.changedTouches[0].clientX-sx<-100){t.splice(l.dataset.i,1);sv();ren()}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};
+    document.addEventListener('touchmove',m);
+    document.addEventListener('touchend',en);
   }
-
-  let startX = 0;
-  window.swipeStart = (e, el) => {
-    if (e.pointerType === 'mouse') return;
-    startX = e.touches[0].clientX;
-    const move = e => {
-      const diff = e.touches[0].clientX - startX;
-      if (diff < 0) el.style.transform = `translateX(${diff}px)`;
-    };
-    const end = e => {
-      if (e.changedTouches[0].clientX - startX < -100) {
-        trucks.splice(el.dataset.i, 1);
-        save(); render();
-      } else el.style.transform = '';
-      document.removeEventListener('touchmove', move);
-      document.removeEventListener('touchend', end);
-    };
-    document.addEventListener('touchmove', move);
-    document.addEventListener('touchend', end);
+  window.add=()=>{
+    let n=prompt('Номер БелАЗа')?.trim().toUpperCase();
+    if(!n||t.some(x=>x.n===n))return;
+    let v=prompt('Кубатура',37.8)||37.8;
+    t.push({n,c:0,v:+v});
+    sv();ren();
   }
-
-  window.addTruck = () => {
-    const n = prompt('Номер БелАЗа')?.trim().toUpperCase();
-    if (!n) return;
-    if (trucks.some(t=>t.n===n)) return alert('Уже есть');
-    const v = prompt('Кубатура, м³', '37.8') || 37.8;
-    trucks.push({n, c:0, v:+v});
-    save(); render();
+  window.wa=()=>{
+    const txt = t.filter(x=>x.c>0).map(x=>`${x.n} — ${x.c} рейс${x.c>1?'а':''}`).join('\n')||'Рейсов нет';
+    const url = 'whatsapp://send?text='+encodeURIComponent(txt);
+    location.href = url;
   }
-
-  window.shareShift = () => {
-    const done = trucks.reduce((s,t)=>s+t.c*t.v,0);
-    const text = trucks.filter(t=>t.c>0).map(t=>`${t.n} — ${t.c} рейс. (${t.v} м³)`).join('\n') || 'Рейсов нет';
-    navigator.clipboard.writeText(text + `\n\nИтого: ${Math.round(done)} м³ / ${target}`);
-    alert('Скопировано диспетчеру');
-  }
-
-  window.resetShift = () => confirm('Сбросить смену?') && (trucks=[], save(), render());
-
-  document.getElementById('plan').onchange = e => { target = +e.target.value || 3000; save(); update(); };
-
-  window.toggleSheet = () => document.getElementById('sheet').classList.toggle('open');
-
-  render();
+  window.res=()=>confirm('Сбросить смену?')&&(t=[],sv(),ren());
+  document.getElementById('plan').onchange=e=>{tar=+e.target.value||3000;sv();up()};
+  ren();
 </script>
 </body>
 </html>

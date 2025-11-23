@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Разбей яйцо вместе! 🥚💥</title>
-
-  <!-- Новый Firebase SDK v10+ (модульный) -->
+  <title>Разбей яйцо вместе с любимой ❤️</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set, runTransaction, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, runTransaction, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Твой конфиг (уже вставлен)
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    // ВСТАВЬ СВОЙ НОВЫЙ КОНФИГ СЮДА
     const firebaseConfig = {
   apiKey: "AIzaSyAzGea6sRTQek_bYAOnJdvKjKxd5sRgX7E",
   authDomain: "klicker-love.firebaseapp.com",
@@ -21,109 +20,163 @@
   appId: "1:805841292732:web:8bfbe94ddbe6ac7b472fb9",
   measurementId: "G-L1H4GM9FQ8"
 };
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
-    // Одна общая комната
-    const roomRef = ref(db, "egg_room");
     const clicksRef = ref(db, "egg_room/clicks");
     const messagesRef = ref(db, "egg_room/messages");
 
-    // Имя игрока
-    const myName = prompt("Как тебя зовут? ❤️", "Любимка " + Math.floor(Math.random()*999)) || "Аноним";
+    const myName = prompt("Как тебя зовут? ❤️", "Моя половинка ❤️") || "Аноним";
 
-    // ==================== СЧЁТЧИК КЛИКОВ ====================
-    onValue(clicksRef, (snapshot) => {
-      let clicks = snapshot.val();
-      if (clicks === null) clicks = 1000; // начальное значение
+    // Конфетти при победе
+    const confetti = () => {
+      const canvas = document.createElement("canvas");
+      canvas.style.position = "fixed";
+      canvas.style.inset = 0;
+      canvas.style.pointerEvents = "none";
+      canvas.style.zIndex = 9999;
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext("2d");
+      canvas.width = innerWidth; canvas.height = innerHeight;
 
-      document.getElementById("clicks").textContent = clicks;
-
-      if (clicks <= 0) {
-        document.getElementById("egg").style.display = "none";
-        document.getElementById("counter").style.display = "none";
-        document.getElementById("win").style.display = "block";
+      const pieces = [];
+      for(let i=0;i<300;i++){
+        pieces.push({
+          x: Math.random()*innerWidth,
+          y: Math.random()*innerHeight-200,
+          r: Math.random()*4+1,
+          d: Math.random()*10,
+          color: `hsl(${Math.random()*360},100%,50%)`,
+          tilt: Math.random()*10-10,
+          tiltAngle: 0
+        });
       }
-    });
 
-    document.getElementById("egg").onclick = () => {
-      runTransaction(clicksRef, (current) => {
-        if (current === null) return 1000;
-        return current > 0 ? current - 1 : 0;
-      });
+      let animation;
+      const animate = () => {
+        ctx.clearRect(0,0,innerWidth,innerHeight);
+        pieces.forEach(p => {
+          p.tiltAngle += 0.1;
+          p.tilt = Math.sin(p.tiltAngle)*15;
+          p.y += p.d;
+          if(p.y > innerHeight) p.y = -20;
+          ctx.beginPath();
+          ctx.lineWidth = p.r;
+          ctx.strokeStyle = p.color;
+          ctx.moveTo(p.x + p.tilt + p.r/2, p.y);
+          ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r/2);
+          ctx.stroke();
+        });
+        animation = requestAnimationFrame(animate);
+      };
+      animate();
+
+      setTimeout(() => {
+        cancelAnimationFrame(animation);
+        canvas.remove();
+      }, 8000);
     };
 
-    // ==================== ЧАТ ====================
-    const chatDiv = document.getElementById("chat");
-    const input = document.getElementById("msg");
-
-    // Новые сообщения
-    onValue(messagesRef, (snapshot) => {
-      chatDiv.innerHTML = "";
-      snapshot.forEach(child => {
-        const msg = child.val();
-        const div = document.createElement("div");
-        div.className = "msg" + (msg.name === myName ? " my" : "");
-        div.innerHTML = `<b>${msg.name}:</b> ${msg.text}`;
-        chatDiv.appendChild(div);
-      });
-      chatDiv.scrollTop = chatDiv.scrollHeight;
-    }, { onlyOnce: false });
-
-    // Отправка сообщения
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && input.value.trim()) {
-        push(messagesRef, {
-          name: myName,
-          text: input.value.trim(),
-          time: serverTimestamp()
-        });
-        input.value = "";
+    // Счётчик
+    onValue(clicksRef, s => {
+      let clicks = s.val() ?? 1000;
+      document.getElementById("clicks").textContent = clicks.toLocaleString();
+      if (clicks <= 0) {
+        document.getElementById("game").style.display = "none";
+        document.getElementById("win").style.display = "block";
+        confetti();
+        new Audio("https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3").play();
       }
     });
 
-    // Чтобы чат не рос бесконечно — оставляем только последние 100 сообщений
-    onValue(messagesRef, (snapshot) => {
-      const updates = {};
-      let count = 0;
-      snapshot.forEach(child => {
-        count++;
-        if (count <= snapshot.size - 100) {
-          updates[child.key] = null;
-        }
+    // Клик по яйцу
+    document.getElementById("egg").onclick = () => {
+      runTransaction(clicksRef, c => (c ?? 1000) > 0 ? c - 1 : 0);
+      document.getElementById("egg").style.transform = "scale(0.9)";
+      setTimeout(() => document.getElementById("egg").style.transform = "", 100);
+      new Audio("https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3").play();
+    };
+
+    // Чат
+    const chat = document.getElementById("chat");
+    onValue(messagesRef, s => {
+      chat.innerHTML = "";
+      s.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "msg " + (m.val().name === myName ? "my" : "other");
+        div.innerHTML = `<span class="name">${m.val().name}</span><span class="text">${m.val().text}</span>`;
+        chat.appendChild(div);
       });
-      if (count > 100) set(ref(db, "egg_room/messages"), updates);
-    }, { onlyOnce: false });
+      chat.scrollTop = chat.scrollHeight;
+    });
+
+    document.getElementById("msg").addEventListener("keydown", e => {
+      if (e.key === "Enter" && e.target.value.trim()) {
+        push(messagesRef, { name: myName, text: e.target.value.trim(), time: serverTimestamp() });
+        e.target.value = "";
+      }
+    });
   </script>
 
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #fff8d6; margin: 0; padding: 20px; }
-    h1 { color: #d4380d; }
-    #egg { font-size: 200px; cursor: pointer; user-select: none; transition: 0.1s; margin: 20px; }
-    #egg:active { transform: scale(0.93); }
-    #counter { font-size: 50px; margin: 20px; color: #d4380d; }
-    #win { display: none; font-size: 60px; color: #ffc107; text-shadow: 3px 3px #ff3d00; margin: 50px; animation: pulse 1s infinite; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-    #chat { width: 90%; max-width: 600px; margin: 30px auto; height: 350px; overflow-y: auto; border: 3px solid #ffa39e; border-radius: 15px; padding: 15px; background: white; text-align: left; }
-    #msg { width: 78%; padding: 15px; font-size: 18px; border: 2px solid #ffa39e; border-radius: 10px; }
-    button { padding: 15px 25px; font-size: 18px; background: #ff7a59; color: white; border: none; border-radius: 10px; cursor: pointer; }
-    .msg { margin: 10px 0; padding: 10px 14px; background: #fffbe6; border-radius: 15px; max-width: 80%; word-wrap: break-word; }
-    .my { background: #ff7a59; color: white; margin-left: auto; text-align: right; }
+    body { margin:0; min-height:100vh; background:linear-gradient(135deg, #ff9a9e, #fad0c4); font-family:'Segoe UI',sans-serif; color:#333; overflow-x:hidden; }
+    .container { max-width:700px; margin:0 auto; padding:20px; }
+    h1 { font-size:48px; text-align:center; color:#fff; text-shadow:2px 2px 10px rgba(0,0,0,0.3); margin-bottom:0; }
+    .subtitle { text-align:center; color:#fff; font-size:20px; margin:10px 0 30px; }
+
+    #game { background:white; border-radius:30px; padding:40px 20px; box-shadow:0 20px 40px rgba(0,0,0,0.1); text-align:center; margin-bottom:30px; }
+
+    #egg { font-size:220px; cursor:pointer; transition:all .15s; user-select:none; margin:20px 0; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)); }
+    #egg:hover { transform:scale(1.05) rotate(5deg); }
+    #egg:active { transform:scale(0.9) rotate(-5deg); }
+
+    #counter { font-size:42px; font-weight:bold; color:#e91e63; background:linear-gradient(45deg,#ff6b6b,#feca57); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+    #win { display:none; text-align:center; padding:50px 20px; animation:fadeIn 1s; }
+    #win h2 { font-size:60px; color:#fff; text-shadow:2px 2px 15px rgba(0,0,0,0.5); }
+    #chick { font-size:180px; animation:float 3s infinite; }
+    @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-20px); } }
+    @keyframes fadeIn { from { opacity:0; transform:scale(0.8); } to { opacity:1; transform:scale(1); } }
+
+    #chatbox { background:white; border-radius:25px; box-shadow:0 15px 35px rgba(0,0,0,0.1); overflow:hidden; }
+    #chat { height:400px; overflow-y:auto; padding:20px; background:linear-gradient(to bottom, #fdfbfb, #e8f4f8); }
+    .msg { margin:12px 8px; padding:12px 18px; border-radius:20px; max-width:75%; word-wrap:break-word; animation:msgIn .3s; }
+    .my { background:#ff6b9d; color:white; margin-left:auto; border-bottom-right-radius:5px; }
+    .other { background:#f1f3f4; color:#333; margin-right:auto; border-bottom-left-radius:5px; }
+    .name { font-weight:bold; font-size:14px; opacity:0.9; display:block; margin-bottom:4px; }
+    @keyframes msgIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+
+    #inputbar { display:flex; padding:15px; background:#f8f9fa; border-top:1px solid #eee; }
+    #msg { flex:1; padding:15px 20px; border:none; border-radius:30px; font-size:17px; box-shadow:inset 0 2px 10px rgba(0,0,0,0.05); }
+    #msg:focus { outline:none; box-shadow:0 0 0 3px rgba(255,107,157,0.3); }
+
+    .heart { color:#ff6b9d; animation:pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.3); } }
   </style>
 </head>
 <body>
-  <h1>Разбейте яйцо вместе! 🥚❤️</h1>
-  <div id="egg">🥚</div>
-  <div id="counter">Осталось кликов: <span id="clicks">1000</span></div>
-  
-  <div id="win">
-    🎉 ЯЙЦО РАЗБИТО! 🎉<br><br>
-    Вы с любимым человеком — настоящая команда мечты! 🐔❤️<br>
-    Любви вам и миллион таких яиц ещё! 💕
-  </div>
+  <div class="container">
+    <h1>Разбей яйцо вместе <span class="heart">❤️</span></h1>
+    <p class="subtitle">Кликайте по яйцу вдвоём — и посмотрим, кто вылупится!</p>
 
-  <div id="chat"></div>
-  <input type="text" id="msg" placeholder="Напиши сообщение и нажми Enter..." autocomplete="off" />
+    <div id="game">
+      <div id="egg">🥚</div>
+      <div id="counter">Осталось кликов: <span id="clicks">1000</span></div>
+    </div>
+
+    <div id="win">
+      <h2>🎉 ЯЙЦО РАЗБИТО! 🎉</h2>
+      <div id="chick">🐥</div>
+      <h2>Вы — самая лучшая пара в мире! 💕</h2>
+    </div>
+
+    <div id="chatbox">
+      <div id="chat"></div>
+      <div id="inputbar">
+        <input id="msg" placeholder="Напиши сообщение и Enter..." autocomplete="off">
+      </div>
+    </div>
+  </div>
 </body>
 </html>

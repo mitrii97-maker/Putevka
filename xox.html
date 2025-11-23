@@ -13,36 +13,46 @@
 
 <style>
 /* ------------------------------------------------------
-   GLOBAL THEME — iOS 26 Liquid Glass
+   GLOBAL THEME — Liquid Glass VisionOS (Touch reactive)
 -------------------------------------------------------*/
+
 :root {
-  --glass: rgba(255,255,255,0.10);
-  --glass2: rgba(255,255,255,0.15);
-  --border: rgba(255,255,255,0.22);
+  --glass: rgba(255,255,255,0.12);
+  --glass2: rgba(255,255,255,0.18);
+  --border: rgba(255,255,255,0.25);
   --text: rgba(255,255,255,0.95);
   --subtext: rgba(255,255,255,0.55);
+  --rainbow:
+    radial-gradient(circle at var(--x,50%) var(--y,50%),
+      rgba(255,0,120,0.3),
+      transparent 50%),
+    radial-gradient(circle at calc(100% - var(--x,50%)) calc(100% - var(--y,50%)),
+      rgba(0,180,255,0.28),
+      transparent 55%),
+    radial-gradient(circle at var(--x,50%) calc(100% - var(--y,50%)),
+      rgba(90,0,255,0.3),
+      transparent 50%);
 }
 
-/* Gradient background */
 body {
   margin:0;
   padding:0;
   height:100dvh;
-  background:radial-gradient(circle at 50% 0%, #1a1a1d, #000);
-  color:var(--text);
-  font-family:-apple-system, system-ui, sans-serif;
+  background:linear-gradient(180deg, #000008, #0b0b10);
   overflow:hidden;
+  font-family:-apple-system, system-ui, sans-serif;
+  color:white;
 }
 
 /* ------------------------------------------------------
-   HEADER
+ HEADER
 -------------------------------------------------------*/
 header{
   text-align:center;
-  padding:56px 20px 16px;
+  padding:60px 20px 18px;
   font-size:42px;
   font-weight:900;
-  background:linear-gradient(90deg,#ffffff,#dcdcdc);
+  background:linear-gradient(90deg,#fff,#eaeaea);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 }
@@ -54,22 +64,33 @@ header{
   margin:0 20px;
   padding:24px;
   border-radius:28px;
-  background:var(--glass);
+  background:var(--glass2);
   border:1px solid var(--border);
-  backdrop-filter:blur(40px);
-  -webkit-backdrop-filter:blur(40px);
+  backdrop-filter:blur(35px);
+  -webkit-backdrop-filter:blur(35px);
   position:relative;
+  overflow:hidden;
 }
 
-/* top gloss */
 .plan::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--rainbow);
+  opacity:0.45;
+  filter:blur(40px);
+  pointer-events:none;
+}
+
+.plan::after{
   content:"";
   position:absolute;
   inset:0;
   border-radius:28px;
   background:linear-gradient(to bottom,
-    rgba(255,255,255,0.35),
-    rgba(255,255,255,0.03) 45%);
+      rgba(255,255,255,0.45),
+      rgba(255,255,255,0.03) 50%);
+  mix-blend-mode:overlay;
   pointer-events:none;
 }
 
@@ -77,44 +98,42 @@ header{
   width:100%;
   padding:18px;
   margin-bottom:18px;
-  background:var(--glass2);
+  font-size:38px;
+  background:rgba(255,255,255,0.10);
   border:1px solid var(--border);
   border-radius:22px;
-  font-size:40px;
+  color:white;
   text-align:center;
   font-weight:800;
-  color:white;
 }
 
-/* Progress bar */
+/* PROGRESS BAR */
 .pr{
   height:16px;
-  background:rgba(255,255,255,0.15);
-  border-radius:8px;
+  background:rgba(255,255,255,0.20);
+  border-radius:10px;
   overflow:hidden;
 }
-
 .fill{
   height:100%;
   width:0%;
-  background:linear-gradient(90deg,#fff,#ddd);
+  background:linear-gradient(90deg,#fff,#ececec);
   transition:width .4s;
 }
 .fill.over{
-  background:linear-gradient(90deg,#d5ffd5,#fff0b0);
+  background:linear-gradient(90deg,#bbffbb,#ffeab4);
 }
 
 .done{
   text-align:center;
-  margin-top:14px;
+  margin-top:12px;
   font-size:30px;
   font-weight:900;
 }
-
 .left{
   text-align:center;
-  margin-top:6px;
   font-size:20px;
+  margin-top:6px;
   color:var(--subtext);
 }
 
@@ -131,130 +150,131 @@ header{
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  overflow:hidden; /* NO SCROLL */
+  overflow:hidden;
 }
 
 .t{
   position:relative;
   padding:18px;
   border-radius:26px;
+  overflow:hidden;
+
+  /* LIQUID GLASS BASE */
   background:var(--glass2);
   border:1px solid var(--border);
   backdrop-filter:blur(40px);
   -webkit-backdrop-filter:blur(40px);
-  display:flex;
-  align-items:center;
-  gap:12px;
-  height: calc((100% - 4 * 14px) / 5);
+
+  /* RAINBOW MOTION */
+  background-image:var(--rainbow);
+  background-blend-mode:screen;
 }
 
-/* top gloss */
 .t::before{
   content:"";
   position:absolute;
   inset:0;
-  border-radius:26px;
-  background:linear-gradient(to bottom,
-    rgba(255,255,255,0.35),
-    rgba(255,255,255,0.05) 45%);
   pointer-events:none;
+  background:linear-gradient(to bottom,
+    rgba(255,255,255,0.40),
+    rgba(255,255,255,0.02) 55%);
 }
 
+/* UI inside card */
 .chk{
   width:30px;
   height:30px;
 }
-
 .n{
   width:70px;
   text-align:center;
   font-size:30px;
   font-weight:800;
 }
-
 .b{
   width:54px;
   height:54px;
   border-radius:27px;
   border:1px solid var(--border);
-  background:var(--glass);
-  backdrop-filter:blur(30px);
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(25px);
+  -webkit-backdrop-filter:blur(25px);
   font-size:36px;
   color:white;
 }
-
 .c{
   width:90px;
   text-align:center;
   font-size:40px;
   font-weight:900;
 }
-
 .v{
   margin-left:auto;
-  padding:8px 14px;
-  background:var(--glass);
+  padding:10px 14px;
   border-radius:16px;
+  background:rgba(255,255,255,0.14);
   border:1px solid var(--border);
 }
 
 /* ------------------------------------------------------
-   FLOAT BUTTON (...)
+ FLOAT BUTTON (...)
 -------------------------------------------------------*/
 .fab{
   position:fixed;
-  bottom:max(26px, env(safe-area-inset-bottom));
+  bottom:max(28px, env(safe-area-inset-bottom));
   left:50%;
   transform:translateX(-50%);
-  width:64px;
-  height:64px;
-  border-radius:32px;
-  border:1px solid var(--border);
+  width:66px;
+  height:66px;
+  border-radius:33px;
   background:var(--glass2);
-  backdrop-filter:blur(40px);
-  -webkit-backdrop-filter:blur(40px);
-  font-size:30px;
+  border:1px solid var(--border);
+  backdrop-filter:blur(35px);
+  -webkit-backdrop-filter:blur(35px);
+  font-size:32px;
   color:white;
-  z-index:50;
+  z-index:90;
 }
 
 /* ------------------------------------------------------
-   BOTTOM SHEET
+ BOTTOM SHEET
 -------------------------------------------------------*/
 .sh{
   position:fixed;
   left:0;
   right:0;
   bottom:-360px;
-  padding:28px 22px;
+  padding:26px;
   padding-bottom:max(40px, env(safe-area-inset-bottom));
+  background:rgba(15,15,20,0.92);
   backdrop-filter:blur(40px);
   -webkit-backdrop-filter:blur(40px);
-  background:rgba(25,25,25,0.92);
   border-radius:30px 30px 0 0;
   border-top:1px solid var(--border);
-  box-shadow:0 -20px 60px rgba(0,0,0,0.5);
   transition:bottom .35s ease-out;
   z-index:200;
 }
-.sh.open{ bottom:0; }
+.sh.open{
+  bottom:0;
+}
 
 .h{
-  width:50px;
+  width:46px;
   height:6px;
   background:rgba(255,255,255,0.35);
   border-radius:3px;
-  margin:0 auto 26px;
+  margin:0 auto 22px;
 }
 
 .sh button{
   width:100%;
   padding:20px;
-  margin-bottom:18px;
+  margin-bottom:16px;
   border-radius:24px;
   border:1px solid var(--border);
   background:var(--glass2);
   backdrop-filter:blur(40px);
+  -webkit-backdrop-filter:blur(40px);
   font-size:22px;
   color:white;
 }
@@ -284,8 +304,11 @@ header{
 </div>
 
 <script>
+/* ------------------------------
+   DATA
+-------------------------------*/
 let trucks = JSON.parse(localStorage.getItem('toch2025_final')) || [];
-let target  = +localStorage.getItem('target2025') || 3000;
+let target = +localStorage.getItem('target2025') || 3000;
 
 document.getElementById('plan').value = target;
 
@@ -303,29 +326,33 @@ function save(){
 
 function update(){
   const total = trucks.reduce((s,x)=>s + (x.on ? x.c*x.v : 0), 0);
-  const left  = Math.max(0, target - total);
-
-  f.style.width = Math.min((total/target)*100, 120) + "%";
-  done.textContent = `${Math.round(total)} м³`;
-  left === 0
-    ? left.textContent = "НОРМА ВЫПОЛНЕНА"
-    : left.textContent = `Осталось: ${Math.round(left)} м³`;
+  const left = Math.max(0, target - total);
+  f.style.width = Math.min(total/target*100, 120) + "%";
+  done.textContent = Math.round(total) + " м³";
+  left === 0 ?
+    left.textContent = "НОРМА ВЫПОЛНЕНА" :
+    left.textContent = `Осталось: ${Math.round(left)} м³`;
 }
 
 function render(){
   list.innerHTML = trucks.map((x,i)=>`
     <div class="t">
-      <input type="checkbox" class="chk" ${x.on?"checked":""} onchange="tog(${i})">
+      <input type="checkbox" class="chk"
+             ${x.on?"checked":""}
+             onchange="tog(${i})">
+
       <div class="n">${x.n}</div>
 
       <button class="b" onclick="event.stopPropagation();ch(${i},-1)">–</button>
+
       <div class="c">${x.c}</div>
+
       <button class="b" onclick="event.stopPropagation();ch(${i},1)">+</button>
 
-      <div class="v" onclick="event.stopPropagation();cv(${i})">${x.v} м³</div>
+      <div class="v"
+           onclick="event.stopPropagation();cv(${i})">${x.v} м³</div>
     </div>
   `).join('');
-
   update();
 }
 
@@ -334,13 +361,13 @@ window.tog = i => {
   save(); render();
 };
 
-window.ch = (i,d) => {
+window.ch = (i,d)=>{
   trucks[i].c = Math.max(0, trucks[i].c + d);
   save(); render();
   navigator.vibrate?.(30);
 };
 
-window.cv = i => {
+window.cv = i=>{
   let v = prompt("Кубатура", trucks[i].v);
   if(v && !isNaN(v)){
     trucks[i].v = +v;
@@ -355,10 +382,8 @@ window.add = ()=>{
   }
   let n = prompt("Номер БелАЗа")?.trim().toUpperCase();
   if(!n || trucks.some(x=>x.n===n)) return;
-
   let v = prompt("Кубатура", 37.8) || 37.8;
   trucks.push({n, c:0, v:+v, on:true});
-
   save(); render();
 };
 
@@ -384,6 +409,20 @@ plan.onchange = e=>{
 };
 
 render();
+
+/* ------------------------------------------------------------------
+   LIQUID GLASS TOUCH REACTIVE (Balanced sensitivity)
+-------------------------------------------------------------------*/
+let root = document.documentElement;
+
+document.addEventListener("pointermove", e=>{
+  let r = root.getBoundingClientRect();
+  let x = e.clientX / window.innerWidth * 100;
+  let y = e.clientY / window.innerHeight * 100;
+
+  root.style.setProperty('--x', x + "%");
+  root.style.setProperty('--y', y + "%");
+});
 </script>
 
 </body>

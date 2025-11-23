@@ -7,7 +7,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { 
+      getDatabase, ref, onValue, set, update, runTransaction, remove 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     // --- Firebase ---
     const firebaseConfig = {
@@ -25,16 +27,16 @@
     const db = getDatabase(app);
     const gameRef = ref(db, "xo_love_perfect");
 
-    // --- Генерируем уникальный ID игрока ---
-    let myId = localStorage.getItem("xo_my_id");
+    // --- Уникальный ID игрока ---
+    let myId = localStorage.getItem("xo_player_id");
     if (!myId) {
       myId = "p_" + Math.random().toString(36).slice(2);
-      localStorage.setItem("xo_my_id", myId);
+      localStorage.setItem("xo_player_id", myId);
     }
 
     let mySymbol = null;
 
-    // --- Сброс ---
+    // === СБРОС ===
     async function resetGame() {
       await remove(gameRef);
       location.reload();
@@ -42,37 +44,33 @@
     if (location.hash === "#reset") resetGame();
     document.getElementById("reset").onclick = resetGame;
 
-    // --- Подписка на игру ---
+    // === ПОДПИСКА НА ИГРУ ===
     onValue(gameRef, (snap) => {
       let data = snap.val();
 
-      // Если игры нет — создаём её
+      // === ЕСЛИ ИГРЫ НЕТ → СОЗДАЁМ НАВЕРНЯКА ===
       if (!data) {
-        runTransaction(gameRef, () => ({
+        const init = {
           board: Array(9).fill(null),
           turn: "X",
           winner: null,
           players: { X: null, O: null }
-        }));
+        };
+        set(gameRef, init);
         return;
       }
 
-      // --- Логика назначения символа ---
+      // === ЛОГИКА НАЗНАЧЕНИЯ СИМВОЛА ===
       if (!mySymbol) {
-        const X = data.players?.X;
-        const O = data.players?.O;
+        const { X, O } = data.players;
 
-        if (X === myId) {
-          mySymbol = "X";
-        } else if (O === myId) {
-          mySymbol = "O";
-        } else if (!X) {
-          claimSymbol("X");
-        } else if (!O) {
-          claimSymbol("O");
-        } else {
+        if (X === myId) mySymbol = "X";
+        else if (O === myId) mySymbol = "O";
+        else if (!X) claim("X");
+        else if (!O) claim("O");
+        else {
           mySymbol = "viewer";
-          alert("Здесь уже играют двое — ты наблюдатель 👀");
+          alert("Места заняты — ты наблюдатель 👀");
         }
       }
 
@@ -82,67 +80,63 @@
       document.getElementById("board").style.display = "grid";
     });
 
-    // --- Функция захвата символа ---
-    function claimSymbol(sym) {
-      runTransaction(gameRef, (curr) => {
-        if (!curr) return curr;
-
-        if (curr.players[sym] === null) {
-          curr.players[sym] = myId;
-          mySymbol = sym;
-        }
-        return curr;
+    // === НАЗНАЧЕНИЕ СИМВОЛА ===
+    function claim(symbol) {
+      update(gameRef, {
+        [`players/${symbol}`]: myId
       });
-
-      alert(`Ты играешь за ${sym === "X" ? "✕" : "◯"}`);
+      mySymbol = symbol;
+      alert(`Ты играешь: ${symbol === "X" ? "✕" : "◯"}`);
     }
 
-    // --- Обработка кликов по клеткам ---
+    // === КЛИК ПО КЛЕТКЕ ===
     document.querySelectorAll(".cell").forEach((cell, i) => {
       cell.onclick = () => {
         runTransaction(gameRef, (cur) => {
-          if (!cur || mySymbol === "viewer") return cur;
-          if (cur.winner) return cur;
+          if (!cur) return cur;
+
+          if (mySymbol === "viewer") return cur;
           if (cur.turn !== mySymbol) return cur;
+          if (cur.winner) return cur;
           if (cur.board[i]) return cur;
 
           const board = [...cur.board];
           board[i] = mySymbol;
 
-          const result = checkWin(board);
+          const res = check(board);
 
           return {
             ...cur,
             board,
             turn: mySymbol === "X" ? "O" : "X",
-            winner: result.winner || (result.draw ? "draw" : null)
+            winner: res.winner || (res.draw ? "draw" : null)
           };
         });
       };
     });
 
-    // --- UI рендер ---
+    // === РЕНДЕР ===
     function render(board) {
       board.forEach((v, i) => {
-        const c = document.getElementById("c" + i);
-        c.textContent = v === "X" ? "✕" : v === "O" ? "◯" : "";
+        document.getElementById("c" + i).textContent =
+          v === "X" ? "✕" : v === "O" ? "◯" : "";
       });
     }
 
-    // --- Статус ---
-    function updateStatus(data) {
+    // === СТАТУС ===
+    function updateStatus(d) {
       const s = document.getElementById("status");
 
-      if (data.winner === "draw") {
-        s.textContent = "🤝 Ничья! Вы идеальная пара ❤️";
+      if (d.winner === "draw") {
+        s.textContent = "🤝 Ничья! Вы идеально подходите друг другу ❤️";
         return;
       }
 
-      if (data.winner) {
-        s.textContent =
-          data.winner === mySymbol
-            ? "🎉 Ты победил!"
-            : "❤️ Проиграл(а), но я все равно тебя люблю";
+      if (d.winner) {
+        s.textContent = 
+          d.winner === mySymbol 
+            ? "🎉 Ты победил!" 
+            : "❤️ Ничего, я все равно тебя люблю";
         return;
       }
 
@@ -151,19 +145,20 @@
         return;
       }
 
-      s.textContent =
-        data.turn === mySymbol ? "🚀 Твой ход!" : "⏳ Ждём ход любимого(ой)…";
+      s.textContent = 
+        d.turn === mySymbol 
+          ? "🚀 Твой ход!" 
+          : "⏳ Ждём ход любимого(ой)…";
     }
 
-    // --- Проверка победы ---
-    function checkWin(b) {
-      const lines = [
+    // === ПРОВЕРКА ПОБЕДЫ ===
+    function check(b) {
+      const L = [
         [0,1,2],[3,4,5],[6,7,8],
         [0,3,6],[1,4,7],[2,5,8],
         [0,4,8],[2,4,6]
       ];
-
-      for (let l of lines)
+      for (let l of L)
         if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]])
           return { winner: b[l[0]] };
 
@@ -217,7 +212,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: .3s;
+      transition: .2s;
       user-select: none;
     }
     .cell:hover {
@@ -245,8 +240,8 @@
       box-shadow: 0 10px 30px rgba(186,85,211,0.4);
     }
   </style>
-
 </head>
+
 <body>
   <div class="container">
     <h1>Крестики-нолики ❤️</h1>
@@ -263,7 +258,7 @@
       <div class="cell" id="c8"></div>
     </div>
 
-    <div id="status">Загрузка...</div>
+    <div id="status">Загрузка…</div>
 
     <button id="reset">🔄 Новая игра</button>
     <p style="margin-top:25px;font-size:14px;opacity:0.6">Для сброса через ссылку добавь #reset</p>

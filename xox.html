@@ -8,217 +8,242 @@
 <title>Точковка</title>
 
 <style>
-  :root {
-    --glass: rgba(255,255,255,0.08);
-    --glass2: rgba(255,255,255,0.14);
-    --border: rgba(255,255,255,0.22);
-    --accent: #0a84ff;
-    --green: #30d158;
-    --red: #ff453a;
-    --orange: #ff9f0a;
-  }
+/* ============================= */
+/*         GLOBAL THEME          */
+/* ============================= */
 
-  * { margin:0; padding:0; box-sizing:border-box }
-  html,body {
-    height:100dvh;
-    background:#000;
-    overflow:hidden;
-    font-family:-apple-system, system-ui, sans-serif;
-    color:#fff;
-  }
+:root {
+  --glass-bg: rgba(255,255,255,0.10);
+  --glass-bg2: rgba(255,255,255,0.16);
+  --border: rgba(255,255,255,0.22);
+  --accent: rgba(255,255,255,0.65);
+  --soft-text: rgba(255,255,255,0.7);
+}
 
-  body { display:flex; flex-direction:column }
+/* Переливающийся фон iOS 26 Deep Space */
+body {
+  margin:0;
+  height:100dvh;
+  overflow:hidden;
+  background: radial-gradient(circle at 20% 20%, #1b2b68, #05070a 60%),
+              radial-gradient(circle at 80% 80%, #0d1f44, transparent 70%),
+              linear-gradient(130deg, #0b1d3d, #000);
+  background-blend-mode: screen;
+  font-family:-apple-system, system-ui, sans-serif;
+  color:white;
+  display:flex;
+  flex-direction:column;
+}
 
-  /* VisionOS Header */
-  header {
-    font-size:40px;
-    font-weight:900;
-    padding:50px 20px 20px;
-    text-align:center;
-    background:linear-gradient(90deg,#0a84ff,#30d158);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    text-shadow:0 0 40px rgba(10,132,255,0.4);
-  }
+/* ============================= */
+/*            HEADER             */
+/* ============================= */
 
-  /* План */
-  .plan {
-    margin:0 16px 14px;
-    padding:20px;
-    background:var(--glass);
-    border-radius:24px;
-    border:1px solid var(--border);
-    backdrop-filter:blur(28px);
-    box-shadow:0 0 60px rgba(255,255,255,0.05);
-  }
+header {
+  text-align:center;
+  padding:60px 20px 20px;
+  font-size:40px;
+  font-weight:900;
+  background:linear-gradient(90deg, #7faaff, #a9e4ff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 30px rgba(150,200,255,0.4);
+}
 
-  #plan {
-    width:100%;
-    padding:12px;
-    font-size:42px;
-    text-align:center;
-    font-weight:800;
-    background:var(--glass2);
-    border:1px solid var(--border);
-    border-radius:18px;
-    color:#fff;
-  }
+/* ============================= */
+/*          PLAN PANEL           */
+/* ============================= */
 
-  .pr {
-    height:14px;
-    background:rgba(255,255,255,0.15);
-    border-radius:7px;
-    overflow:hidden;
-    margin:16px 0;
-  }
+.plan {
+  margin:0 16px 18px;
+  padding:22px;
+  background:var(--glass-bg);
+  border-radius:26px;
+  border:1px solid var(--border);
+  backdrop-filter:blur(30px);
+  box-shadow:0 0 50px rgba(255,255,255,0.05);
+}
 
-  .fill {
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,var(--accent),var(--green));
-    transition:width .6s;
-    box-shadow:0 0 16px rgba(10,132,255,0.5);
-  }
+#plan {
+  width:100%;
+  padding:12px;
+  font-size:42px;
+  font-weight:800;
+  text-align:center;
+  background:var(--glass-bg2);
+  border-radius:20px;
+  border:1px solid var(--border);
+  color:white;
+}
 
-  .fill.over {
-    background:linear-gradient(90deg,var(--green),var(--orange));
-  }
+/* Progress */
+.pr {
+  height:16px;
+  background:rgba(255,255,255,0.15);
+  border-radius:8px;
+  overflow:hidden;
+  margin:18px 0;
+}
 
-  .done {
-    text-align:center;
-    font-size:32px;
-    font-weight:900;
-    margin-top:4px;
-  }
+.fill {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, #7ebeff, #b7f6ff);
+  transition:width .6s;
+}
 
-  .left {
-    text-align:center;
-    font-size:22px;
-    font-weight:600;
-    margin-top:4px;
-    color:var(--orange);
-  }
+.fill.over {
+  background:linear-gradient(90deg, #b1ffb1, #ffe29e);
+}
 
-  /* VisionOS Cards */
-  .list {
-    flex:1;
-    overflow-y:auto;
-    padding:0 16px 120px;
-    -webkit-overflow-scrolling:touch;
-  }
+.done {
+  text-align:center;
+  font-size:32px;
+  font-weight:800;
+  margin-top:4px;
+}
 
-  .t {
-    display:flex;
-    align-items:center;
-    padding:18px 18px;
-    background:var(--glass2);
-    border-radius:22px;
-    border:1px solid var(--border);
-    backdrop-filter:blur(26px);
-    margin-bottom:14px;
-    position:relative;
-    overflow:hidden;
-    box-shadow:0 0 50px rgba(255,255,255,0.04);
-    transition:0.25s;
-  }
+.left {
+  text-align:center;
+  font-size:22px;
+  margin-top:6px;
+  color:#dedede;
+}
 
-  .t:active {
-    transform:scale(0.97);
-  }
+/* ============================= */
+/*          TRUCK LIST           */
+/* ============================= */
 
-  .chk { margin-right:14px; width:30px; height:30px }
+.list {
+  flex:1;
+  overflow-y:auto;
+  padding:0 16px 120px;
+  -webkit-overflow-scrolling:touch;
+}
 
-  .n {
-    width:80px;
-    text-align:center;
-    font-size:34px;
-    font-weight:900;
-  }
+.t {
+  display:flex;
+  align-items:center;
+  padding:20px;
+  background:var(--glass-bg2);
+  border-radius:26px;
+  border:1px solid var(--border);
+  backdrop-filter:blur(26px);
+  margin-bottom:16px;
+  box-shadow:0 0 50px rgba(255,255,255,0.06);
+  transition:0.25s;
+}
 
-  .b {
-    width:56px;
-    height:56px;
-    border-radius:28px;
-    font-size:36px;
-    border:none;
-    color:#fff;
-    margin:0 10px;
-    background:var(--accent);
-    box-shadow:0 0 18px rgba(10,132,255,0.4);
-  }
+.n {
+  width:80px;
+  text-align:center;
+  font-size:34px;
+  font-weight:900;
+}
 
-  .b.m { background:var(--red) }
+.chk {
+  width:30px;
+  height:30px;
+  margin-right:14px;
+}
 
-  .c {
-    font-size:50px;
-    min-width:110px;
-    text-align:center;
-    font-weight:900;
-    cursor:pointer;
-  }
+.b {
+  width:60px;
+  height:60px;
+  border-radius:30px;
+  border:none;
+  font-size:36px;
+  background:var(--glass-bg);
+  color:white;
+  margin:0 10px;
+  backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+}
 
-  .v {
-    margin-left:auto;
-    padding:7px 14px;
-    background:rgba(10,132,255,0.25);
-    border-radius:12px;
-    font-size:22px;
-    font-weight:700;
-  }
+.b:active { transform:scale(0.9); }
 
-  /* Floating FAB */
-  .fab {
-    position:fixed;
-    bottom:max(24px,env(safe-area-inset-bottom));
-    left:50%;
-    transform:translateX(-50%);
-    width:62px;
-    height:62px;
-    border-radius:31px;
-    border:none;
-    background:var(--accent);
-    font-size:32px;
-    color:#fff;
-    box-shadow:0 0 35px rgba(10,132,255,0.5);
-    z-index:99;
-  }
+.b.m { color:#ffb3b3; }
 
-  /* Sheet */
-  .sh {
-    position:fixed;
-    left:0; right:0;
-    bottom:-320px;
-    background:rgba(20,20,35,0.95);
-    backdrop-filter:blur(40px);
-    border-radius:28px 28px 0 0;
-    padding:22px;
-    padding-bottom:max(40px,env(safe-area-inset-bottom));
-    transition:bottom .35s cubic-bezier(0.16,1,0.3,1);
-    z-index:150;
-  }
+.c {
+  font-size:46px;
+  min-width:110px;
+  text-align:center;
+  font-weight:900;
+}
 
-  .sh.open { bottom:0 }
+.v {
+  margin-left:auto;
+  padding:8px 16px;
+  background:var(--glass-bg);
+  border-radius:16px;
+  border:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  font-size:22px;
+}
 
-  .h {
-    width:46px;
-    height:6px;
-    background:#666;
-    border-radius:3px;
-    margin:0 auto 18px;
-  }
+/* ============================= */
+/*       FLOATING MENU BTN       */
+/* ============================= */
 
-  .sh button {
-    width:100%;
-    padding:20px;
-    background:var(--glass2);
-    border:none;
-    border-radius:18px;
-    font-size:22px;
-    font-weight:700;
-    color:#fff;
-    margin-bottom:14px;
-    backdrop-filter:blur(20px);
-  }
+.fab {
+  position:fixed;
+  bottom:max(30px, env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%);
+  width:70px;
+  height:70px;
+  border-radius:35px;
+  border:1px solid var(--border);
+  background:var(--glass-bg2);
+  color:white;
+  font-size:32px;
+  backdrop-filter:blur(25px);
+  box-shadow:0 0 25px rgba(255,255,255,0.07);
+  z-index:50;
+}
+
+/* ============================= */
+/*           BOTTOM SHEET        */
+/* ============================= */
+
+.sh {
+  position:fixed;
+  left:0; right:0;
+  bottom:-400px;
+  padding:24px;
+  padding-bottom:max(40px, env(safe-area-inset-bottom));
+  background:rgba(20,25,40,0.9);
+  backdrop-filter:blur(40px);
+  border-radius:30px 30px 0 0;
+  border-top:1px solid var(--border);
+  box-shadow:0 -10px 40px rgba(0,0,0,0.4);
+  transition:bottom .35s cubic-bezier(0.16,1,0.3,1);
+  z-index:200;
+}
+
+.sh.open { bottom:0; }
+
+.h {
+  width:50px;
+  height:6px;
+  background:rgba(255,255,255,0.3);
+  border-radius:3px;
+  margin:0 auto 20px;
+}
+
+/* Buttons inside sheet */
+.sh button {
+  width:100%;
+  padding:20px;
+  border-radius:24px;
+  border:1px solid var(--border);
+  background:var(--glass-bg2);
+  backdrop-filter:blur(26px);
+  font-size:22px;
+  font-weight:700;
+  color:white;
+  margin-bottom:18px;
+}
 </style>
 </head>
 
@@ -235,13 +260,15 @@
 
 <div class="list" id="list"></div>
 
+<!-- Floating button -->
 <button class="fab" onclick="s.classList.toggle('open')">⋯</button>
 
+<!-- Bottom sheet menu -->
 <div class="sh" id="s">
   <div class="h"></div>
-  <button onclick="add();s.classList.toggle('open')">+ Добавить БелАЗ</button>
-  <button onclick="wa();s.classList.toggle('open')">Диспетчеру в WhatsApp</button>
-  <button onclick="res();s.classList.toggle('open')" style="background:rgba(255,59,48,0.35)">Сбросить смену</button>
+  <button onclick="add();s.classList.remove('open')">Добавить БелАЗ</button>
+  <button onclick="wa();s.classList.remove('open')">Отправить диспетчеру</button>
+  <button onclick="res();s.classList.remove('open')">Сбросить смену</button>
 </div>
 
 <script>
@@ -266,12 +293,15 @@ function update(){
   const total = trucks.reduce((s,x)=>s + (x.on ? x.c*x.v : 0), 0);
   const left = Math.max(0, target - total);
 
-  document.getElementById('f').style.width = Math.min(total/target*100,120) + '%';
-  document.getElementById('f').classList.toggle('over', total > target);
+  document.getElementById('f').style.width =
+    Math.min((total/target)*100, 120) + '%';
 
-  document.getElementById('done').textContent = Math.round(total).toLocaleString() + " м³";
+  document.getElementById('done').textContent =
+    Math.round(total).toLocaleString() + " м³";
+
   document.getElementById('left').textContent =
-    left === 0 ? "НОРМА ВЫПОЛНЕНА" : `Осталось: ${Math.round(left).toLocaleString()} м³`;
+    left === 0 ? "НОРМА ВЫПОЛНЕНА" :
+    `Осталось: ${Math.round(left).toLocaleString()} м³`;
 }
 
 function render(){
@@ -285,6 +315,7 @@ function render(){
       <div class="v" onclick="event.stopPropagation();cv(${i})">${x.v} м³</div>
     </div>
   `).join('');
+
   update();
 }
 
@@ -311,7 +342,6 @@ window.add = () => {
   let n = prompt("Номер БелАЗа")?.trim().toUpperCase();
   if(!n || trucks.some(x=>x.n===n)) return;
   let v = prompt("Кубатура", 37.8) || 37.8;
-
   trucks.push({ n, c:0, v:+v, on:true });
   save(); render();
 };
@@ -328,15 +358,13 @@ window.wa = () => {
 window.res = () => {
   if(confirm("Сбросить смену?")){
     trucks = [];
-    save();
-    render();
+    save(); render();
   }
 };
 
 document.getElementById('plan').onchange = e => {
   target = +e.target.value || 3000;
-  save();
-  update();
+  save(); update();
 };
 
 render();

@@ -19,6 +19,14 @@
   html,body{height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif}
   body{display:flex;flex-direction:column}
 
+  .blur-bg{
+    position:fixed;inset:0;
+    background:var(--bg);
+    backdrop-filter:blur(80px);
+    -webkit-backdrop-filter:blur(80px);
+    z-index:-1;
+  }
+
   header{
     text-align:center;
     padding:60px 20px 20px;
@@ -28,14 +36,6 @@
     background:linear-gradient(90deg,#888,#ccc);
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
-  }
-
-  .blur-bg{
-    position:fixed;inset:0;
-    background:var(--bg);
-    backdrop-filter:blur(80px);
-    -webkit-backdrop-filter:blur(80px);
-    z-index:-1;
   }
 
   .plan{
@@ -49,7 +49,7 @@
   }
   #plan{
     width:100%;padding:12px;font-size:48px;font-weight:900;text-align:center;
-    background:var reversion(--glass2);border:1px solid var(--border);border-radius:20px;color:var(--text);
+    background:var(--glass2);border:1px solid var(--border);border-radius:20px;color:var(--text);
   }
   .pr{height:14px;background:rgba(255,255,255,0.1);border-radius:7px;overflow:hidden;margin:20px 0}
   .fill{height:100%;width:0%;background:linear-gradient(90deg,#666,#aaa);transition:width .7s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 20px rgba(255,255,255,0.2)}
@@ -111,13 +111,13 @@
 </div>
 
 <script>
-  let t = JSON.parse(localStorage.getItem('toch_glass')) || [];
+  let t = JSON.parse(localStorage.getItem('toch_final')) || [];
   let tar = +localStorage.getItem('tar') || 3000;
   document.getElementById('plan').value = tar;
 
   t = t.map(x=>({n:x.n||'??',c:x.c||0,v:x.v||37.8,on:x.on!==false}));
 
-  function sv(){localStorage.setItem('toch_glass',JSON.stringify(t));localStorage.setItem('tar',tar)}
+  function sv(){localStorage.setItem('toch_final',JSON.stringify(t));localStorage.setItem('tar',tar)}
   function up(){
     const tot = t.reduce((s,x)=>s+x.c*x.v,0);
     const lef = Math.max(0,tar-tot);

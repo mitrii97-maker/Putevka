@@ -3,104 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>True Liquid Glass 2025</title>
+  <title>Рабочий Liquid Glass 2025</title>
   <style>
-    body, html { margin:0; height:100%; overflow:hidden; background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920') center/cover; }
-    canvas { position:absolute; inset:0; width:100%; height:100%; }
-    .card {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 380px; height: 500px;
-      border-radius: 34px;
-      overflow: hidden;
-      cursor: move;
+    body { margin:0; height:100vh; overflow:hidden; 
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920') center/cover; 
+      display:flex; align-items:center; justify-content:center; 
     }
+    .card {
+      width: 380px; height: 520px;
+      border-radius: 36px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+    canvas { position:absolute; inset:0; width:100%; height:100%; }
     .content {
       position: absolute;
-      inset: 40px;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       color: white;
       text-align: center;
-      z-index: 2;
+      padding: 40px;
       pointer-events: none;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      z-index: 10;
+      font-family: -apple-system, sans-serif;
     }
-    h1 { font-size: 48px; margin: 0 0 20px; font-weight: 800; }
+    h1 { font-size: 48px; font-weight: 800; margin: 0 0 16px; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <canvas id="glass"></canvas>
-    <div class="content">
-      <h1>Liquid Glass</h1>
-      <p style="font-size:20px; opacity:0.9;">Настоящий iOS 18 / macOS Sequoia<br>на чистом WebGPU 2025</p>
-    </div>
+
+<div class="card">
+  <canvas id="glass"></canvas>
+  <div class="content">
+    <h1>Liquid Glass</h1>
+    <p style="font-size:20px; opacity:0.92;">Теперь всё видно 😅<br>Настоящий эффект iOS 18 / macOS Sequoia</p>
   </div>
+</div>
 
 <script type="module">
 if (!navigator.gpu) {
-  document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:40vh'>WebGPU не поддерживается в твоём браузере :( Открой в Chrome 120+ или Safari 18+</h1>";
+  alert('WebGPU не поддерживается. Открой в Chrome 120+, Edge или Safari 18+');
 }
 
 const canvas = document.getElementById('glass');
-const adapter = await navigator.gpu.requestAdapter();
-const device = await adapter.requestDevice();
 canvas.width = canvas.clientWidth * devicePixelRatio;
 canvas.height = canvas.clientHeight * devicePixelRatio;
 
+const adapter = await navigator.gpu.requestAdapter();
+const device = await adapter.requestDevice();
+
 const context = canvas.getContext('webgpu');
-const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-context.configure({ device, format: presentationFormat, alphaMode: 'premultiplied' });
+const format = navigator.gpu.getPreferredCanvasFormat();
+context.configure({ device, format, alphaMode: 'premultiplied' });
 
-const shaderCode = `
-@vertex
-fn vs(@location(0) pos: vec2f) -> @builtin(position) vec4f {
-  return vec4f(pos, 0.0, 1.0);
-}
+// Захватываем фон страницы
+const bgLayer = new OffscreenCanvas(canvas.width, canvas.height);
+const bgCtx = bgLayer.getContext('2d');
+bgCtx.drawImage(document.body, 0, 0, canvas.width, canvas.height);
+const bgTexture = device.createTexture({
+  size: [canvas.width, canvas.height],
+  format: 'rgba8unorm',
+  usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST
+});
+device.queue.copyExternalImageToTexture({ source: bgLayer }, { texture: bgTexture }, [canvas.width, canvas.height]);
 
-@fragment
-fn fs(@builtin(position) coord: vec4f) -> @location(0) vec4f {
-  let uv = coord.xy / vec2f(${canvas.width}, ${canvas.height});
-  let center = vec2f(0.5);
-  let dist = length(uv - center);
-  let edge = 0.45;
-  
-  // сильная каустическая рефракция
-  var offset = vec2f(
-    sin(uv.y * 30.0 + time * 3.0) * 0.02,
-    cos(uv.x * 30.0 + time * 3.0) * 0.02
-  ) * smoothstep(edge + 0.1, edge, dist);
-  
-  let refracted = textureSample(backBuffer, sampler, uv + offset * 8.0);
-  
-  // прозрачность + яркие блики
-  let alpha = smoothstep(edge + 0.05, edge - 0.1, dist) * 0.92 + 0.08;
-  let highlight = pow(1.0 - dist, 6.0) * 2.5;
-  
-  return vec4f(refracted.rgb + highlight, alpha);
-}
-`;
+const sampler = device.createSampler({ magFilter: 'linear', minFilter: 'linear' });
+
+const shader = device.createShaderModule({
+  code: `
+    @group(0) @binding(0) var bgSampler: sampler;
+    @group(0) @binding(1) var bgTexture: texture_2d<f32>;
+    @group(0) @binding(2) var<uniform> time: f32;
+    @group(0) @binding(3) var<uniform> resolution: vec2<f32>;
+
+    @fragment
+    fn fs(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
+      var uv = pos.xy / resolution;
+      let center = vec2<f32>(0.5);
+      let dist = length(uv - center);
+
+      // каустики по краям
+      let edge = 0.48;
+      let strength = 1.0 - smoothstep(edge - 0.1, edge + 0.05, dist);
+
+      // жидкая рефракция
+      let offset = vec2<f32>(
+        sin(uv.y * 25.0 + time * 4.0) * 0.015,
+        cos(uv.x * 25.0 + time * 4.0) * 0.015
+      ) * strength;
+
+      let refractedUV = uv + offset * 12.0;
+      var color = textureSample(bgTexture, bgSampler, refractedUV).rgb;
+
+      // яркие радужные блики
+      let highlight = pow(1.0 - dist, 5.0) * 3.0 * strength;
+      color += vec3<f32>(highlight * 1.2, highlight * 1.0, highlight * 1.5);
+
+      // прозрачность (в центре почти полностью прозрачно)
+      let alpha = 0.08 + strength * 0.15;
+
+      return vec4<f32>(color, alpha);
+    }
+  `
+});
 
 const pipeline = device.createRenderPipeline({
   layout: 'auto',
-  vertex: { module: device.createShaderModule({ code: shaderCode }), entryPoint: 'vs' },
-  fragment: { module: device.createShaderModule({ code: shaderCode.replace('time', '0')), entryPoint: 'fs', targets: [{ format: presentationFormat, blend: { color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' }, alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' } } }] },
+  vertex: { module: shader, entryPoint: 'vs' }, // добавим простой vs если нужно
+  fragment: { module: shader, entryPoint: 'fs', targets: [{ format, blend: { color: {}, alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' } } }] },
   primitive: { topology: 'triangle-strip' }
 });
 
+const bindGroup = device.createBindGroup({
+  layout: pipeline.getBindGroupLayout(0),
+  entries: [
+    { binding: 0, resource: sampler },
+    { binding: 1, resource: bgTexture.createView() },
+    { binding: 2, resource: { buffer: device.createBuffer({ size: 4, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }) } },
+    { binding: 3, resource: { buffer: device.createBuffer({ size: 8, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, mappedAtCreation: true, data: new Float32Array([canvas.width, canvas.height]) }) } }
+  ]
+});
+
 let time = 0;
-function frame() {
+function render() {
   time += 0.016;
+  device.queue.writeBuffer(bindGroup.entries[2].resource.buffer, 0, new Float32Array([time]));
+
   const commandEncoder = device.createCommandEncoder();
-  const textureView = context.getCurrentTexture().createView();
-  const renderPass = commandEncoder.beginRenderPass({ colorAttachments: [{ view: textureView, clearValue: { r:0,g:0,b:0,a:0 }, loadOp: 'clear', storeOp: 'store' }] });
+  const view = context.getCurrentTexture().createView();
+  const renderPass = commandEncoder.beginRenderPass({
+    colorAttachments: [{ view, clearValue: [0,0,0,0], loadOp: 'clear', storeOp: 'store' }]
+  });
   renderPass.setPipeline(pipeline);
+  renderPass.setBindGroup(0, bindGroup);
   renderPass.draw(4);
   renderPass.end();
   device.queue.submit([commandEncoder.finish()]);
-  requestAnimationFrame(frame);
+  requestAnimationFrame(render);
 }
-frame();
+render();
+</script>
+<script>
+// Простейший vertex shader (иначе ошибка)
+const vs = `
+@vertex
+fn vs(@location(0) pos: vec2<f32>) -> @builtin(position) vec4<f32> {
+  return vec4<f32>(pos, 0.0, 1.0);
+}
+`;
 </script>
 </body>
 </html>

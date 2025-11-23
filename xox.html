@@ -6,11 +6,11 @@
   <title>Крестики-нолики для нас ❤️</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
     // ВСТАВЬ СВОЙ НОВЫЙ КОНФИГ СЮДА
-    const firebaseConfig = {
+  const firebaseConfig = {
   apiKey: "AIzaSyAzGea6sRTQek_bYAOnJdvKjKxd5sRgX7E",
   authDomain: "klicker-love.firebaseapp.com",
   databaseURL: "https://klicker-love-default-rtdb.europe-west1.firebasedatabase.app",
@@ -20,127 +20,116 @@
   appId: "1:805841292732:web:8bfbe94ddbe6ac7b472fb9",
   measurementId: "G-L1H4GM9FQ8"
 };
-    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, "tictactoe_game");
+    const gameRef = ref(db, "xo_game_2025");
 
     let mySymbol = null;
 
-    const name = prompt("Как тебя зовут? ❤️", "Любимая ❤️") || "Игрок";
-
-    // Сброс через #reset
+    // Сброс игры
     if (location.hash === "#reset") {
       remove(gameRef);
       location.hash = "";
       location.reload();
     }
 
-    // Главный слушатель
     onValue(gameRef, (snap) => {
       const data = snap.val();
 
-      // Если игры ещё нет — создаём и становимся крестиками
+      // Если игры нет — первый игрок создаёт и становится крестиками
       if (!data) {
-        set(gameRef, {
-          board: Array(9).fill(null),
-          turn: "X",
-          status: "waiting"
-        });
+        set(gameRef, { board: Array(9).fill(null), turn: "X" });
         mySymbol = "X";
-        document.getElementById("status").textContent = "Ты крестики ✕ · Ждём второго игрока...";
+        document.getElementById("status").textContent = "Ты крестики ✕ · Твой ход!";
         return;
       }
 
-      // Игра уже есть
+      // Игра есть
       document.getElementById("board").style.display = "grid";
 
-      // Определяем символ
+      // Второй игрок автоматически нолики
       if (!mySymbol) {
-        mySymbol = data.turn === "X" && data.status === "waiting" ? "O" : "X"; // если кто-то уже X и ждёт — ты O
-        if (mySymbol === "O") {
-          set(gameRef, { ...data, status: "playing" }); // игра началась
-        }
-        alert(`${name}, ты ${mySymbol === "X" ? "крестики ✕" : "нолики ◯"}`);
+        mySymbol = "O";
+        document.getElementById("status").textContent = data.turn === "O" ? "Твой ход! ◯" : "Ждём ход крестиков...";
       }
 
-      renderBoard(data.board);
+      render(data.board);
       updateStatus(data);
     });
 
-    function makeMove(i) {
-      runTransaction(gameRef, (current) => {
-        if (!current || current.board[i] || current.winner) return current;
-        if (mySymbol !== current.turn) return current;
-
-        const newBoard = [...current.board];
-        newBoard[i] = mySymbol;
-
-        const win = checkWin(newBoard);
-        return {
-          board: newBoard,
-          turn: mySymbol === "X" ? "O" : "X",
-          status: "playing",
-          winner: win.winner || (win.draw ? "draw" : null)
-        };
+    function move(i) {
+      if (mySymbol !== getTurn()) return;
+      set(gameRef, {
+        board: getBoard().map((c, idx) => idx === i ? mySymbol : c),
+        turn: mySymbol === "X" ? "O" : "X"
       });
     }
 
-    function renderBoard(board) {
-      board.forEach((cell, i) => {
-        const el = document.getElementById(`c${i}`);
-        el.innerHTML = cell === "X" ? '<div class="x">✕</div>' : cell === "O" ? '<div class="o">◯</div>' : "";
+    function getBoard() {
+      const snap = document.querySelectorAll(".cell");
+      return Array.from(snap).map(el => el.dataset.value || null);
+    }
+
+    function getTurn() {
+      const turn = document.getElementById("status").textContent.includes("◯") ? "O" : "X";
+      return turn;
+    }
+
+    function render(board) {
+      board.forEach((val, i) => {
+        const cell = document.getElementById("c" + i);
+        if (val && cell.dataset.value !== val) {
+          cell.dataset.value = val;
+          cell.innerHTML = val === "X" ? "✕" : "◯";
+          cell.classList.add(val === "X" ? "x" : "o");
+        }
       });
     }
 
     function updateStatus(data) {
-      if (data.winner === "draw") {
-        document.getElementById("status").textContent = "🤝 Ничья! Вы идеальная пара ❤️";
-      } else if (data.winner) {
-        document.getElementById("status").textContent = data.winner === mySymbol 
-          ? "🎉 Ты ПОБЕДИЛ(А)!!! 🏆" 
-          : "🥹 Ты проиграл(а)... но я тебя всё равно люблю ❤️";
+      const win = checkWin(data.board);
+      if (win) {
+        document.getElementById("status").textContent = win === "draw" 
+          ? "🤝 Ничья! Вы идеальная пара ❤️" 
+          : win === mySymbol 
+            ? "🎉 Ты ПОБЕДИЛ(А)!!!" 
+            : "🥹 Ты проиграл(а)... но я тебя люблю ❤️";
       } else {
-        const turnText = data.turn === mySymbol ? "ТВОЙ ХОД!" : "Ход противника";
-        document.getElementById("status").textContent = `${turnText} (${data.turn === "X" ? "✕" : "◯"})`;
+        document.getElementById("status").textContent = data.turn === mySymbol 
+          ? "ТВОЙ ХОД!" 
+          : "Ход противника...";
       }
     }
 
     function checkWin(b) {
       const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-      for (let l of lines) {
-        if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { winner: b[l[0]] };
-      }
-      if (b.every(c => c)) return { draw: true };
-      return {};
+      for (let l of lines) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return b[l[0]];
+      if (b.every(c => c)) return "draw";
+      return null;
     }
 
-    // Клик по клеткам
-    document.querySelectorAll(".cell").forEach((c, i) => c.onclick = () => makeMove(i));
-
-    // Новая игра
-    document.getElementById("reset").onclick = () => {
-      remove(gameRef);
-      location.reload();
-    };
+    document.querySelectorAll(".cell").forEach((c, i) => c.onclick = () => move(i));
+    document.getElementById("reset").onclick = () => { remove(gameRef); location.reload(); };
   </script>
 
   <style>
-    body{margin:0;min-height:100vh;background:linear-gradient(135deg,#ff9a9e,#fad0c4);font-family:-apple-system,system-ui,sans-serif;color:#fff;display:flex;align-items:center;justify-content:center}
-    .container{max-width:420px;width:92%;background:rgba(255,255,255,0.18);backdrop-filter:blur(25px);border-radius:34px;border:1px solid rgba(255,255,255,0.3);box-shadow:0 30px 60px rgba(0,0,0,0.25);padding:40px 20px;text-align:center}
-    h1{font-size:38px;margin:0 0 15px;background:linear-gradient(45deg,#fff,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    #board{display:none;grid-template-columns:repeat(3,1fr);gap:16px;margin:40px auto}
-    .cell{width:100px;height:100px;background:rgba(255,255,255,0.25);border-radius:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.3s;font-size:70px}
-    .cell:hover{background:rgba(255,255,255,0.4);transform:scale(1.07)}
-    .x{color:#ff6b9d;animation:pulse 0.6s}
-    .o{color:#a8e6cf;animation:pulse 0.6s}
-    @keyframes pulse{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
-    #status{font-size:26px;font-weight:600;margin:20px 0;min-height:50px}
-    button{background:rgba(255,255,255,0.3);border:none;border-radius:25px;padding:16px 36px;color:#fff;font-size:19px;cursor:pointer;margin-top:20px;transition:.3s}
-    button:hover{background:rgba(255,255,255,0.5);transform:translateY(-3px)}
-    .heart{color:#ff6b9d;animation:beat 1.5s infinite}
-    @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+    body{margin:0;height:100dvh;background:#000;color:#fff;font-family:-apple-system,system-ui;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .container{max-width:420px;width:92vw;background:rgba(30,30,40,0.65);backdrop-filter:blur(30px);border-radius:38px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 30px 80px rgba(0,0,0,0.6);padding:40px 20px;text-align:center;position:relative}
+    h1{font-size:36px;margin:0 0 15px;background:linear-gradient(90deg,#ff6bcd,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    #board{display:none;grid-template-columns:repeat(3,1fr);gap:16px;margin:50px auto}
+    .cell{width:100px;height:100px;background:rgba(255,255,255,0.06);border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:72px;cursor:pointer;transition:.3s;user-select:none}
+    .cell:hover{background:rgba(255,255,255,0.15);transform:scale(1.06)}
+    .x{color:#ff6bcd;animation:x 0.5s}
+    .o{color:#7b61ff;animation:o 0.5s}
+    @keyframes x{from{transform:scale(0) rotate(45deg)}to{transform:scale(1) rotate(0)}}
+    @keyframes o{from{transform:scale(0)}to{transform:scale(1)}}
+    #status{font-size:26px;font-weight:600;margin:20px 0;min-height:60px}
+    button{background:linear-gradient(135deg,rgba(255,107,203,0.3),rgba(123,97,255,0.3));border:none;border-radius:26px;padding:16px 40px;color:#fff;font-size:19px;cursor:pointer;margin-top:20px;transition:.3s;border:1px solid rgba(255,255,255,0.15)}
+    button:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(123,97,255,0.4)}
+    .heart{color:#ff6bcd;animation:beat 1.5s infinite}
+    @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
   </style>
 </head>
 <body>
@@ -159,7 +148,7 @@
     </div>
     <div id="status">Загрузка...</div>
     <button id="reset">Новая игра</button>
-    <p style="margin-top:25px;font-size:14px;opacity:0.8">Сброс: добавить #reset в ссылку</p>
+    <p style="margin-top:30px;font-size:14px;opacity:0.6">Сброс: добавить #reset в ссылку</p>
   </div>
 </body>
 </html>

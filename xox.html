@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Крестики-нолики для нас ❤️</title>
+  <title>Крестики-нолики ❤️</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-    // ВСТАВЬ СВОЙ НОВЫЙ КОНФИГ СЮДА
-  const firebaseConfig = {
+    // ← ВСТАВЬ СВОЙ НОВЫЙ firebaseConfig ЗДЕСЬ →
+    const firebaseConfig = {
   apiKey: "AIzaSyAzGea6sRTQek_bYAOnJdvKjKxd5sRgX7E",
   authDomain: "klicker-love.firebaseapp.com",
   databaseURL: "https://klicker-love-default-rtdb.europe-west1.firebasedatabase.app",
@@ -20,135 +19,135 @@
   appId: "1:805841292732:web:8bfbe94ddbe6ac7b472fb9",
   measurementId: "G-L1H4GM9FQ8"
 };
-    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, "xo_game_2025");
+    const gameRef = ref(db, "xo_perfect");
 
     let mySymbol = null;
 
-    // Сброс игры
+    prompt("Твоё имя? ❤️");
+
+    // Сброс
     if (location.hash === "#reset") {
       remove(gameRef);
       location.hash = "";
-      location.reload();
     }
 
     onValue(gameRef, (snap) => {
-      const data = snap.val();
+      const data = snap.val() || { board: Array(9).fill(null), turn: "X" };
 
-      // Если игры нет — первый игрок создаёт и становится крестиками
-      if (!data) {
-        set(gameRef, { board: Array(9).fill(null), turn: "X" });
-        mySymbol = "X";
-        document.getElementById("status").textContent = "Ты крестики ✕ · Твой ход!";
-        return;
-      }
-
-      // Игра есть
-      document.getElementById("board").style.display = "grid";
-
-      // Второй игрок автоматически нолики
       if (!mySymbol) {
-        mySymbol = "O";
-        document.getElementById("status").textContent = data.turn === "O" ? "Твой ход! ◯" : "Ждём ход крестиков...";
+        mySymbol = data.players || 1 === 1 ? "X" : "O";  // Первый — X, второй — O
+        if (mySymbol === "O") data.players = 2;  // Фиксируем второго
+        runTransaction(gameRef, () => ({ ...data, players: 2 }));
       }
 
-      render(data.board);
+      document.getElementById("board").style.display = "grid";
+      renderBoard(data.board);
       updateStatus(data);
     });
 
-    function move(i) {
-      if (mySymbol !== getTurn()) return;
-      set(gameRef, {
-        board: getBoard().map((c, idx) => idx === i ? mySymbol : c),
-        turn: mySymbol === "X" ? "O" : "X"
-      });
-    }
-
-    function getBoard() {
-      const snap = document.querySelectorAll(".cell");
-      return Array.from(snap).map(el => el.dataset.value || null);
-    }
-
-    function getTurn() {
-      const turn = document.getElementById("status").textContent.includes("◯") ? "O" : "X";
-      return turn;
-    }
-
-    function render(board) {
+    function renderBoard(board) {
       board.forEach((val, i) => {
-        const cell = document.getElementById("c" + i);
-        if (val && cell.dataset.value !== val) {
-          cell.dataset.value = val;
-          cell.innerHTML = val === "X" ? "✕" : "◯";
-          cell.classList.add(val === "X" ? "x" : "o");
-        }
+        const cell = document.getElementById(`c${i}`);
+        cell.innerHTML = val === "X" ? "✕" : val === "O" ? "◯" : "";
+        if (val) {
+          cell.classList.add("filled", val.toLowerCase());
+          cell.style.animation = "none";
+          setTimeout(() => cell.style.animation = `${val.toLowerCase()}Anim 0.5s ease-out`, 10);
+        } else cell.classList.remove("filled", "x", "o");
       });
     }
 
     function updateStatus(data) {
       const win = checkWin(data.board);
-      if (win) {
-        document.getElementById("status").textContent = win === "draw" 
-          ? "🤝 Ничья! Вы идеальная пара ❤️" 
-          : win === mySymbol 
-            ? "🎉 Ты ПОБЕДИЛ(А)!!!" 
-            : "🥹 Ты проиграл(а)... но я тебя люблю ❤️";
+      const statusEl = document.getElementById("status");
+      if (win.draw) {
+        statusEl.textContent = "🤝 Ничья! Идеальная пара ❤️";
+      } else if (win.winner) {
+        statusEl.textContent = win.winner === mySymbol ? "🎉 ТЫ ПОБЕДИЛ(А)! 🏆" : "🥹 Проиграл(а)... но люблю ❤️";
       } else {
-        document.getElementById("status").textContent = data.turn === mySymbol 
-          ? "ТВОЙ ХОД!" 
-          : "Ход противника...";
+        statusEl.textContent = data.turn === mySymbol ? "🚀 ТВОЙ ХОД!" : "⏳ Ход оппонента...";
       }
     }
 
-    function checkWin(b) {
+    function checkWin(board) {
       const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-      for (let l of lines) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return b[l[0]];
-      if (b.every(c => c)) return "draw";
-      return null;
+      for (let line of lines) {
+        const [a,b,c] = line;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) return { winner: board[a] };
+      }
+      if (board.every(cell => cell)) return { draw: true };
+      return {};
     }
 
-    document.querySelectorAll(".cell").forEach((c, i) => c.onclick = () => move(i));
-    document.getElementById("reset").onclick = () => { remove(gameRef); location.reload(); };
-  </script>
+    // КЛИК ПО КЛЕТКЕ — ГЛАВНАЯ ФУНКЦИЯ (теперь 100% работает!)
+    document.querySelectorAll(".cell").forEach((cell, i) => {
+      cell.onclick = () => {
+        runTransaction(gameRef, (current) => {
+          if (!current || current.board[i] || current.turn !== mySymbol || current.winner) return current;
+          const newBoard = [...current.board];
+          newBoard[i] = mySymbol;
+          const win = checkWin(newBoard);
+          return {
+            board: newBoard,
+            turn: mySymbol === "X" ? "O" : "X",
+            players: 2,
+            winner: win.winner || (win.draw ? "draw" : null)
+          };
+        });
+      };
+    });
 
+    document.getElementById("reset").onclick = () => {
+      remove(gameRef);
+      location.reload();
+    };
+  </script>
   <style>
-    body{margin:0;height:100dvh;background:#000;color:#fff;font-family:-apple-system,system-ui;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .container{max-width:420px;width:92vw;background:rgba(30,30,40,0.65);backdrop-filter:blur(30px);border-radius:38px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 30px 80px rgba(0,0,0,0.6);padding:40px 20px;text-align:center;position:relative}
-    h1{font-size:36px;margin:0 0 15px;background:linear-gradient(90deg,#ff6bcd,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    #board{display:none;grid-template-columns:repeat(3,1fr);gap:16px;margin:50px auto}
-    .cell{width:100px;height:100px;background:rgba(255,255,255,0.06);border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:72px;cursor:pointer;transition:.3s;user-select:none}
-    .cell:hover{background:rgba(255,255,255,0.15);transform:scale(1.06)}
-    .x{color:#ff6bcd;animation:x 0.5s}
-    .o{color:#7b61ff;animation:o 0.5s}
-    @keyframes x{from{transform:scale(0) rotate(45deg)}to{transform:scale(1) rotate(0)}}
-    @keyframes o{from{transform:scale(0)}to{transform:scale(1)}}
-    #status{font-size:26px;font-weight:600;margin:20px 0;min-height:60px}
-    button{background:linear-gradient(135deg,rgba(255,107,203,0.3),rgba(123,97,255,0.3));border:none;border-radius:26px;padding:16px 40px;color:#fff;font-size:19px;cursor:pointer;margin-top:20px;transition:.3s;border:1px solid rgba(255,255,255,0.15)}
-    button:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(123,97,255,0.4)}
-    .heart{color:#ff6bcd;animation:beat 1.5s infinite}
-    @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; height: 100vh; background: radial-gradient(circle at 20% 80%, #1a0033 0%, #000 50%, #0a0a1a 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      color: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .container {
+      width: 95vw; max-width: 380px; background: rgba(15,15,25,0.8); backdrop-filter: blur(40px);
+      border-radius: 40px; border: 1px solid rgba(255,100,200,0.3); box-shadow: 0 40px 100px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+      padding: 40px 25px; text-align: center;
+    }
+    h1 { font-size: 32px; margin: 0 0 20px; background: linear-gradient(135deg, #ff69b4, #ba55d3, #7b68ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    #board { display: none; grid-template-columns: repeat(3,1fr); gap: 18px; margin: 40px auto; }
+    .cell {
+      aspect-ratio: 1; background: rgba(255,255,255,0.08); border-radius: 30px; display: flex; align-items: center; justify-content: center;
+      font-size: 68px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1);
+    }
+    .cell:hover { background: rgba(255,255,255,0.2); transform: scale(1.08) rotate(2deg); }
+    .filled { cursor: default; transform: scale(1)!important; }
+    .x { color: #ff69b4; text-shadow: 0 0 20px #ff69b4; }
+    .o { color: #7b68ee; text-shadow: 0 0 20px #7b68ee; }
+    @keyframes xAnim { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 50% { transform: scale(1.3); } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+    @keyframes oAnim { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.3); } 100% { transform: scale(1); opacity: 1; } }
+    #status { font-size: 24px; font-weight: 600; margin: 25px 0; min-height: 60px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    #reset {
+      background: linear-gradient(135deg, rgba(255,105,180,0.4), rgba(123,104,238,0.4)); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 28px; padding: 16px 36px; color: #fff; font-size: 18px; cursor: pointer; transition: all 0.3s; font-weight: 500;
+    }
+    #reset:hover { background: linear-gradient(135deg, rgba(255,105,180,0.6), rgba(123,104,238,0.6)); transform: translateY(-4px) scale(1.02); box-shadow: 0 15px 40px rgba(255,105,180,0.3); }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Крестики-нолики <span class="heart">❤️</span></h1>
+    <h1>Крестики-нолики ❤️</h1>
     <div id="board">
-      <div class="cell" id="c0"></div>
-      <div class="cell" id="c1"></div>
-      <div class="cell" id="c2"></div>
-      <div class="cell" id="c3"></div>
-      <div class="cell" id="c4"></div>
-      <div class="cell" id="c5"></div>
-      <div class="cell" id="c6"></div>
-      <div class="cell" id="c7"></div>
-      <div class="cell" id="c8"></div>
+      <div class="cell" id="c0"></div><div class="cell" id="c1"></div><div class="cell" id="c2"></div>
+      <div class="cell" id="c3"></div><div class="cell" id="c4"></div><div class="cell" id="c5"></div>
+      <div class="cell" id="c6"></div><div class="cell" id="c7"></div><div class="cell" id="c8"></div>
     </div>
     <div id="status">Загрузка...</div>
-    <button id="reset">Новая игра</button>
-    <p style="margin-top:30px;font-size:14px;opacity:0.6">Сброс: добавить #reset в ссылку</p>
+    <button id="reset">🔄 Новая игра</button>
+    <p style="margin-top: 25px; font-size: 13px; opacity: 0.7;">#reset в ссылке для сброса</p>
   </div>
 </body>
 </html>

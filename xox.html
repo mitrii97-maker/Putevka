@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Крестики-нолики для двоих ❤️</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <title>Крестики-нолики для нас с тобой ❤️</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
       text-align: center;
       background: linear-gradient(135deg, #ff9a9e, #fad0c4);
       margin: 0;
@@ -19,54 +19,58 @@
       justify-content: center;
       color: #333;
     }
-    h1 { color: white; margin-bottom: 10px; }
-    #status { font-size: 1.5em; margin: 20px; color: white; }
+    h1 { color: white; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+    #status { font-size: 1.6em; margin: 20px; color: white; min-height: 50px; }
     #board {
       display: grid;
-      grid-template-columns: repeat(3, 100px);
-      grid-gap: 10px;
+      grid-template-columns: repeat(3, 110px);
+      grid-gap: 12px;
       margin: 20px auto;
     }
     .cell {
-      width: 100px;
-      height: 100px;
+      width: 110px;
+      height: 110px;
       background: white;
-      border-radius: 15px;
-      font-size: 70px;
+      border-radius: 20px;
+      font-size: 80px;
+      font-weight: bold;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      transition: all 0.2s;
     }
-    .cell:hover { background: #f0f0f0; }
+    .cell:hover { background: #fff0f5; transform: scale(1.05); }
     button {
-      padding: 12px 30px;
-      font-size: 1.2em;
+      padding: 15px 35px;
+      font-size: 1.3em;
       background: #ff4757;
       color: white;
       border: none;
       border-radius: 50px;
       cursor: pointer;
       margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(255,71,87,0.4);
     }
     button:hover { background: #ff3742; }
     #link {
-      background: white;
+      background: rgba(255,255,255,0.9);
       padding: 15px;
-      border-radius: 10px;
+      border-radius: 15px;
       margin: 20px;
       word-break: break-all;
-      max-width: 80%;
+      max-width: 90%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
   <h1>Крестики-нолики для влюблённых ❤️</h1>
-  <div id="status">Ожидаем второго игрока...</div>
+  <div id="status">Загрузка...</div>
   <div id="board"></div>
-  <button onclick="resetGame()">Новая игра</button>
-  <div id="link" style="display:none;">Отправь эту ссылку любимой ❤️<br><span id="url"></span></div>
+  <button onclick="resetGame()">🔄 Новая игра</button>
+  <div id="link">Отправь эту ссылку любимой ❤️<br><b id="url"></b></div>
 
   <script>
     const firebaseConfig = {
@@ -82,53 +86,53 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Генерируем уникальный ID комнаты из URL или создаём новый
+    // ID комнаты
     const urlParams = new URLSearchParams(window.location.search);
     let roomId = urlParams.get('room');
     if (!roomId) {
-      roomId = Math.random().toString(36).substr(2, 9);
+      roomId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
       history.replaceState(null, null, '?room=' + roomId);
     }
+    document.getElementById('url').textContent = location.href;
 
     const roomRef = db.ref('rooms/' + roomId);
     const boardRef = roomRef.child('board');
     const turnRef = roomRef.child('turn');
-    const playersRef = roomRef.child('players');
     const winnerRef = roomRef.child('winner');
 
     let mySymbol = null;
     let isMyTurn = false;
 
-    // Показываем ссылку для второго игрока
-    document.getElementById('url').textContent = location.href;
-    document.getElementById('link').style.display = 'block';
-
     // Создаём поле
-    const board = document.getElementById('board');
+    const boardDiv = document.getElementById('board');
     for (let i = 0; i < 9; i++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.dataset.index = i;
-      cell.addEventListener('click', makeMove);
-      board.appendChild(cell);
+      cell.onclick = () => makeMove(i);
+      boardDiv.appendChild(cell);
     }
 
-    function makeMove(e) {
-      const idx = e.target.dataset.index;
-      if (!isMyTurn || e.target.textContent || winnerRef.val()) return;
-      boardRef.child(idx).set(mySymbol);
+    function makeMove(index) {
+      if (!isMyTurn || boardDiv.children[index].textContent || winnerRef.val()) return;
+      boardRef.child(index).set(mySymbol);
       turnRef.set(mySymbol === 'X' ? 'O' : 'X');
     }
 
     function resetGame() {
-      boardRef.set(Array(9).fill(null));
-      turnRef.set('X');
-      winnerRef.set(null);
-      roomRef.child('players').set(0);
-      document.getElementById('status').textContent = 'Ожидаем второго игрока...';
+      if (confirm('Начать новую игру?')) {
+        boardRef.set(Array(9).fill(null));
+        turnRef.set('X');
+        winnerRef.set(null);
+      }
     }
 
-    // Слушаем изменения в реальном времени
+    // Инициализация комнаты
+    roomRef.child('board').set(Array(9).fill(null));
+    roomRef.child('turn').set('X');
+    roomRef.child('winner').set(null);
+
+    // Слушаем доску
     boardRef.on('value', snap => {
       const data = snap.val() || Array(9).fill(null);
       document.querySelectorAll('.cell').forEach((cell, i) => {
@@ -137,50 +141,59 @@
       checkWinner(data);
     });
 
+    // Слушаем чей ход и победителя
     turnRef.on('value', snap => {
-      const currentTurn = snap.val() || 'X';
-      isMyTurn = (mySymbol === currentTurn);
-      document.getElementById('status').textContent = 
-        winnerRef.val() ? `Победил ${winnerRef.val() === 'draw' ? 'ничья 😘' : winnerRef.val() + ' 🎉'}`
-        : isMyTurn ? 'Твой ход!' : `Ходит ${currentTurn === 'X' ? '❌' : '⭕'}`;
+      const turn = snap.val();
+      winnerRef.once('value', w => {
+        const winner = w.val();
+        if (winner) {
+          if (winner === 'draw') {
+            document.getElementById('status').textContent = 'Ничья 😘';
+          } else {
+            document.getElementById('status').textContent = `Победил ${winner} 🎉🎉🎉`;
+          }
+        } else {
+          isMyTurn = (mySymbol === turn);
+          document.getElementById('status').textContent = 
+            isMyTurn ? 'Твой ход!' : `Ход противника ${turn === 'X' ? '❌' : '⭕'}`;
+        }
+      });
     });
 
-    // Подсчёт игроков и назначение символов
-    playersRef.on('value', count => {
-      if (count === null) playersRef.set(0);
-      if (mySymbol) return;
-
-      const newCount = (count || 0) + 1;
-      playersRef.set(newCount);
-
-      if (newCount === 1) {
-        mySymbol = 'X';
-        document.getElementById('status').textContent = 'Ты ❌ — ждём второго игрока...';
-      } else if (newCount === 2) {
-        mySymbol = 'O';
-        document.getElementById('status').textContent = 'Ты ⭕ — ходит ❌';
+    // Назначаем символы
+    roomRef.child('players').transaction(current => (current || 0) + 1, (error, committed, snapshot) => {
+      if (committed) {
+        const count = snapshot.val();
+        if (count === 1) {
+          mySymbol = 'X';
+          document.getElementById('status').textContent = 'Ты ❌ — ждём твою любимую...';
+        } else if (count === 2) {
+          mySymbol = 'O';
+          document.getElementById('status').textContent = 'Ты ⭕ — ходит ❌';
+        } else {
+          alert('Комната полная — создай новую игру!');
+          document.getElementById('status').textContent = 'Комната переполнена';
+        }
       }
     });
 
     // Проверка победы
-    function checkWinner(board) {
-      const win = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
+    function checkWinner(b) {
+      const win = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
       for (let c of win) {
-        if (board[c[0]] && board[c[0]] === board[c[1]] && board[c[0]] === board[c[2]]) {
-          winnerRef.set(board[c[0]]);
+        if (b[c[0]] && b[c[0]] === b[c[1]] && b[c[0]] === b[c[2]]) {
+          winnerRef.set(b[c[0]]);
           return;
         }
       }
-      if (board.every(v => v)) winnerRef.set('draw');
+      if (b.every(cell => cell !== null)) {
+        winnerRef.set('draw');
+      }
     }
 
-    // При выходе уменьшаем счётчик игроков
+    // Убираем игрока при закрытии
     window.addEventListener('beforeunload', () => {
-      playersRef.transaction(c => (c || 1) - 1);
+      roomRef.child('players').transaction(c => (c || 0) - 1);
     });
   </script>
 </body>

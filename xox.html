@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Крестики-нолики для нас ❤️</title>
+  <title>Крестики-нолики ❤️</title>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -13,7 +15,7 @@
       authDomain: "klicker-love.firebaseapp.com",
       databaseURL: "https://klicker-love-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "klicker-love",
-      storageBucket: "klicker-love.firebasestorage.app",
+      storageBucket: "klicker-love.appspot.com",
       messagingSenderId: "805841292732",
       appId: "1:805841292732:web:fa800b89308379ba472fb9",
       measurementId: "G-5WDF36N6D0"
@@ -25,33 +27,81 @@
 
     let mySymbol = null;
 
-    if (location.hash === "#reset") {
-      remove(gameRef);
-      location.hash = "";
+    // Сброс через кнопки или #reset
+    async function resetGame() {
+      await remove(gameRef);
       location.reload();
     }
 
-    onValue(gameRef, (snap) => {
-      let data = snap.val() || { board: Array(9).fill(null), turn: "X" };
+    if (location.hash === "#reset") {
+      resetGame();
+    }
 
-      if (!mySymbol) {
-        mySymbol = data.turn === "X" ? "X" : "O";
-        alert(`Ты ${mySymbol === "X" ? "крестики ✕" : "нолики ◯"}`);
+    document.getElementById("reset").onclick = resetGame;
+
+    // Следим за изменениями игры
+    onValue(gameRef, (snap) => {
+      let data = snap.val();
+
+      // Если игры нет — создаём
+      if (!data) {
+        data = {
+          board: Array(9).fill(null),
+          turn: "X",
+          winner: null,
+          players: { X: null, O: null }
+        };
       }
 
-      document.getElementById("board").style.display = "grid";
+      // Назначаем символ игроку
+      if (!mySymbol) {
+        if (!data.players.X) {
+          mySymbol = "X";
+          updatePlayer("X");
+        } else if (!data.players.O) {
+          mySymbol = "O";
+          updatePlayer("O");
+        } else {
+          mySymbol = "viewer"; // если оба места заняты
+          alert("Игра заполнена — ты наблюдатель 👀");
+        }
+      }
+
       render(data.board);
       updateStatus(data);
+
+      document.getElementById("board").style.display = "grid";
     });
 
+    // Записываем игрока в базу
+    function updatePlayer(symbol) {
+      runTransaction(gameRef, (curr) => {
+        if (!curr) return curr;
+        curr.players = curr.players || { X: null, O: null };
+        curr.players[symbol] = true;
+        return curr;
+      });
+      alert(`Ты играешь: ${symbol === "X" ? "✕ Крестики" : "◯ Нолики"}`);
+    }
+
+    // Клик по клетке
     document.querySelectorAll(".cell").forEach((cell, i) => {
       cell.onclick = () => {
         runTransaction(gameRef, (current) => {
-          if (!current || current.board[i] || current.turn !== mySymbol || current.winner) return current;
+          if (!current) return current;
+
+          if (mySymbol === "viewer") return current;
+          if (current.winner) return current;
+          if (current.turn !== mySymbol) return current;
+          if (current.board[i]) return current;
+
           const newBoard = [...current.board];
           newBoard[i] = mySymbol;
+
           const win = checkWin(newBoard);
+
           return {
+            ...current,
             board: newBoard,
             turn: mySymbol === "X" ? "O" : "X",
             winner: win.winner || (win.draw ? "draw" : null)
@@ -68,37 +118,135 @@
     }
 
     function updateStatus(data) {
-      const win = checkWin(data.board || []);
-      const s = document.getElementById("status");
-      if (win.winner) s.textContent = win.winner === mySymbol ? "🎉 ТЫ ВЫИГРАЛ(А)!!!" : "❤️ Всё равно люблю тебя";
-      else if (win.draw) s.textContent = "🤝 Ничья — вы идеальная пара!";
-      else s.textContent = data.turn === mySymbol ? "🚀 ТВОЙ ХОД!" : "⏳ Ждём ход любимого(ой)...";
+      const status = document.getElementById("status");
+
+      if (data.winner === "draw") {
+        status.textContent = "🤝 Ничья — вы идеальная пара!";
+        return;
+      }
+
+      if (data.winner) {
+        status.textContent =
+          data.winner === mySymbol
+            ? "🎉 Ты победил! Молодец!"
+            : "❤️ Ты проиграл(а), но я все равно тебя люблю";
+        return;
+      }
+
+      if (mySymbol === "viewer") {
+        status.textContent = "👀 Идет игра";
+        return;
+      }
+
+      status.textContent =
+        data.turn === mySymbol ? "🚀 Твой ход!" : "⏳ Ждем ход любимого(ой)…";
     }
 
+    // Проверка победы
     function checkWin(b) {
-      const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-      for (let l of lines) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { winner: b[l[0]] };
+      const lines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ];
+
+      for (let l of lines) {
+        if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]])
+          return { winner: b[l[0]] };
+      }
+
       if (b.every(c => c)) return { draw: true };
       return {};
     }
-
-    document.getElementById("reset").onclick = () => { remove(gameRef); location.reload(); };
   </script>
+
   <style>
-    body{margin:0;height:100dvh;background:#000;color:#fff;font-family:-apple-system,system-ui;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .container{width:92vw;max-width:400px;background:rgba(20,20,35,0.9);backdrop-filter:blur(40px);border-radius:40px;border:1px solid rgba(255,100,200,0.3);box-shadow:0 30px 80px rgba(0,0,0,0.8);padding:40px 20px;text-align:center}
-    h1{font-size:36px;background:linear-gradient(135deg,#ff69b4,#ba55d3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px}
-    #board{display:none;grid-template-columns:repeat(3,1fr);gap:16px;margin:40px 0}
-    .cell{aspect-ratio:1;background:rgba(255,255,255,0.08);border-radius:30px;font-size:70px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.3s;user-select:none}
-    .cell:hover{background:rgba(255,255,255,0.2);transform:scale(1.05)}
-    #status{font-size:26px;font-weight:600;margin:20px 0;min-height:60px}
-    #reset{background:linear-gradient(135deg,#ff69b4,#ba55d3);border:none;border-radius:30px;padding:16px 40px;color:#fff;font-size:19px;cursor:pointer;margin-top:20px}
-    #reset:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(186,85,211,0.4)}
+    body {
+      margin: 0;
+      height: 100dvh;
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, system-ui;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .container {
+      width: 92vw;
+      max-width: 420px;
+      background: rgba(20, 20, 35, 0.9);
+      backdrop-filter: blur(40px);
+      border-radius: 40px;
+      border: 1px solid rgba(255, 100, 200, 0.3);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 36px;
+      background: linear-gradient(135deg, #ff69b4, #ba55d3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    #board {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .cell {
+      aspect-ratio: 1;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 30px;
+      font-size: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: .3s;
+      user-select: none;
+    }
+
+    .cell:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    #status {
+      font-size: 26px;
+      font-weight: 600;
+      margin: 20px 0;
+      min-height: 60px;
+    }
+
+    #reset {
+      background: linear-gradient(135deg, #ff69b4, #ba55d3);
+      border: none;
+      border-radius: 30px;
+      padding: 16px 40px;
+      color: #fff;
+      font-size: 19px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    #reset:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(186, 85, 211, 0.4);
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Крестики-нолики ❤️</h1>
+
     <div id="board">
       <div class="cell" id="c0"></div>
       <div class="cell" id="c1"></div>
@@ -110,9 +258,12 @@
       <div class="cell" id="c7"></div>
       <div class="cell" id="c8"></div>
     </div>
+
     <div id="status">Загрузка...</div>
+
     <button id="reset">🔄 Новая игра</button>
-    <p style="margin-top:25px;font-size:14px;opacity:0.6">#reset в ссылке для сброса</p>
+    <p style="margin-top:25px;font-size:14px;opacity:0.6">Чтобы сбросить через ссылку — добавь #reset</p>
   </div>
 </body>
+
 </html>

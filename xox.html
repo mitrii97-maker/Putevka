@@ -8,27 +8,22 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-    // ВСТАВЬ СВОЙ НОВЫЙ КОНФИГ СЮДА
-const firebaseConfig = {
-  apiKey: "AIzaSyAzGea6sRTQek_bYAOnJdvKjKxd5sRgX7E",
-  authDomain: "klicker-love.firebaseapp.com",
-  databaseURL: "https://klicker-love-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "klicker-love",
-  storageBucket: "klicker-love.firebasestorage.app",
-  messagingSenderId: "805841292732",
-  appId: "1:805841292732:web:fa800b89308379ba472fb9",
-  measurementId: "G-5WDF36N6D0"
-};
-    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzGea6sRTQek_bYAOnJdvKjKxd5sRgX7E",
+      authDomain: "klicker-love.firebaseapp.com",
+      databaseURL: "https://klicker-love-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "klicker-love",
+      storageBucket: "klicker-love.firebasestorage.app",
+      messagingSenderId: "805841292732",
+      appId: "1:805841292732:web:fa800b89308379ba472fb9",
+      measurementId: "G-5WDF36N6D0"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, "xo_final_2025");
+    const gameRef = ref(db, "xo_love_2025");
 
     let mySymbol = null;
-
-    prompt("Твоё имя? ❤️", "Любимый ❤️");
 
     if (location.hash === "#reset") {
       remove(gameRef);
@@ -36,39 +31,32 @@ const firebaseConfig = {
       location.reload();
     }
 
-    // Слушаем состояние игры
     onValue(gameRef, (snap) => {
       let data = snap.val();
 
-      // Если игры нет — первый игрок создаёт её и становится крестиками
       if (!data) {
-        runTransaction(gameRef, () => ({
-          board: Array(9).fill(null),
-          turn: "X"
-        }));
+        runTransaction(gameRef, () => ({ board: Array(9).fill(null), turn: "X" }));
+        mySymbol = "X";
+        document.getElementById("status").textContent = "Ты крестики ✕ — твой ход!";
         return;
       }
 
-      // Определяем свой символ
       if (!mySymbol) {
-        mySymbol = data.board.every(c => c === null) ? "X" : "O"; // если доска пустая — ты X, иначе O
+        mySymbol = data.turn === "X" ? "O" : "X";
         alert(`Ты ${mySymbol === "X" ? "крестики ✕" : "нолики ◯"}`);
       }
 
+      document.getElementById("board").style.display = "grid";
       render(data.board || Array(9).fill(null));
       updateStatus(data);
     });
 
-    // Клик по клетке — 100% работает
     document.querySelectorAll(".cell").forEach((cell, i) => {
       cell.onclick = () => {
         runTransaction(gameRef, (current) => {
-          if (!current) return current;
-          if (current.board[i] || current.turn !== mySymbol || current.winner) return current;
-
+          if (!current || current.board[i] || current.turn !== mySymbol || current.winner) return current;
           const newBoard = [...current.board];
           newBoard[i] = mySymbol;
-
           const win = checkWin(newBoard);
           return {
             board: newBoard,
@@ -88,57 +76,41 @@ const firebaseConfig = {
     }
 
     function updateStatus(data) {
-      const win = checkWin(data.board || []);
-      const status = document.getElementById("status");
-      if (win.winner) {
-        status.textContent = win.winner === mySymbol ? "🎉 ТЫ ВЫИГРАЛ(А)!!!" : "🥹 Ты проиграл(а)... но люблю ❤️";
-      } else if (win.draw) {
-        status.textContent = "🤝 Ничья! Вы идеальная пара ❤️";
-      } else {
-        status.textContent = data.turn === mySymbol ? "🚀 ТВОЙ ХОД!" : "⏳ Ход противника...";
-      }
+      const win = checkWin(data.board || Array(9).fill(null));
+      const s = document.getElementById("status");
+      if (win.winner) s.textContent = win.winner === mySymbol ? "🎉 ТЫ ВЫИГРАЛ(А)!!!" : "Люблю тебя всё равно ❤️";
+      else if (win.draw) s.textContent = "🤝 Ничья — вы идеальная пара!";
+      else s.textContent = data.turn === mySymbol ? "🚀 ТВОЙ ХОД!" : "Ждём ход любимого(ой)...";
     }
 
     function checkWin(b) {
       const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-      for (let l of lines) {
-        if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { winner: b[l[0]] };
-      }
+      for (let l of lines) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { winner: b[l[0]] };
       if (b.every(c => c)) return { draw: true };
       return {};
     }
 
-    document.getElementById("reset").onclick = () => {
-      remove(gameRef);
-      location.reload();
-    };
+    document.getElementById("reset").onclick = () => { remove(gameRef); location.reload(); };
   </script>
-
   <style>
-    body { margin:0; height:100dvh; background:#000; color:#fff; font-family:-apple-system,system-ui; display:flex; align-items:center; justify-content:center; }
-    .container { width:92vw; max-width:400px; background:rgba(20,20,35,0.8); backdrop-filter:blur(30px); border-radius:40px; border:1px solid rgba(255,100,200,0.2); box-shadow:0 30px 80px rgba(0,0,0,0.7); padding:40px 20px; text-align:center; }
-    h1 { font-size:36px; background:linear-gradient(135deg,#ff69b4,#ba55d3); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:20px; }
-    #board { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:40px 0; }
-    .cell { aspect-ratio:1; background:rgba(255,255,255,0.08); border-radius:30px; font-size:70px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.3s; }
-    .cell:hover { background:rgba(255,255,255,0.2); transform:scale(1.05); }
-    #status { font-size:26px; font-weight:600; margin:20px 0; min-height:60px; }
-    #reset { background:linear-gradient(135deg,#ff69b4,#ba55d3); border:none; border-radius:30px; padding:16px 40px; color:#fff; font-size:19px; cursor:pointer; }
-    #reset:hover { transform:translateY(-4px); box-shadow:0 10px 30px rgba(186,85,211,0.4); }
+    body{margin:0;height:100dvh;background:#000;color:#fff;font-family:-apple-system,system-ui;display:flex;align-items:center;justify-content:center}
+    .container{width:92vw;max-width:400px;background:rgba(20,20,35,0.85);backdrop-filter:blur(30px);border-radius:40px;border:1px solid rgba(255,100,200,0.2);box-shadow:0 30px 80px rgba(0,0,0,0.7);padding:40px 20px;text-align:center}
+    h1{font-size:36px;background:linear-gradient(135deg,#ff69b4,#ba55d3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px}
+    #board{display:none;grid-template-columns:repeat(3,1fr);gap:16px;margin:40px 0}
+    .cell{aspect-ratio:1;background:rgba(255,255,255,0.08);border-radius:30px;font-size:70px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.3s}
+    .cell:hover{background:rgba(255,255,255,0.2);transform:scale(1.05)}
+    #status{font-size:26px;font-weight:600;margin:20px 0;min-height:60px}
+    #reset{background:linear-gradient(135deg,#ff69b4,#ba55d3);border:none;border-radius:30px;padding:16px 40px;color:#fff;font-size:19px;cursor:pointer;margin-top:20px}
+    #reset:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(186,85,211,0.4)}
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Крестики-нолики ❤️</h1>
     <div id="board">
-      <div class="cell" id="c0"></div>
-      <div class="cell" id="c1"></div>
-      <div class="cell" id="c2"></div>
-      <div class="cell" id="c3"></div>
-      <div class="cell" id="c4"></div>
-      <div class="cell" id="c5"></div>
-      <div class="cell" id="c6"></div>
-      <div class="cell" id="c7"></div>
-      <div class="cell" id="c8"></div>
+      <div class="cell" id="c0"></div><div class="cell" id="c1"></div><div class="cell" id="c2"></div>
+      <div class="cell" id="c3"></div><div class="cell" id="c4"></div><div class="cell" id="c5"></div>
+      <div class="cell" id="c6"></div><div class="cell" id="c7"></div><div class="cell" id="c8"></div>
     </div>
     <div id="status">Загрузка...</div>
     <button id="reset">🔄 Новая игра</button>

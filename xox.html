@@ -3,83 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apple Liquid Glass на вебе</title>
+  <title>Real Apple Liquid Glass 2025</title>
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920') no-repeat center center/cover;
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920') center/cover;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
     }
 
-    .liquid-glass {
-      width: 350px;
-      padding: 40px 30px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 28px;
-      box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.2),
-        inset 0 0 20px rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1.5px solid rgba(255, 255, 255, 0.25);
+    .liquid-card {
+      width: 360px;
+      padding: 50px 30px;
+      border-radius: 32px;
       position: relative;
-      overflow: hidden;
       color: white;
       text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 
+        0 20px 40px rgba(0,0,0,0.3),
+        inset 0 0 40px rgba(255,255,255,0.15);
+      overflow: hidden;
     }
 
-    /* Самая важная часть — рефракция по краям */
-    .liquid-glass::before {
+    /* Главная магия — многослойные псевдоэлементы с сильной рефракцией */
+    .liquid-card::before {
       content: "";
       position: absolute;
-      inset: -50px; /* выходим за границы, чтобы рефракция была и снаружи */
+      inset: -100px;
       background: inherit;
-      backdrop-filter: url(#liquidRefraction);
-      -webkit-backdrop-filter: url(#liquidRefraction);
-      pointer-events: none;
       border-radius: inherit;
+      filter: url(#liquidWarp);
+      -webkit-filter: url(#liquidWarp);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .liquid-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, 
+        rgba(255,255,255,0.4) 0%, 
+        rgba(255,255,255,0.05) 50%, 
+        rgba(255,255,255,0.3) 100%);
+      mix-blend-mode: overlay;
+      pointer-events: none;
     }
 
     h1 {
-      font-size: 32px;
+      font-size: 42px;
+      font-weight: 700;
       margin: 0 0 16px;
-      font-weight: 600;
-    }
-
-    p {
-      opacity: 0.9;
-      line-height: 1.5;
+      background: linear-gradient(90deg, #fff, #ccc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
   </style>
 </head>
 <body>
 
-  <div class="liquid-glass">
+  <div class="liquid-card">
     <h1>Liquid Glass</h1>
-    <p>Это максимально близкая реализация эффекта Apple Liquid Glass на чистом CSS + SVG.<br>Рефракция работает в Chrome/Edge/Firefox.</p>
+    <p style="font-size:18px; opacity:0.95; line-height:1.6;">
+      Настоящий Apple Liquid Glass<br>
+      iOS 18 / macOS Sequoia 2025
+    </p>
   </div>
 
-  <!-- SVG-фильтр для рефракции (самая «магия») -->
-  <svg width="0" height="0" style="position: absolute;">
+  <!-- Улучшенный SVG-фильтр 2025 года (самое важное!) -->
+  <svg width="0" height="0">
     <defs>
-      <filter id="liquidRefraction" x="-50%" y="-50%" width="200%" height="200%">
-        <!-- Турбулентность для органического вида -->
-        <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" result="noise"/>
+      <filter id="liquidWarp" x="-100%" y="-100%" width="300%" height="300%">
+        <!-- Крупный fractalNoise для "капельности" -->
+        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="6" seed="42" result="turb"/>
         
-        <!-- Делаем шум более «стеклянным» по краям -->
-        <feComponentTransfer in="noise" result="bump">
-          <feFuncA type="table" tableValues="0 0 0 0 1 1"/>
+        <!-- Усиливаем контраст только по краям -->
+        <feComponentTransfer in="turb" result="contrasted">
+          <feFuncA type="discrete" tableValues="0 0.1 0.9 1"/>
         </feComponentTransfer>
-        
-        <!-- Карта смещения — сильная рефракция только у краёв -->
-        <feDisplacementMap in="SourceGraphic" in2="bump" scale="40" xChannelSelector="R" yChannelSelector="G"/>
-        
-        <!-- Дополнительный блюр для мягкости -->
-        <feGaussianBlur stdDeviation="2"/>
+
+        <!-- Сильное смещение — вот где "жидкость" -->
+        <feDisplacementMap 
+          in="SourceGraphic" 
+          in2="contrasted" 
+          scale="80" 
+          xChannelSelector="R" 
+          yChannelSelector="G"/>
+
+        <!-- Дополнительные радужные блики через colorMatrix -->
+        <feColorMatrix type="saturate" values="2"/>
+        <feComponentTransfer>
+          <feFuncR type="linear" slope="1.2" intercept="0.05"/>
+          <feFuncG type="linear" slope="1.1"/>
+          <feFuncB type="linear" slope="1.3" intercept="-0.05"/>
+        </feComponentTransfer>
+
+        <feGaussianBlur stdDeviation="1"/>
       </filter>
     </defs>
   </svg>

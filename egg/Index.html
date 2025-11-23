@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Разбей яйцо вместе! 🥚💥</title>
+
+  <!-- Новый Firebase SDK v10+ (модульный) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set, runTransaction, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // Твой конфиг (уже вставлен)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzGea6sRTQek_bYAOnJdvKjKxd5sRgX7E",
+      authDomain: "klicker-love.firebaseapp.com",
+      databaseURL: "https://klicker-love-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "klicker-love",
+      storageBucket: "klicker-love.firebasestorage.app",
+      messagingSenderId: "805841292732",
+      appId: "1:805841292732:web:250fbb2902eabc42472fb9",
+      measurementId: "G-3M0GSCFXZN"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Одна общая комната
+    const roomRef = ref(db, "egg_room");
+    const clicksRef = ref(db, "egg_room/clicks");
+    const messagesRef = ref(db, "egg_room/messages");
+
+    // Имя игрока
+    const myName = prompt("Как тебя зовут? ❤️", "Любимка " + Math.floor(Math.random()*999)) || "Аноним";
+
+    // ==================== СЧЁТЧИК КЛИКОВ ====================
+    onValue(clicksRef, (snapshot) => {
+      let clicks = snapshot.val();
+      if (clicks === null) clicks = 1000; // начальное значение
+
+      document.getElementById("clicks").textContent = clicks;
+
+      if (clicks <= 0) {
+        document.getElementById("egg").style.display = "none";
+        document.getElementById("counter").style.display = "none";
+        document.getElementById("win").style.display = "block";
+      }
+    });
+
+    document.getElementById("egg").onclick = () => {
+      runTransaction(clicksRef, (current) => {
+        if (current === null) return 1000;
+        return current > 0 ? current - 1 : 0;
+      });
+    };
+
+    // ==================== ЧАТ ====================
+    const chatDiv = document.getElementById("chat");
+    const input = document.getElementById("msg");
+
+    // Новые сообщения
+    onValue(messagesRef, (snapshot) => {
+      chatDiv.innerHTML = "";
+      snapshot.forEach(child => {
+        const msg = child.val();
+        const div = document.createElement("div");
+        div.className = "msg" + (msg.name === myName ? " my" : "");
+        div.innerHTML = `<b>${msg.name}:</b> ${msg.text}`;
+        chatDiv.appendChild(div);
+      });
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }, { onlyOnce: false });
+
+    // Отправка сообщения
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && input.value.trim()) {
+        push(messagesRef, {
+          name: myName,
+          text: input.value.trim(),
+          time: serverTimestamp()
+        });
+        input.value = "";
+      }
+    });
+
+    // Чтобы чат не рос бесконечно — оставляем только последние 100 сообщений
+    onValue(messagesRef, (snapshot) => {
+      const updates = {};
+      let count = 0;
+      snapshot.forEach(child => {
+        count++;
+        if (count <= snapshot.size - 100) {
+          updates[child.key] = null;
+        }
+      });
+      if (count > 100) set(ref(db, "egg_room/messages"), updates);
+    }, { onlyOnce: false });
+  </script>
+
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #fff8d6; margin: 0; padding: 20px; }
+    h1 { color: #d4380d; }
+    #egg { font-size: 200px; cursor: pointer; user-select: none; transition: 0.1s; margin: 20px; }
+    #egg:active { transform: scale(0.93); }
+    #counter { font-size: 50px; margin: 20px; color: #d4380d; }
+    #win { display: none; font-size: 60px; color: #ffc107; text-shadow: 3px 3px #ff3d00; margin: 50px; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    #chat { width: 90%; max-width: 600px; margin: 30px auto; height: 350px; overflow-y: auto; border: 3px solid #ffa39e; border-radius: 15px; padding: 15px; background: white; text-align: left; }
+    #msg { width: 78%; padding: 15px; font-size: 18px; border: 2px solid #ffa39e; border-radius: 10px; }
+    button { padding: 15px 25px; font-size: 18px; background: #ff7a59; color: white; border: none; border-radius: 10px; cursor: pointer; }
+    .msg { margin: 10px 0; padding: 10px 14px; background: #fffbe6; border-radius: 15px; max-width: 80%; word-wrap: break-word; }
+    .my { background: #ff7a59; color: white; margin-left: auto; text-align: right; }
+  </style>
+</head>
+<body>
+  <h1>Разбейте яйцо вместе! 🥚❤️</h1>
+  <div id="egg">🥚</div>
+  <div id="counter">Осталось кликов: <span id="clicks">1000</span></div>
+  
+  <div id="win">
+    🎉 ЯЙЦО РАЗБИТО! 🎉<br><br>
+    Вы с любимым человеком — настоящая команда мечты! 🐔❤️<br>
+    Любви вам и миллион таких яиц ещё! 💕
+  </div>
+
+  <div id="chat"></div>
+  <input type="text" id="msg" placeholder="Напиши сообщение и нажми Enter..." autocomplete="off" />
+</body>
+</html>

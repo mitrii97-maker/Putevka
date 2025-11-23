@@ -1,80 +1,157 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Правда или Действие ❤️</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <style>
-    body {font-family: Arial; text-align:center; background: linear-gradient(135deg, #ff6b6b, #ffb3b3); color:white; min-height:100vh; margin:0; padding:20px;}
-    h1 {font-size:2.5em; margin:20px;}
-    #question {font-size:1.8em; padding:30px; background:rgba(255,255,255,0.2); border-radius:20px; margin:30px; min-height:120px;}
-    button {padding:20px 40px; margin:20px; font-size:1.5em; background:#fff; color:#ff6b6b; border:none; border-radius:50px; cursor:pointer;}
-    button:hover {transform:scale(1.1);}
-    #link {margin:30px; padding:20px; background:rgba(255,255,255,0.3); border-radius:15px; word-break:break-all;}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Точковка</title>
+<style>
+  :root{
+    --glass: rgba(255,255,255,0.06);
+    --glass2: rgba(255,255,255,0.10);
+    --border: rgba(255,255,255,0.12);
+    --text: #ffffff;
+    --text2: rgba(255,255,255,0.7);
+    --bg: radial-gradient(circle at 50% 100%, #0f0f1f, #000000);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif}
+  body{display:flex;flex-direction:column}
+
+  header{
+    text-align:center;
+    padding:60px 20px 20px;
+    font-size:44px;
+    font-weight:900;
+    letter-spacing:-1.2px;
+    background:linear-gradient(90deg,#888,#ccc);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+
+  .blur-bg{
+    position:fixed;inset:0;
+    background:var(--bg);
+    backdrop-filter:blur(80px);
+    -webkit-backdrop-filter:blur(80px);
+    z-index:-1;
+  }
+
+  .plan{
+    margin:20px 20px 16px;
+    padding:24px;
+    background:var(--glass);
+    border-radius:28px;
+    border:1px solid var(--border);
+    backdrop-filter:blur(30px);
+    box-shadow:0 20px 40px rgba(0,0,0,0.3);
+  }
+  #plan{
+    width:100%;padding:12px;font-size:48px;font-weight:900;text-align:center;
+    background:var reversion(--glass2);border:1px solid var(--border);border-radius:20px;color:var(--text);
+  }
+  .pr{height:14px;background:rgba(255,255,255,0.1);border-radius:7px;overflow:hidden;margin:20px 0}
+  .fill{height:100%;width:0%;background:linear-gradient(90deg,#666,#aaa);transition:width .7s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 20px rgba(255,255,255,0.2)}
+  .done{text-align:center;font-size:32px;font-weight:800;margin-top:8px}
+  .left{text-align:center;font-size:22px;color:#ff9f0a;margin-top:6px;font-weight:600}
+
+  .list{flex:1;overflow-y:auto;padding:0 20px 120px;-webkit-overflow-scrolling:touch}
+  .t{
+    display:flex;align-items:center;padding:16px 20px;
+    background:var(--glass);border-radius:24px;margin-bottom:12px;
+    border:1px solid var(--border);backdrop-filter:blur(20px);
+    position:relative;overflow:hidden;
+  }
+  .chk{margin-right:16px;width:32px;height:32px;accent-color:#666}
+  .n{font-size:36px;font-weight:900;width:80px;text-align:center}
+  .c{font-size:56px;font-weight:900;min-width:110px;text-align:center}
+  .v{margin-left:auto;padding:8px 14px;background:rgba(255,255,255,0.08);border-radius:12px;font-size:22px;font-weight:700}
+  .b{width:68px;height:68px;border-radius:34px;border:none;font-size:42px;color:#fff;margin:0 12px;box-shadow:0 8px 25px rgba(0,0,0,0.5)}
+  .p,.m{background:rgba(255,255,255,0.15);color:#fff}
+
+  .fab{
+    position:fixed;bottom:max(24px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+    width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:32px;
+    font-size:34px;color:#fff;border:none;box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:99
+  }
+
+  .sh{
+    position:fixed;bottom:-300px;left:0;right:0;background:rgba(20,20,40,0.98);backdrop-filter:blur(40px);
+    border-radius:28px 28px 0 0;padding:24px;padding-bottom:max(50px,env(safe-area-inset-bottom));
+    transition:bottom .4s cubic-bezier(0.16,1,0.3,1);z-index:100
+  }
+  .sh.open{bottom:0}
+  .h{width:40px;height:5px;background:#666;border-radius:3px;margin:0 auto 24px}
+  .sh button{width:100%;padding:20px;margin-bottom:14px;background:var(--glass2);border:none;border-radius:20px;color:#fff;font-size:21px;font-weight:600}
+</style>
 </head>
 <body>
-  <h1>Правда или Действие? ❤️</h1>
-  <div id="link">Отправь ссылку любимой:<br><b id="url"></b></div>
-  <div id="question">Ждём второго игрока...</div>
-  <button onclick="choose('truth')">Правда 🔥</button>
-  <button onclick="choose('dare')">Действие 😈</button>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDS3YUcSW26NDSJJAxbvQdJDwHTpUN-k5A",
-      authDomain: "xox-gamelove.firebaseapp.com",
-      databaseURL: "https://xox-gamelove-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "xox-gamelove",
-      storageBucket: "xox-gamelove.firebasestorage.app",
-      messagingSenderId: "99410167270",
-      appId: "1:99410167270:web:c44b4f7f22a88a2db34227"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+<div class="blur-bg"></div>
 
-    let roomId = new URLSearchParams(location.search).get('r') || Date.now().toString(36);
-    if (!location.search) history.replaceState(null,null,'?r='+roomId);
-    document.getElementById('url').textContent = location.href;
+<header>Точковка</header>
 
-    const room = db.ref('love-rooms/'+roomId);
-    const turn = room.child('turn'); // X или O
-    const choice = room.child('choice'); // truth / dare
-    const question = room.child('question');
+<div class="plan">
+  <input id="plan" type="number" value="3000">
+  <div class="pr"><div class="fill" id="f"></div></div>
+  <div class="done" id="done">0 м³</div>
+  <div class="left" id="left">Осталось: 3000 м³</div>
+</div>
 
-    let me = null;
+<div class="list" id="list"></div>
 
-    room.child('players').transaction(c=>(c||0)+1, (_,__,snap)=>{
-      const count = snap.val();
-      me = count===1 ? 'X' : 'O';
-      document.getElementById('question').innerHTML = me==='X' ? 'Ты начинаешь! Выбери 👇' : 'Ждём, когда любимый выберет...';
-    });
+<button class="fab" onclick="s.classList.toggle('open')">⋯</button>
 
-    function choose(type) {
-      if (me !== turn.val() && turn.val() !== null) return alert('Сейчас не твой ход!');
-      choice.set(type);
-      turn.set(me==='X'?'O':'X');
-      document.getElementById('question').textContent = 'Генерируем горячий вопрос...';
-    }
+<div class="sh" id="s">
+  <div class="h"></div>
+  <button onclick="add();s.classList.toggle('open')">+ Добавить БелАЗ</button>
+  <button onclick="wa();s.classList.toggle('open')">Диспетчеру в WhatsApp</button>
+  <button onclick="res();s.classList.toggle('open')" style="background:rgba(255,59,48,0.3)">Сбросить смену</button>
+</div>
 
-    choice.on('value', snap=>{
-      if (!snap.val()) return;
-      const truths = ["Самое интимное место, где ты занимался сексом?","Какой у тебя самый большой фетиш?","Сколько человек было у тебя до меня?","Что ты хочешь попробовать в постели, но стесняешься сказать?","Опиши свой самый жаркий сон про меня","Как часто ты мастурбируешь думая обо мне?"];
-      const dares = ["Сними одну вещь с себя прямо сейчас","Поцелуй экран туда, где хочешь меня поцеловать","Сделай стон, который ты издаёшь в постели","Покажи своё любимое бельё","Сделай мне комплимент так, будто соблазняешь","Сфотографируй и покажи (в чат) своё самое красивое место тела"];
+<script>
+  let t = JSON.parse(localStorage.getItem('toch_glass')) || [];
+  let tar = +localStorage.getItem('tar') || 3000;
+  document.getElementById('plan').value = tar;
 
-      const list = snap.val()==='truth' ? truths : dares;
-      const q = list[Math.floor(Math.random()*list.length)];
-      question.set(q + (snap.val()==='dare' ? ' 😈' : ' 🔥'));
-      choice.set(null);
-    });
+  t = t.map(x=>({n:x.n||'??',c:x.c||0,v:x.v||37.8,on:x.on!==false}));
 
-    question.on('value', snap=>{
-      if (snap.val()) document.getElementById('question').innerHTML = '<b>'+snap.val()+'</b><br><br>Теперь ходит другой ❤️';
-    });
+  function sv(){localStorage.setItem('toch_glass',JSON.stringify(t));localStorage.setItem('tar',tar)}
+  function up(){
+    const tot = t.reduce((s,x)=>s+x.c*x.v,0);
+    const lef = Math.max(0,tar-tot);
+    document.getElementById('f').style.width = Math.min(tot/tar*100,200)+'%';
+    document.getElementById('done').textContent = Math.round(tot).toLocaleString()+' м³';
+    document.getElementById('left').textContent = lef===0?'НОРМА ВЫПОЛНЕНА':`Осталось: ${Math.round(lef).toLocaleString()} м³`;
+  }
+  function ren(){
+    document.getElementById('list').innerHTML = t.map((x,i)=>`
+      <div class="t" data-i="${i}" onpointerdown="sw(event,this)">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:90px;background:#ff3b30;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;transform:translateX(-100%)">
+          Удалить
+        </div>
+        <input type="checkbox" class="chk" ${x.on?'checked':''} onchange="tog(${i})">
+        <div class="n">${x.n}</div>
+        <button class="b m" onclick="event.stopPropagation();ch(${i},-1)">–</button>
+        <div class="c" onclick="event.stopPropagation();ch(${i},5)" style="cursor:pointer">${x.c}</div>
+        <button class="b p" onclick="event.stopPropagation();ch(${i},1)">+</button>
+        <div class="v" onclick="event.stopPropagation();cv(${i})">${x.v} м³</div>
+      </div>
+    `).join('');
+    up();
+  }
+  window.tog=i=>{t[i].on=!t[i].on;sv();ren()}
+  window.ch=(i,d)=>{t[i].c=Math.max(0,t[i].c+d);sv();ren();navigator.vibrate?.(30)}
+  window.cv=(i)=>{let v=prompt('Кубатура',t[i].v);if(v&&!isNaN(v)){t[i].v=+v;sv();ren()}}
+  let sx=0;
+  window.sw=(e,l)=>{if(e.pointerType==='mouse')return;sx=e.touches[0].clientX;const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};const en=()=>{if(e.changedTouches[0].clientX-sx<-100){t.splice(l.dataset.i,1);sv();ren()}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};document.addEventListener('touchmove',m);document.addEventListener('touchend',en)}
+  window.add=()=>{let n=prompt('Номер БелАЗа')?.trim().toUpperCase();if(!n||t.some(x=>x.n===n))return;let v=prompt('Кубатура',37.8)||37.8;t.push({n,c:0,v:+v,on:true});sv();ren()}
+  window.wa=()=>{const txt=t.filter(x=>x.on&&x.c>0).map(x=>`${x.n} — ${x.c}`).join('\n')||'—';location.href='whatsapp://send?text='+encodeURIComponent(txt)}
+  window.res=()=>confirm('Сбросить смену?')&&(t=[],sv(),ren());
+  document.getElementById('plan').onchange=e=>{tar=+e.target.value||3000;sv();up()}
 
-    turn.set('X'); // старт
-  </script>
+  ren();
+</script>
 </body>
 </html>

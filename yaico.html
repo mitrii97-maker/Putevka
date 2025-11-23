@@ -8,8 +8,9 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, set, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // ←←←← ВСТАВЬ СВОЙ НОВЫЙ КОНФИГ ЗДЕСЬ
-const firebaseConfig = {
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    // ВСТАВЬ СВОЙ НОВЫЙ КОНФИГ СЮДА
+    const firebaseConfig = {
   apiKey: "AIzaSyAzGea6sRTQek_bYAOnJdvKjKxd5sRgX7E",
   authDomain: "klicker-love.firebaseapp.com",
   databaseURL: "https://klicker-love-default-rtdb.europe-west1.firebasedatabase.app",
@@ -19,43 +20,49 @@ const firebaseConfig = {
   appId: "1:805841292732:web:8bfbe94ddbe6ac7b472fb9",
   measurementId: "G-L1H4GM9FQ8"
 };
-    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, "tictactoe");
+    const gameRef = ref(db, "tictactoe_game");
 
     let mySymbol = null;
-    const myName = prompt("Как тебя зовут? ❤️", "Моя половинка ❤️") || "Игрок";
 
-    // Сброс игры через #reset
+    const name = prompt("Как тебя зовут? ❤️", "Любимая ❤️") || "Игрок";
+
+    // Сброс через #reset
     if (location.hash === "#reset") {
       remove(gameRef);
       location.hash = "";
       location.reload();
     }
 
-    // Главный слушатель состояния игры
+    // Главный слушатель
     onValue(gameRef, (snap) => {
       const data = snap.val();
 
-      if (!data || !data.board) {
-        // Новая игра — первый игрок создаёт доску
-        document.getElementById("status").textContent = "Ожидание второго игрока...";
-        document.getElementById("board").style.display = "none";
+      // Если игры ещё нет — создаём и становимся крестиками
+      if (!data) {
+        set(gameRef, {
+          board: Array(9).fill(null),
+          turn: "X",
+          status: "waiting"
+        });
+        mySymbol = "X";
+        document.getElementById("status").textContent = "Ты крестики ✕ · Ждём второго игрока...";
         return;
       }
 
+      // Игра уже есть
       document.getElementById("board").style.display = "grid";
 
-      // Определяем символ игрока
+      // Определяем символ
       if (!mySymbol) {
-        mySymbol = data.xPlayer ? "O" : "X";
-        alert(`Привет, ${myName}! Ты играешь за ${mySymbol === "X" ? "крестики ✕" : "нолики ◯"}`);
-        // Сохраняем, кто X, чтобы второй точно получил O
-        if (mySymbol === "X") {
-          set(ref(db, "tictactoe/xPlayer"), true);
+        mySymbol = data.turn === "X" && data.status === "waiting" ? "O" : "X"; // если кто-то уже X и ждёт — ты O
+        if (mySymbol === "O") {
+          set(gameRef, { ...data, status: "playing" }); // игра началась
         }
+        alert(`${name}, ты ${mySymbol === "X" ? "крестики ✕" : "нолики ◯"}`);
       }
 
       renderBoard(data.board);
@@ -63,75 +70,56 @@ const firebaseConfig = {
     });
 
     function makeMove(i) {
-      if (mySymbol !== currentTurn()) return;
-      if (winner) return;
-
       runTransaction(gameRef, (current) => {
-        if (!current || current.board[i]) return current; // уже занято или нет игры
+        if (!current || current.board[i] || current.winner) return current;
+        if (mySymbol !== current.turn) return current;
+
         const newBoard = [...current.board];
         newBoard[i] = mySymbol;
+
         const win = checkWin(newBoard);
         return {
           board: newBoard,
           turn: mySymbol === "X" ? "O" : "X",
-          xPlayer: true,
+          status: "playing",
           winner: win.winner || (win.draw ? "draw" : null)
         };
       });
     }
 
-    function currentTurn() {
-      // простая логика: первый зашедший — X, второй — O
-      const snap = gameRef; // не важно, просто возвращаем мой символ или ждём
-      return mySymbol;
-    }
-
     function renderBoard(board) {
       board.forEach((cell, i) => {
         const el = document.getElementById(`c${i}`);
-        el.innerHTML = cell === "X" ? "✕" : cell === "O" ? "◯" : "";
-        el.className = cell ? "cell filled" : "cell";
+        el.innerHTML = cell === "X" ? '<div class="x">✕</div>' : cell === "O" ? '<div class="o">◯</div>' : "";
       });
     }
 
-    let winner = null;
     function updateStatus(data) {
       if (data.winner === "draw") {
         document.getElementById("status").textContent = "🤝 Ничья! Вы идеальная пара ❤️";
-        winner = "draw";
       } else if (data.winner) {
-        const txt = data.winner === mySymbol ? "🎉 Ты выиграл(а)!" : "🥹 Противник выиграл...";
-        document.getElementById("status").textContent = `${txt} ${data.winner === "X" ? "✕" : "◯"} победил(а)!`;
-        winner = data.winner;
+        document.getElementById("status").textContent = data.winner === mySymbol 
+          ? "🎉 Ты ПОБЕДИЛ(А)!!! 🏆" 
+          : "🥹 Ты проиграл(а)... но я тебя всё равно люблю ❤️";
       } else {
-        const turnSymbol = data.turn === "X" ? "✕" : "◯";
-        const txt = data.turn === mySymbol ? "Твой ход!" : "Ход противника";
-        document.getElementById("status").textContent = `${txt} (${turnSymbol})`;
+        const turnText = data.turn === mySymbol ? "ТВОЙ ХОД!" : "Ход противника";
+        document.getElementById("status").textContent = `${turnText} (${data.turn === "X" ? "✕" : "◯"})`;
       }
     }
 
-    // Проверка победы
-    function checkWin(board) {
-      const lines = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
-      for (const line of lines) {
-        if (board[line[0]] && board[line[0]] === board[line[1]] && board[line[0]] === board[line[2]]) {
-          return { winner: board[line[0]] };
-        }
+    function checkWin(b) {
+      const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+      for (let l of lines) {
+        if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { winner: b[l[0]] };
       }
-      if (board.every(c => c)) return { draw: true };
+      if (b.every(c => c)) return { draw: true };
       return {};
     }
 
     // Клик по клеткам
-    document.querySelectorAll(".cell").forEach((cell, i) => {
-      cell.onclick = () => makeMove(i);
-    });
+    document.querySelectorAll(".cell").forEach((c, i) => c.onclick = () => makeMove(i));
 
-    // Кнопка новой игры
+    // Новая игра
     document.getElementById("reset").onclick = () => {
       remove(gameRef);
       location.reload();
@@ -139,18 +127,20 @@ const firebaseConfig = {
   </script>
 
   <style>
-    body{margin:0;min-height:100vh;background:linear-gradient(135deg,#667eea,#764ba2);font-family:-apple-system,system-ui,sans-serif;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .container{width:92vw;max-width:420px;background:rgba(255,255,255,0.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:32px;border:1px solid rgba(255,255,255,0.2);box-shadow:0 25px 50px rgba(0,0,0,0.3);padding:30px 20px;text-align:center;position:relative;overflow:hidden}
-    h1{font-size:36px;margin:0 0 10px;background:linear-gradient(45deg,#ff9a9e,#fad0c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    #board{display:none;grid-template-columns:repeat(3,1fr);gap:14px;margin:40px auto;width:fit-content}
-    .cell{width:96px;height:96px;background:rgba(255,255,255,0.2);border-radius:26px;font-size:64px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;backdrop-filter:blur(10px);user-select:none}
-    .cell:hover{background:rgba(255,255,255,0.35);transform:scale(1.08)}
-    .filled{cursor:default;transform:scale(1)}
-    #status{font-size:24px;margin:20px 0;font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.3)}
-    button{background:rgba(255,255,255,0.25);border:none;border-radius:20px;padding:14px 32px;color:#fff;font-size:18px;margin-top:20px;cursor:pointer;transition:.3s}
-    button:hover{background:rgba(255,255,255,0.4);transform:translateY(-2px)}
-    .heart{color:#ff6b9d;animation:p 2s infinite}
-    @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+    body{margin:0;min-height:100vh;background:linear-gradient(135deg,#ff9a9e,#fad0c4);font-family:-apple-system,system-ui,sans-serif;color:#fff;display:flex;align-items:center;justify-content:center}
+    .container{max-width:420px;width:92%;background:rgba(255,255,255,0.18);backdrop-filter:blur(25px);border-radius:34px;border:1px solid rgba(255,255,255,0.3);box-shadow:0 30px 60px rgba(0,0,0,0.25);padding:40px 20px;text-align:center}
+    h1{font-size:38px;margin:0 0 15px;background:linear-gradient(45deg,#fff,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    #board{display:none;grid-template-columns:repeat(3,1fr);gap:16px;margin:40px auto}
+    .cell{width:100px;height:100px;background:rgba(255,255,255,0.25);border-radius:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.3s;font-size:70px}
+    .cell:hover{background:rgba(255,255,255,0.4);transform:scale(1.07)}
+    .x{color:#ff6b9d;animation:pulse 0.6s}
+    .o{color:#a8e6cf;animation:pulse 0.6s}
+    @keyframes pulse{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+    #status{font-size:26px;font-weight:600;margin:20px 0;min-height:50px}
+    button{background:rgba(255,255,255,0.3);border:none;border-radius:25px;padding:16px 36px;color:#fff;font-size:19px;cursor:pointer;margin-top:20px;transition:.3s}
+    button:hover{background:rgba(255,255,255,0.5);transform:translateY(-3px)}
+    .heart{color:#ff6b9d;animation:beat 1.5s infinite}
+    @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
   </style>
 </head>
 <body>
@@ -167,9 +157,9 @@ const firebaseConfig = {
       <div class="cell" id="c7"></div>
       <div class="cell" id="c8"></div>
     </div>
-    <div id="status">Ожидание второго игрока...</div>
+    <div id="status">Загрузка...</div>
     <button id="reset">Новая игра</button>
-    <p style="margin-top:30px;font-size:14px;opacity:0.8">Сброс: добавить #reset в ссылку</p>
+    <p style="margin-top:25px;font-size:14px;opacity:0.8">Сброс: добавить #reset в ссылку</p>
   </div>
 </body>
 </html>

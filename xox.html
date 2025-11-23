@@ -3,74 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Крестики-нолики для нас с тобой ❤️</title>
+  <title>Правда или Действие ❤️</title>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      text-align: center;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #333;
-    }
-    h1 { color: white; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-    #status { font-size: 1.6em; margin: 20px; color: white; min-height: 50px; }
-    #board {
-      display: grid;
-      grid-template-columns: repeat(3, 110px);
-      grid-gap: 12px;
-      margin: 20px auto;
-    }
-    .cell {
-      width: 110px;
-      height: 110px;
-      background: white;
-      border-radius: 20px;
-      font-size: 80px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-      transition: all 0.2s;
-    }
-    .cell:hover { background: #fff0f5; transform: scale(1.05); }
-    button {
-      padding: 15px 35px;
-      font-size: 1.3em;
-      background: #ff4757;
-      color: white;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      margin-top: 20px;
-      box-shadow: 0 4px 15px rgba(255,71,87,0.4);
-    }
-    button:hover { background: #ff3742; }
-    #link {
-      background: rgba(255,255,255,0.9);
-      padding: 15px;
-      border-radius: 15px;
-      margin: 20px;
-      word-break: break-all;
-      max-width: 90%;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
+    body {font-family: Arial; text-align:center; background: linear-gradient(135deg, #ff6b6b, #ffb3b3); color:white; min-height:100vh; margin:0; padding:20px;}
+    h1 {font-size:2.5em; margin:20px;}
+    #question {font-size:1.8em; padding:30px; background:rgba(255,255,255,0.2); border-radius:20px; margin:30px; min-height:120px;}
+    button {padding:20px 40px; margin:20px; font-size:1.5em; background:#fff; color:#ff6b6b; border:none; border-radius:50px; cursor:pointer;}
+    button:hover {transform:scale(1.1);}
+    #link {margin:30px; padding:20px; background:rgba(255,255,255,0.3); border-radius:15px; word-break:break-all;}
   </style>
 </head>
 <body>
-  <h1>Крестики-нолики для влюблённых ❤️</h1>
-  <div id="status">Загрузка...</div>
-  <div id="board"></div>
-  <button onclick="resetGame()">🔄 Новая игра</button>
-  <div id="link">Отправь эту ссылку любимой ❤️<br><b id="url"></b></div>
+  <h1>Правда или Действие? ❤️</h1>
+  <div id="link">Отправь ссылку любимой:<br><b id="url"></b></div>
+  <div id="question">Ждём второго игрока...</div>
+  <button onclick="choose('truth')">Правда 🔥</button>
+  <button onclick="choose('dare')">Действие 😈</button>
 
   <script>
     const firebaseConfig = {
@@ -82,119 +32,49 @@
       messagingSenderId: "99410167270",
       appId: "1:99410167270:web:c44b4f7f22a88a2db34227"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ID комнаты
-    const urlParams = new URLSearchParams(window.location.search);
-    let roomId = urlParams.get('room');
-    if (!roomId) {
-      roomId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-      history.replaceState(null, null, '?room=' + roomId);
-    }
+    let roomId = new URLSearchParams(location.search).get('r') || Date.now().toString(36);
+    if (!location.search) history.replaceState(null,null,'?r='+roomId);
     document.getElementById('url').textContent = location.href;
 
-    const roomRef = db.ref('rooms/' + roomId);
-    const boardRef = roomRef.child('board');
-    const turnRef = roomRef.child('turn');
-    const winnerRef = roomRef.child('winner');
+    const room = db.ref('love-rooms/'+roomId);
+    const turn = room.child('turn'); // X или O
+    const choice = room.child('choice'); // truth / dare
+    const question = room.child('question');
 
-    let mySymbol = null;
-    let isMyTurn = false;
+    let me = null;
 
-    // Создаём поле
-    const boardDiv = document.getElementById('board');
-    for (let i = 0; i < 9; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.index = i;
-      cell.onclick = () => makeMove(i);
-      boardDiv.appendChild(cell);
-    }
-
-    function makeMove(index) {
-      if (!isMyTurn || boardDiv.children[index].textContent || winnerRef.val()) return;
-      boardRef.child(index).set(mySymbol);
-      turnRef.set(mySymbol === 'X' ? 'O' : 'X');
-    }
-
-    function resetGame() {
-      if (confirm('Начать новую игру?')) {
-        boardRef.set(Array(9).fill(null));
-        turnRef.set('X');
-        winnerRef.set(null);
-      }
-    }
-
-    // Инициализация комнаты
-    roomRef.child('board').set(Array(9).fill(null));
-    roomRef.child('turn').set('X');
-    roomRef.child('winner').set(null);
-
-    // Слушаем доску
-    boardRef.on('value', snap => {
-      const data = snap.val() || Array(9).fill(null);
-      document.querySelectorAll('.cell').forEach((cell, i) => {
-        cell.textContent = data[i] || '';
-      });
-      checkWinner(data);
+    room.child('players').transaction(c=>(c||0)+1, (_,__,snap)=>{
+      const count = snap.val();
+      me = count===1 ? 'X' : 'O';
+      document.getElementById('question').innerHTML = me==='X' ? 'Ты начинаешь! Выбери 👇' : 'Ждём, когда любимый выберет...';
     });
 
-    // Слушаем чей ход и победителя
-    turnRef.on('value', snap => {
-      const turn = snap.val();
-      winnerRef.once('value', w => {
-        const winner = w.val();
-        if (winner) {
-          if (winner === 'draw') {
-            document.getElementById('status').textContent = 'Ничья 😘';
-          } else {
-            document.getElementById('status').textContent = `Победил ${winner} 🎉🎉🎉`;
-          }
-        } else {
-          isMyTurn = (mySymbol === turn);
-          document.getElementById('status').textContent = 
-            isMyTurn ? 'Твой ход!' : `Ход противника ${turn === 'X' ? '❌' : '⭕'}`;
-        }
-      });
-    });
-
-    // Назначаем символы
-    roomRef.child('players').transaction(current => (current || 0) + 1, (error, committed, snapshot) => {
-      if (committed) {
-        const count = snapshot.val();
-        if (count === 1) {
-          mySymbol = 'X';
-          document.getElementById('status').textContent = 'Ты ❌ — ждём твою любимую...';
-        } else if (count === 2) {
-          mySymbol = 'O';
-          document.getElementById('status').textContent = 'Ты ⭕ — ходит ❌';
-        } else {
-          alert('Комната полная — создай новую игру!');
-          document.getElementById('status').textContent = 'Комната переполнена';
-        }
-      }
-    });
-
-    // Проверка победы
-    function checkWinner(b) {
-      const win = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-      for (let c of win) {
-        if (b[c[0]] && b[c[0]] === b[c[1]] && b[c[0]] === b[c[2]]) {
-          winnerRef.set(b[c[0]]);
-          return;
-        }
-      }
-      if (b.every(cell => cell !== null)) {
-        winnerRef.set('draw');
-      }
+    function choose(type) {
+      if (me !== turn.val() && turn.val() !== null) return alert('Сейчас не твой ход!');
+      choice.set(type);
+      turn.set(me==='X'?'O':'X');
+      document.getElementById('question').textContent = 'Генерируем горячий вопрос...';
     }
 
-    // Убираем игрока при закрытии
-    window.addEventListener('beforeunload', () => {
-      roomRef.child('players').transaction(c => (c || 0) - 1);
+    choice.on('value', snap=>{
+      if (!snap.val()) return;
+      const truths = ["Самое интимное место, где ты занимался сексом?","Какой у тебя самый большой фетиш?","Сколько человек было у тебя до меня?","Что ты хочешь попробовать в постели, но стесняешься сказать?","Опиши свой самый жаркий сон про меня","Как часто ты мастурбируешь думая обо мне?"];
+      const dares = ["Сними одну вещь с себя прямо сейчас","Поцелуй экран туда, где хочешь меня поцеловать","Сделай стон, который ты издаёшь в постели","Покажи своё любимое бельё","Сделай мне комплимент так, будто соблазняешь","Сфотографируй и покажи (в чат) своё самое красивое место тела"];
+
+      const list = snap.val()==='truth' ? truths : dares;
+      const q = list[Math.floor(Math.random()*list.length)];
+      question.set(q + (snap.val()==='dare' ? ' 😈' : ' 🔥'));
+      choice.set(null);
     });
+
+    question.on('value', snap=>{
+      if (snap.val()) document.getElementById('question').innerHTML = '<b>'+snap.val()+'</b><br><br>Теперь ходит другой ❤️';
+    });
+
+    turn.set('X'); // старт
   </script>
 </body>
 </html>

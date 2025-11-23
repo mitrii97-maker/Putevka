@@ -92,11 +92,17 @@
 
     // Клик по яйцу
     document.getElementById("egg").onclick = () => {
-      runTransaction(clicksRef, c => (c ?? 1000) > 0 ? c - 1 : 0);
-      document.getElementById("egg").style.transform = "scale(0.9)";
-      setTimeout(() => document.getElementById("egg").style.transform = "", 100);
-      new Audio("https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3").play();
-    };
+  runTransaction(clicksRef, (current) => {
+    if (current === null || current === undefined) return 1000;
+    if (current <= 0) return 0;           // ← эта строчка важная!
+    return current - 1;
+  });
+
+  // остальное без изменений
+  document.getElementById("egg").style.transform = "scale(0.9)";
+  setTimeout(() => document.getElementById("egg").style.transform = "", 100);
+  new Audio("https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3").play();
+};
 
     // Чат
     const chat = document.getElementById("chat");

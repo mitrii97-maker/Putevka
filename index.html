@@ -13,16 +13,6 @@
   body{display:flex;flex-direction:column}
   header{text-align:center;padding:44px 20px 10px;font-size:36px;font-weight:800;background:linear-gradient(90deg,#0a84ff,#30d158);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-  .timeline{margin:0 16px 16px;padding:16px;background:var(--glass);border-radius:20px;border:1px solid var(--border);backdrop-filter:blur(20px)}
-  .tl-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;text-align:center;font-size:13px;font-weight:600}
-  .seg{background:var(--glass2);border-radius:12px;padding:10px 4px;border:1px solid var(--border);line-height:1.3}
-  .time{color:#888}
-  .need{color:#666;font-size:11px}
-  .done{color:var(--green);font-weight:800}
-  .diff.green{color:var(--green)}
-  .diff.red{color:var(--red)}
-  .diff.orange{color:var(--orange)}
-
   .plan{margin:0 16px 12px;padding:16px;background:var(--glass);border-radius:20px;border:1px solid var(--border);backdrop-filter:blur(20px)}
   #plan{width:100%;padding:10px;font-size:42px;font-weight:800;text-align:center;background:var(--glass2);border:1px solid var(--border);border-radius:16px;color:#fff}
   .pr{height:12px;background:rgba(255,255,255,0.15);border-radius:6px;overflow:hidden;margin:14px 0}
@@ -52,8 +42,6 @@
 
 <header>Точковка</header>
 
-<div class="timeline" id="timeline"></div>
-
 <div class="plan">
   <input id="plan" type="number" value="3000">
   <div class="pr"><div class="fill" id="f"></div></div>
@@ -75,7 +63,6 @@
 <script>
   let trucks = JSON.parse(localStorage.getItem('toch2025_final')) || [];
   let target = +localStorage.getItem('target2025') || 3000;
-  let shiftStart = localStorage.getItem('shiftStart') ? +localStorage.getItem('shiftStart') : Date.now();
 
   document.getElementById('plan').value = target;
 
@@ -84,50 +71,6 @@
   function save(){
     localStorage.setItem('toch2025_final', JSON.stringify(trucks));
     localStorage.setItem('target2025', target);
-    localStorage.setItem('shiftStart', shiftStart);
-  }
-
-  function getElapsedHours(){
-    return (Date.now() - shiftStart) / (1000 * 60 * 60);
-  }
-
-  function updateTimeline(){
-    const totalDone = trucks.reduce((s,x)=>s + x.c * x.v, 0);
-    const per2h = target / 6;
-    const elapsedHours = getElapsedHours();
-    let html = '';
-
-    for(let i = 1; i <= 6; i++){
-      const segmentStart = (i-1)*2;
-      const segmentEnd = i*2;
-      const needByEnd = per2h * i;
-
-      // Сколько должно быть сделано к концу этого сегмента
-      const expected = Math.min(needByEnd, target);
-
-      // Сколько реально сделано (всё, что есть сейчас)
-      const actual = totalDone;
-
-      const diff = actual - expected;
-
-      const isFuture = elapsedHours < segmentEnd;
-      const isCurrent = elapsedHours >= segmentStart && elapsedHours < segmentEnd;
-      const isPast = elapsedHours >= segmentEnd;
-
-      let diffText = '';
-      let diffClass = 'orange';
-      if(diff > 0) { diffText = `+${Math.round(diff)}`; diffClass = 'green'; }
-      else if(diff < 0) { diffText = Math.round(diff); diffClass = 'red'; }
-      else diffText = '0';
-
-      html += `<div class="seg" style="${isCurrent?'box-shadow:0 0 15px rgba(10,132,255,0.4);':''}">
-        <div class="time">${segmentStart}-${segmentEnd}h</div>
-        <div class="need">${Math.round(per2h)} м³</div>
-        <div class="done">${isFuture ? '—' : Math.round(actual > expected ? expected + Math.max(0,diff) : actual)} м³</div>
-        <div class="diff ${diffClass}">${isFuture ? '—' : diffText}</div>
-      </div>`;
-    }
-    document.getElementById('timeline').innerHTML = `<div class="tl-grid">${html}</div>`;
   }
 
   function update(){
@@ -137,7 +80,6 @@
     document.getElementById('done').textContent = Math.round(total).toLocaleString()+' м³';
     document.getElementById('left').textContent = left===0?'НОРМА ВЫПОЛНЕНА':`Осталось: ${Math.round(left).toLocaleString()} м³`;
     document.getElementById('f').classList.toggle('over', total > target);
-    updateTimeline();
   }
 
   function render(){
@@ -164,11 +106,9 @@
   window.sw=(e,l)=>{if(e.pointerType==='mouse')return;sx=e.touches[0].clientX;const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};const en=()=>{if(e.changedTouches[0].clientX-sx<-100){trucks.splice(l.dataset.i,1);save();render()}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};document.addEventListener('touchmove',m);document.addEventListener('touchend',en)}
   window.add=()=>{let n=prompt('Номер БелАЗа')?.trim().toUpperCase();if(!n||trucks.some(x=>x.n===n))return;let v=prompt('Кубатура',37.8)||37.8;trucks.push({n,c:0,v:+v,on:true});save();render()}
   window.wa=()=>{const txt = trucks.filter(x=>x.on && x.c>0).map(x=>`${x.n} — ${x.c}`).join('\n')||'—';location.href='whatsapp://send?text='+encodeURIComponent(txt)}
-  window.res=()=>{if(confirm('Сбросить смену и начать новую?')){trucks=[];shiftStart=Date.now();save();render()}}
+  window.res=()=>{if(confirm('Сбросить смену и начать новую?')){trucks=[];save();render()}}
   document.getElementById('plan').onchange=e=>{target=+e.target.value||3000;save();update()}
 
-  // Обновляем таймлайн каждые 30 секунд
-  setInterval(updateTimeline, 30000);
   render();
 </script>
 </body>

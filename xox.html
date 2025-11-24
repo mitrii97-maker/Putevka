@@ -51,7 +51,7 @@
 
 <div class="list" id="list"></div>
 
-<button class="fab" onclick="s.classList.toggle('open')">⋯</button>
+<button class="fab" onclick="s.classList.toggle('open')">...</button>
 
 <div class="sh" id="s">
   <div class="h"></div>
@@ -90,7 +90,7 @@
         </div>
         <input type="checkbox" class="chk" ${x.on?'checked':''} onchange="tog(${i})">
         <div class="n">${x.n}</div>
-        <button class="b m" onclick="event.stopPropagation();ch(${i},-1)">–</button>
+        <button class="b m" onclick="event.stopPropagation();minus(${i})">–</button>
         <div class="c" onclick="event.stopPropagation();ch(${i},5)" style="cursor:pointer">${x.c}</div>
         <button class="b p" onclick="event.stopPropagation();ch(${i},1)">+</button>
         <div class="v" onclick="event.stopPropagation();cv(${i})">${x.v} м³</div>
@@ -100,13 +100,55 @@
   }
 
   window.tog=i=>{trucks[i].on=!trucks[i].on;save();render()}
+  
+  // Новая функция для кнопки минус
+  window.minus = function(i) {
+    if (trucks[i].c === 0) {
+      if (confirm(`Удалить БелАЗ ${trucks[i].n}?`)) {
+        trucks.splice(i, 1);
+        save();
+        render();
+      }
+    } else {
+      trucks[i].c = Math.max(0, trucks[i].c - 1);
+      save();
+      render();
+      navigator.vibrate?.(30);
+    }
+  }
+
   window.ch=(i,d)=>{trucks[i].c=Math.max(0,trucks[i].c+d);save();render();navigator.vibrate?.(30)}
-  window.cv=(i)=>{let v=prompt('Кубатура',trucks[i].v);if(v&&!isNaN(v)){trucks[i].v=+v;save();render()}}
+  window.cv=(i)=>{let v=prompt('Кубатура (или оставьте пустым)',trucks[i].v);if(v!==null && v!=='' && !isNaN(v)){trucks[i].v=+v;save();render()}}
+
   let sx=0;
-  window.sw=(e,l)=>{if(e.pointerType==='mouse')return;sx=e.touches[0].clientX;const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};const en=()=>{if(e.changedTouches[0].clientX-sx<-100){trucks.splice(l.dataset.i,1);save();render()}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};document.addEventListener('touchmove',m);document.addEventListener('touchend',en)}
-  window.add=()=>{let n=prompt('Номер БелАЗа')?.trim().toUpperCase();if(!n||trucks.some(x=>x.n===n))return;let v=prompt('Кубатура',37.8)||37.8;trucks.push({n,c:0,v:+v,on:true});save();render()}
+  window.sw=(e,l)=>{if(e.pointerType==='mouse')return;sx=e.touches[0].clientX;const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};const en=()=>{if(e.changedTouches[0].clientX-sx<-100){if(confirm(`Удалить БелАЗ ${trucks[l.dataset.i].n}?`)){trucks.splice(l.dataset.i,1);save();render()}}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};document.addEventListener('touchmove',m);document.addEventListener('touchend',en)}
+
+  // Добавление с выбором кубатуры
+  window.add = function() {
+    let n = prompt('Номер БелАЗа')?.trim().toUpperCase();
+    if (!n || trucks.some(x => x.n === n)) {
+      if (n && trucks.some(x => x.n === n)) alert('Этот номер уже есть!');
+      return;
+    }
+
+    const options = ['37.8 м³', '36 м³', '21 м³'];
+    let choice = prompt(
+      `Выберите кубатуру для ${n}:\n\n1 — 37.8 м³\n2 — 36 м³\n3 — 21 м³\n\n(введите цифру 1, 2 или 3)`,
+      '1'
+    );
+
+    let volume = 37.8;
+    if (choice === '2') volume = 36;
+    else if (choice === '3') volume = 21;
+
+    trucks.push({n, c: 0, v: volume, on: true});
+    save();
+    render();
+  }
+
   window.wa=()=>{const txt = trucks.filter(x=>x.on && x.c>0).map(x=>`${x.n} — ${x.c}`).join('\n')||'—';location.href='whatsapp://send?text='+encodeURIComponent(txt)}
   window.res=()=>{if(confirm('Сбросить смену и начать новую?')){trucks=[];save();render()}}
+
   document.getElementById('plan').onchange=e=>{target=+e.target.value||3000;save();update()}
 
   render();

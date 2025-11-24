@@ -1,111 +1,115 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apple Liquid Glass — наконец-то то самое!</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920') center/cover no-repeat;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Точковка</title>
+<style>
+  :root{--glass:rgba(255,255,255,0.07);--glass2:rgba(255,255,255,0.12);--border:rgba(255,255,255,0.15);--accent:#0a84ff;--green:#30d158;--red:#ff453a;--orange:#ff9f0a}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100dvh;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,system-ui,sans-serif}
+  body{display:flex;flex-direction:column}
+  header{text-align:center;padding:44px 20px 10px;font-size:36px;font-weight:800;background:linear-gradient(90deg,#0a84ff,#30d158);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-    .glass {
-      width: 380px;
-      height: 540px;
-      border-radius: 40px;
-      position: relative;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
+  .plan{margin:0 16px 12px;padding:16px;background:var(--glass);border-radius:20px;border:1px solid var(--border);backdrop-filter:blur(20px)}
+  #plan{width:100%;padding:10px;font-size:42px;font-weight:800;text-align:center;background:var(--glass2);border:1px solid var(--border);border-radius:16px;color:#fff}
+  .pr{height:12px;background:rgba(255,255,255,0.15);border-radius:6px;overflow:hidden;margin:14px 0}
+  .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .6s;box-shadow:0 0 15px rgba(10,132,255,0.4)}
+  .fill.over{background:linear-gradient(90deg,var(--green),var(--orange))}
+  .done{text-align:center;font-size:28px;font-weight:800}
+  .left{text-align:center;font-size:20px;color:var(--orange);margin-top:4px;font-weight:600}
 
-    /* Главная магия — рефракция + переливы */
-    .glass::before {
-      content: "";
-      position: absolute;
-      inset: -60px;
-      background: inherit;
-      border-radius: inherit;
-      backdrop-filter: url(#liquid);
-      -webkit-backdrop-filter: url(#liquid);
-      pointer-events: none;
-    }
+  .list{flex:1;overflow-y:auto;padding:0 16px 100px;-webkit-overflow-scrolling:touch}
+  .t{display:flex;align-items:center;padding:14px 16px;background:var(--glass);border-radius:18px;margin-bottom:10px;border:1px solid var(--border);backdrop-filter:blur(20px);position:relative;overflow:hidden}
+  .chk{margin-right:12px;width:28px;height:28px}
+  .n{font-size:32px;font-weight:800;width:70px;text-align:center}
+  .c{font-size:48px;font-weight:900;min-width:100px;text-align:center}
+  .v{margin-left:auto;padding:6px 12px;background:rgba(10,132,255,0.2);border-radius:10px;font-size:20px;font-weight:700}
+  .b{width:56px;height:56px;border-radius:28px;border:none;font-size:36px;color:#fff;margin:0 10px;box-shadow:0 6px 20px rgba(0,0,0,0.4)}
+  .p{background:var(--accent)}
+  .m{background:var(--red)}
 
-    .content {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      text-align: center;
-      padding: 60px 40px;
-      z-index: 2;
-    }
-
-    h1 {
-      font-size: 56px;
-      font-weight: 800;
-      margin: 0 0 20px;
-      background: linear-gradient(90deg, #fff, #f0f8ff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    p {
-      font-size: 22px;
-      opacity: 0.95;
-      line-height: 1.5;
-    }
-  </style>
+  .fab{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(--accent);border-radius:28px;font-size:30px;border:none;box-shadow:0 8px 30px rgba(10,132,255,0.5);z-index:99}
+  .sh{position:fixed;bottom:-300px;left:0;right:0;background:rgba(20,20,40,0.97);backdrop-filter:blur(40px);border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(40px,env(safe-area-inset-bottom));transition:bottom .4s cubic-bezier(0.16,1,0.3,1);z-index:100}
+  .sh.open{bottom:0}
+  .h{width:40px;height:5px;background:#666;border-radius:3px;margin:0 auto 20px}
+  .sh button{width:100%;padding:18px;margin-bottom:12px;background:var(--glass2);border:none;border-radius:16px;color:#fff;font-size:20px;font-weight:600}
+</style>
 </head>
 <body>
 
-  <div class="glass">
-    <div class="content">
-      <h1>Liquid Glass</h1>
-      <p>Вот он — настоящий эффект<br>из iOS 18 и macOS Sequoia 2025</p>
-    </div>
-  </div>
+<header>Точковка</header>
 
-  <!-- SVG-фильтр (самое важное!) -->
-  <svg width="0" height="0" style="position:absolute">
-    <defs>
-      <filter id="liquid" x="-100%" y="-100%" width="300%" height="300%">
-        <!-- Органический шум для "жидкости" -->
-        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="5" seed="5"/>
-        
-        <!-- Усиливаем только по краям -->
-        <feComponentTransfer>
-          <feFuncA type="table" tableValues="0 0.1 0.3 0.7 1"/>
-        </feComponentTransfer>
-        
-        <!-- Сильная рефракция -->
-        <feDisplacementMap in="SourceGraphic" scale="60"/>
-        
-        <!-- Радужные переливы (хроматическая аберрация) -->
-        <feColorMatrix type="saturate" values="1.8"/>
-        <feComponentTransfer>
-          <feFuncR type="linear" slope="1.3" intercept="0.02"/>
-          <feFuncG type="linear" slope="1.1"/>
-          <feFuncB type="linear" slope="1.4" intercept="-0.02"/>
-        </feComponentTransfer>
-        
-        <feGaussianBlur stdDeviation="1"/>
-      </filter>
-    </defs>
-  </svg>
+<div class="plan">
+  <input id="plan" type="number" value="3000">
+  <div class="pr"><div class="fill" id="f"></div></div>
+  <div class="done" id="done">0 м³</div>
+  <div class="left" id="left">Осталось: 3000 м³</div>
+</div>
 
+<div class="list" id="list"></div>
+
+<button class="fab" onclick="s.classList.toggle('open')">⋯</button>
+
+<div class="sh" id="s">
+  <div class="h"></div>
+  <button onclick="add();s.classList.toggle('open')">+ Добавить БелАЗ</button>
+  <button onclick="wa();s.classList.toggle('open')">Диспетчеру в WhatsApp</button>
+  <button onclick="res();s.classList.toggle('open')" style="background:rgba(255,59,48,0.3)">Сбросить смену</button>
+</div>
+
+<script>
+  let trucks = JSON.parse(localStorage.getItem('toch2025_final')) || [];
+  let target = +localStorage.getItem('target2025') || 3000;
+
+  document.getElementById('plan').value = target;
+
+  trucks = trucks.map(x => ({n:x.n||'??', c:x.c||0, v:x.v||37.8, on:x.on!==false}));
+
+  function save(){
+    localStorage.setItem('toch2025_final', JSON.stringify(trucks));
+    localStorage.setItem('target2025', target);
+  }
+
+  function update(){
+    const total = trucks.reduce((s,x)=>s + x.c*x.v, 0);
+    const left = Math.max(0, target - total);
+    document.getElementById('f').style.width = Math.min(total/target*100,200)+'%';
+    document.getElementById('done').textContent = Math.round(total).toLocaleString()+' м³';
+    document.getElementById('left').textContent = left===0?'НОРМА ВЫПОЛНЕНА':`Осталось: ${Math.round(left).toLocaleString()} м³`;
+    document.getElementById('f').classList.toggle('over', total > target);
+  }
+
+  function render(){
+    document.getElementById('list').innerHTML = trucks.map((x,i)=>`
+      <div class="t" data-i="${i}" onpointerdown="sw(event,this)">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:90px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;transform:translateX(-100%)">
+          Удалить
+        </div>
+        <input type="checkbox" class="chk" ${x.on?'checked':''} onchange="tog(${i})">
+        <div class="n">${x.n}</div>
+        <button class="b m" onclick="event.stopPropagation();ch(${i},-1)">–</button>
+        <div class="c" onclick="event.stopPropagation();ch(${i},5)" style="cursor:pointer">${x.c}</div>
+        <button class="b p" onclick="event.stopPropagation();ch(${i},1)">+</button>
+        <div class="v" onclick="event.stopPropagation();cv(${i})">${x.v} м³</div>
+      </div>
+    `).join('');
+    update();
+  }
+
+  window.tog=i=>{trucks[i].on=!trucks[i].on;save();render()}
+  window.ch=(i,d)=>{trucks[i].c=Math.max(0,trucks[i].c+d);save();render();navigator.vibrate?.(30)}
+  window.cv=(i)=>{let v=prompt('Кубатура',trucks[i].v);if(v&&!isNaN(v)){trucks[i].v=+v;save();render()}}
+  let sx=0;
+  window.sw=(e,l)=>{if(e.pointerType==='mouse')return;sx=e.touches[0].clientX;const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};const en=()=>{if(e.changedTouches[0].clientX-sx<-100){trucks.splice(l.dataset.i,1);save();render()}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};document.addEventListener('touchmove',m);document.addEventListener('touchend',en)}
+  window.add=()=>{let n=prompt('Номер БелАЗа')?.trim().toUpperCase();if(!n||trucks.some(x=>x.n===n))return;let v=prompt('Кубатура',37.8)||37.8;trucks.push({n,c:0,v:+v,on:true});save();render()}
+  window.wa=()=>{const txt = trucks.filter(x=>x.on && x.c>0).map(x=>`${x.n} — ${x.c}`).join('\n')||'—';location.href='whatsapp://send?text='+encodeURIComponent(txt)}
+  window.res=()=>{if(confirm('Сбросить смену и начать новую?')){trucks=[];save();render()}}
+  document.getElementById('plan').onchange=e=>{target=+e.target.value||3000;save();update()}
+
+  render();
+</script>
 </body>
 </html>

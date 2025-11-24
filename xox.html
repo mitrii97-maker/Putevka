@@ -11,31 +11,42 @@
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100dvh;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,system-ui,sans-serif}
   body{display:flex;flex-direction:column}
-  header{text-align:center;padding:44px 20px 10px;font-size:36px;font-weight:800;background:linear-gradient(90deg,#0a84ff,#30d158);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  header{text-align:center;padding:44px 20px 10px;font-size:38px;font-weight:800;background:linear-gradient(90deg,#0a84ff,#30d158);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-  .plan{margin:0 16px 12px;padding:16px;background:var(--glass);border-radius:20px;border:1px solid var(--border);backdrop-filter:blur(20px)}
-  #plan{width:100%;padding:10px;font-size:42px;font-weight:800;text-align:center;background:var(--glass2);border:1px solid var(--border);border-radius:16px;color:#fff}
-  .pr{height:12px;background:rgba(255,255,255,0.15);border-radius:6px;overflow:hidden;margin:14px 0}
+  .plan{margin:0 20px 14px;padding:18px;background:var(--glass);border-radius:24px;border:1px solid var(--border);backdrop-filter:blur(20px)}
+  #plan{width:100%;padding:12px;font-size:48px;font-weight:800;text-align:center;background:var(--glass2);border:1px solid var(--border);border-radius:18px;color:#fff}
+  .pr{height:14px;background:rgba(255,255,255,0.15);border-radius:7px;overflow:hidden;margin:16px 0}
   .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .6s;box-shadow:0 0 15px rgba(10,132,255,0.4)}
   .fill.over{background:linear-gradient(90deg,var(--green),var(--orange))}
-  .done{text-align:center;font-size:28px;font-weight:800}
-  .left{text-align:center;font-size:20px;color:var(--orange);margin-top:4px;font-weight:600}
+  .done{text-align:center;font-size:32px;font-weight:800}
+  .left{text-align:center;font-size:22px;color:var(--orange);margin-top:6px;font-weight:600}
 
-  .list{flex:1;overflow-y:auto;padding:0 16px 100px;-webkit-overflow-scrolling:touch}
-  .t{display:flex;align-items:center;padding:14px 16px;background:var(--glass);border-radius:18px;margin-bottom:10px;border:1px solid var(--border);backdrop-filter:blur(20px);position:relative;overflow:hidden}
-  .chk{margin-right:12px;width:28px;height:28px}
-  .n{font-size:32px;font-weight:800;width:70px;text-align:center}
-  .c{font-size:48px;font-weight:900;min-width:100px;text-align:center}
-  .v{margin-left:auto;padding:6px 12px;background:rgba(10,132,255,0.2);border-radius:10px;font-size:20px;font-weight:700}
-  .b{width:56px;height:56px;border-radius:28px;border:none;font-size:36px;color:#fff;margin:0 10px;box-shadow:0 6px 20px rgba(0,0,0,0.4)}
+  .list{flex:1;overflow-y:auto;padding:0 20px 120px;-webkit-overflow-scrolling:touch}
+  .t{display:flex;align-items:center;padding:18px 20px;background:var(--glass);border-radius:24px;margin-bottom:12px;border:1px solid var(--border);backdrop-filter:blur(20px);position:relative;overflow:hidden;min-height:88px}
+  .chk{margin-right:16px;width:32px;height:32px;flex-shrink:0}
+  .n{font-size:36px;font-weight:800;width:80px;text-align:center;flex-shrink:0}
+  .c{font-size:56px;font-weight:900;min-width:120px;text-align:center;flex-shrink:0}
+  .v{
+    margin-left:auto;
+    margin-right:12px;
+    padding:10px 16px;
+    background:rgba(10,132,255,0.25);
+    border-radius:14px;
+    font-size:22px;
+    font-weight:800;
+    min-width:78px;
+    text-align:center;
+    backdrop-filter:blur(10px);
+  }
+  .b{width:64px;height:64px;border-radius:32px;border:none;font-size:42px;color:#fff;margin:0 12px;box-shadow:0 8px 25px rgba(0,0,0,0.4);flex-shrink:0}
   .p{background:var(--accent)}
   .m{background:var(--red)}
 
-  .fab{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(--accent);border-radius:28px;font-size:30px;border:none;box-shadow:0 8px 30px rgba(10,132,255,0.5);z-index:99}
-  .sh{position:fixed;bottom:-300px;left:0;right:0;background:rgba(20,20,40,0.97);backdrop-filter:blur(40px);border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(40px,env(safe-area-inset-bottom));transition:bottom .4s cubic-bezier(0.16,1,0.3,1);z-index:100}
+  .fab{position:fixed;bottom:max(28px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:64px;height:64px;background:var(--accent);border-radius:32px;font-size:36px;border:none;box-shadow:0 10px 35px rgba(10,132,255,0.6);z-index:99}
+  .sh{position:fixed;bottom:-300px;left:0;right:0;background:rgba(20,20,40,0.97);backdrop-filter:blur(40px);border-radius:28px 28px 0 0;padding:24px;padding-bottom:max(48px,env(safe-area-inset-bottom));transition:bottom .4s cubic-bezier(0.16,1,0.3,1);z-index:100}
   .sh.open{bottom:0}
-  .h{width:40px;height:5px;background:#666;border-radius:3px;margin:0 auto 20px}
-  .sh button{width:100%;padding:18px;margin-bottom:12px;background:var(--glass2);border:none;border-radius:16px;color:#fff;font-size:20px;font-weight:600}
+  .h{width:48px;height:6px;background:#666;border-radius:3px;margin:0 auto 24px}
+  .sh button{width:100%;padding:22px;margin-bottom:14px;background:var(--glass2);border:none;border-radius:20px;color:#fff;font-size:24px;font-weight:600}
 </style>
 </head>
 <body>
@@ -65,7 +76,6 @@
   let target = +localStorage.getItem('target2025') || 3000;
 
   document.getElementById('plan').value = target;
-
   trucks = trucks.map(x => ({n:x.n||'??', c:x.c||0, v:x.v||37.8, on:x.on!==false}));
 
   function save(){
@@ -85,7 +95,7 @@
   function render(){
     document.getElementById('list').innerHTML = trucks.map((x,i)=>`
       <div class="t" data-i="${i}" onpointerdown="sw(event,this)">
-        <div style="position:absolute;left:0;top:0;bottom:0;width:90px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;transform:translateX(-100%)">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:100px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;transform:translateX(-100%)">
           Удалить
         </div>
         <input type="checkbox" class="chk" ${x.on?'checked':''} onchange="tog(${i})">
@@ -100,57 +110,26 @@
   }
 
   window.tog=i=>{trucks[i].on=!trucks[i].on;save();render()}
-  
-  // Новая функция для кнопки минус
-  window.minus = function(i) {
-    if (trucks[i].c === 0) {
-      if (confirm(`Удалить БелАЗ ${trucks[i].n}?`)) {
-        trucks.splice(i, 1);
-        save();
-        render();
-      }
-    } else {
-      trucks[i].c = Math.max(0, trucks[i].c - 1);
-      save();
-      render();
-      navigator.vibrate?.(30);
-    }
-  }
-
+  window.minus = i => { if(trucks[i].c===0){if(confirm(`Удалить ${trucks[i].n}?`)){trucks.splice(i,1);save();render()}}else{trucks[i].c=Math.max(0,trucks[i].c-1);save();render();navigator.vibrate?.(30)} }
   window.ch=(i,d)=>{trucks[i].c=Math.max(0,trucks[i].c+d);save();render();navigator.vibrate?.(30)}
-  window.cv=(i)=>{let v=prompt('Кубатура (или оставьте пустым)',trucks[i].v);if(v!==null && v!=='' && !isNaN(v)){trucks[i].v=+v;save();render()}}
+  window.cv=i=>{let v=prompt('Кубатура',trucks[i].v);if(v!==null&&v!==''&&!isNaN(v)){trucks[i].v=+v;save();render()}}
 
   let sx=0;
-  window.sw=(e,l)=>{if(e.pointerType==='mouse')return;sx=e.touches[0].clientX;const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};const en=()=>{if(e.changedTouches[0].clientX-sx<-100){if(confirm(`Удалить БелАЗ ${trucks[l.dataset.i].n}?`)){trucks.splice(l.dataset.i,1);save();render()}}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};document.addEventListener('touchmove',m);document.addEventListener('touchend',en)}
+  window.sw=(e,l)=>{if(e.pointerType==='mouse')return;sx=e.touches[0].clientX;const m=e=>{let d=e.touches[0].clientX-sx;if(d<0)l.style.transform=`translateX(${d}px)`};const en=()=>{if(e.changedTouches[0].clientX-sx<-100){if(confirm(`Удалить ${trucks[l.dataset.i].n}?`)){trucks.splice(l.dataset.i,1);save();render()}}else l.style.transform='';document.removeEventListener('touchmove',m);document.removeEventListener('touchend',en)};document.addEventListener('touchmove',m);document.addEventListener('touchend',en)}
 
-  // Добавление с выбором кубатуры
-  window.add = function() {
+  window.add = () => {
     let n = prompt('Номер БелАЗа')?.trim().toUpperCase();
-    if (!n || trucks.some(x => x.n === n)) {
-      if (n && trucks.some(x => x.n === n)) alert('Этот номер уже есть!');
-      return;
-    }
-
-    const options = ['37.8 м³', '36 м³', '21 м³'];
-    let choice = prompt(
-      `Выберите кубатуру для ${n}:\n\n1 — 37.8 м³\n2 — 36 м³\n3 — 21 м³\n\n(введите цифру 1, 2 или 3)`,
-      '1'
-    );
-
-    let volume = 37.8;
-    if (choice === '2') volume = 36;
-    else if (choice === '3') volume = 21;
-
-    trucks.push({n, c: 0, v: volume, on: true});
-    save();
-    render();
+    if (!n || trucks.some(x => x.n === n)) { if(n) alert('Этот номер уже есть!'); return; }
+    let choice = prompt(`Кубатура для ${n}:\n\n1 — 37.8 м³ (по умолчанию)\n2 — 36 м³\n3 — 21 м³\n\nвведи 1, 2 или 3`, '1');
+    let v = choice==='2'?36:choice==='3'?21:37.8;
+    trucks.push({n, c:0, v, on:true});
+    save(); render();
   }
 
-  window.wa=()=>{const txt = trucks.filter(x=>x.on && x.c>0).map(x=>`${x.n} — ${x.c}`).join('\n')||'—';location.href='whatsapp://send?text='+encodeURIComponent(txt)}
+  window.wa=()=>{const txt=trucks.filter(x=>x.on&&x.c>0).map(x=>`${x.n} — ${x.c}`).join('\n')||'—';location.href='whatsapp://send?text='+encodeURIComponent(txt)}
   window.res=()=>{if(confirm('Сбросить смену и начать новую?')){trucks=[];save();render()}}
 
   document.getElementById('plan').onchange=e=>{target=+e.target.value||3000;save();update()}
-
   render();
 </script>
 </body>

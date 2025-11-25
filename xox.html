@@ -8,39 +8,62 @@
 <title>Точковка</title>
 <style>
   :root{
-    --bg:#000;--glass:rgba(30,35,50,0.55);--glass2:rgba(45,55,80,0.7);
-    --border:rgba(80,100,140,0.25);--accent:#007aff;--green:#30d158;--red:#ff3b30;
-    --text:#fff;--text2:rgba(255,255,255,0.65);
+    --bg:#000;
+    --glass:rgba(35,40,55,0.6);
+    --glass2:rgba(50,60,85,0.75);
+    --border:rgba(90,110,150,0.2);
+    --accent:#0a84ff;
+    --text:#fff;
+    --text2:rgba(255,255,255,0.6);
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100dvh;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;overflow:hidden}
   body{display:flex;flex-direction:column}
 
-  .top{padding:44px 16px 12px;background:var(--glass);backdrop-filter:blur(30px);border-bottom:1px solid var(--border);z-index:10}
-  #plan{width:100%;padding:8px 0;font-size:40px;font-weight:800;text-align:center;background:transparent;border:none;color:var(--text);border-bottom:2px solid var(--accent);margin-bottom:10px}
-  .pr{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
-  .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .6s ease}
-  .fill.over{background:linear-gradient(90deg,var(--green),#ff9f0a)}
-  .stats{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-weight:700}
+  .top{padding:44px 16px 12px;background:var(--glass);backdrop-filter:blur(32px);border-bottom:1px solid var(--border)}
+  #plan{width:100%;padding:8px 0;font-size:40px;font-weight:800;text-align:center;background:transparent;border:none;color:var(--text);border-bottom:2px solid var(--accent);margin-bottom:12px}
+  .pr{height:7px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin:8px 0}
+  .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#30d158);transition:width .6s ease}
+  .fill.over{background:linear-gradient(90deg,#30d158,#ff9f0a)}
+  .stats{display:flex;justify-content:space-between;align-items:center;font-weight:700}
   .done{font-size:26px}
   .left{font-size:18px;color:var(--text2)}
 
-  .list{flex:1;overflow-y:auto;padding:8px 16px 100px;-webkit-overflow-scrolling:touch}
-  .t{display:flex;align-items:center;padding:13px 16px;background:var(--glass);border:1px solid var(--border);border-radius:18px;margin-bottom:9px;backdrop-filter:blur(30px);position:relative;overflow:hidden}
-  .t:active{transform:scale(0.97)}
-  .chk{margin-right:12px;width:26px;height:26px;accent-color:var(--accent)}
-  .n{font-size:28px;font-weight:800;width:68px;text-align:center;opacity:0.9}
-  .c{font-size:44px;font-weight:900;min-width:90px;text-align:center}
-  .btn{width:48px;height:48px;border-radius:24px;border:none;font-size:32px;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0,0.4);margin:0 6px}
-  .plus{background:var(--accent)}
-  .minus{background:var(--red)}
-  .v{margin-left:auto;padding:6px 12px;background:rgba(0,122,255,0.2);border-radius:12px;font-size:18px;font-weight:700;min-width:72px;text-align:center}
+  .list{flex:1;overflow-y:auto;padding:6px 16px 100px}
+  .t{
+    display:flex;align-items:center;padding:12px 16px;
+    background:var(--glass);border:1px solid var(--border);border-radius:18px;
+    margin-bottom:8px;backdrop-filter:blur(32px);position:relative;overflow:hidden;
+    user-select:none;
+  }
+  .chk{margin-right:14px;width:24px;height:24px;accent-color:var(--accent)}
+  .n{font-size:28px;font-weight:800;width:66px;text-align:center;color:var(--text2)}
+  .c{font-size:46px;font-weight:900;min-width:86px;text-align:center}
 
-  .fab{position:fixed;bottom:max(24px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(--accent);border-radius:28px;font-size:28px;color:#fff;border:none;box-shadow:0 8px 30px rgba(0,122,255,0.5);z-index:99}
-  .sh{position:fixed;bottom:-100%;left:0;right:0;background:var(--glass2);backdrop-filter:blur(40px);border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(40px,env(safe-area-inset-bottom));transition:bottom .4s cubic-bezier(0.16,1,0.3,1);z-index:100}
+  /* Маленькие спокойные кнопки */
+  .btn{
+    width:40px;height:40px;border-radius:20px;
+    border:none;font-size:26px;font-weight:800;
+    color:var(--text);background:rgba(255,255,255,0.09);
+    margin:0 5px;box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .btn:active{background:rgba(255,255,255,0.2);transform:scale(0.92)}
+
+  .v{
+    margin-left:auto;padding:5px 11px;background:rgba(10,132,255,0.15);
+    border-radius:11px;font-size:17px;font-weight:700;min-width:68px;text-align:center
+  }
+
+  .fab{position:fixed;bottom:max(24px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+       width:56px;height:56px;background:var(--accent);border-radius:28px;
+       font-size:30px;color:#fff;border:none;box-shadow:0 8px 30px rgba(10,132,255,0.45);z-index:99}
+  .sh{position:fixed;bottom:-100%;left:0;right:0;background:var(--glass2);backdrop-filter:blur(40px);
+       border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(40px,env(safe-area-inset-bottom));
+       transition:bottom .4s cubic-bezier(0.16,1,0.3,1);z-index:100}
   .sh.open{bottom:0}
-  .h{width:36px;height:4px;background:#555;border-radius:2px;margin:0 auto 20px}
-  .sh button{width:100%;padding:18px;margin-bottom:12px;background:var(--glass);border:none;border-radius:16px;color:#fff;font-size:19px;font-weight:600}
+  .h{width:36px;height:4px;background:#666;border-radius:2px;margin:0 auto 20px}
+  .sh button{width:100%;padding:18px;margin-bottom:12px;background:rgba(255,255,255,0.08);border:none;
+            border-radius:16px;color:#fff;font-size:19px;font-weight:600}
 </style>
 </head>
 <body>
@@ -61,8 +84,8 @@
 <div class="sh" id="s">
   <div class="h"></div>
   <button onclick="addTruck();s.classList.remove('open')">Добавить БелАЗ</button>
-  <button onclick="sendWA();s.classList.remove('open')">В WhatsApp диспетчеру</button>
-  <button onclick="resetShift();s.classList.remove('open')" style="background:rgba(255,59,48,0.25)">Сбросить смену</button>
+  <button onclick="sendWA();s.classList.remove('open')">В WhatsApp</button>
+  <button onclick="resetShift();s.classList.remove('open')" style="background:rgba(255,59,48,0.2)">Сбросить смену</button>
 </div>
 
 <script>
@@ -72,61 +95,58 @@
   let target = +localStorage.getItem('tgt2025') || 3000;
   document.getElementById('plan').value = target;
 
+ 3000;
+
   function save() {
     localStorage.setItem('t2025', JSON.stringify(trucks));
     localStorage.setItem('tgt2025', target);
   }
 
   function calc() {
-    const total = trucks.reduce((sum, t) => sum + (t.on === false ? 0 : t.c * t.v), 0);
+    const total = trucks.reduce((a,t)=>a + (t.on===false?0:t.c*t.v), 0);
     const left = Math.max(0, target - total);
-    const perc = Math.min(200, total / target * 100);
-    document.getElementById('f').style.width = perc + '%';
+    document.getElementById('f').style.width = Math.min(200, total/target*100) + '%';
     document.getElementById('done').textContent = Math.round(total).toLocaleString() + ' м³';
-    document.getElementById('left').textContent = left === 0 ? 'НОРМА!' : 'Осталось ' + Math.round(left).toLocaleString() + ' м³';
+    document.getElementById('left').textContent = left===0 ? 'НОРМА!' : 'Осталось ' + Math.round(left).toLocaleString() + ' м³';
     document.getElementById('f').classList.toggle('over', total > target);
   }
 
   function render() {
-    list.innerHTML = trucks.map((t, i) => `
-      <div class="t" data-i="${i}" onpointerdown="swipeStart(event,this)">
-        <div style="position:absolute;left:0;top:0;bottom:0;width:100px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;transform:translateX(-100%)">
+    list.innerHTML = trucks.map((t,i)=>`
+      <div class="t" data-i="${i}" onpointerdown="swipe(event,this)">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:100px;background:#ff3b30;color:#fff;
+             display:flex;align-items:center;justify-content:center;font-weight:700;transform:translateX(-100%)">
           Удалить
         </div>
-        <input type="checkbox" class="chk" ${t.on===false?'':'checked'} onchange="trucks[${i}].on=!trucks[${i}].on;save();calc()">
-        <div class="n">${t.n||'??'}</div>
-        <button class="btn minus" onclick="event.stopPropagation();sub(${i})">-</button>
+        <input type="checkbox" class="chk" ${t.on===false?'':'checked'} onchange="trucks[i].on=!trucks[i].on;save();calc()">
+        <div class="n">${t.n}</div>
+        <button class="btn" onclick="event.stopPropagation();sub(i)">−</button>
         <div class="c">${t.c}</div>
-        <button class="btn plus" onclick="event.stopPropagation();add(${i})">+</button>
-        <div class="v" onclick="event.stopPropagation();changeVol(${i})">${t.v} м³</div>
+        <button class="btn" onclick="event.stopPropagation();add(i)">+</button>
+        <div class="v" onclick="event.stopPropagation();vol(i)}">${t.v} м³</div>
       </div>
     `).join('');
     calc();
   }
 
-  // +1 рейс (основная кнопка)
-  window.add = i => { trucks[i].c++; save(); render(); navigator.vibrate?.(34); }
-
-  // -1 рейс или удаление при 0
+  window.add = i => { trucks[i].c++; save(); render(); navigator.vibrate?.(30); }
   window.sub = i => {
-    if (trucks[i].c <= 0) {
-      if (confirm(`Удалить ${trucks[i].n}?`)) { trucks.splice(i,1); save(); render(); }
-    } else {
-      trucks[i].c--; save(); render(); navigator.vibrate?.(34);
+    if(trucks[i].c===0){
+      if(confirm(`Удалить ${trucks[i].n}?`)){ trucks.splice(i,1); save(); render(); }
+    }else{
+      trucks[i].c--; save(); render(); navigator.vibrate?.(30);
     }
   }
-
-  window.changeVol = i => {
+  window.vol = i => {
     let v = prompt('Кубатура', trucks[i].v);
-    if (v !== null && v !== '' && !isNaN(v)) { trucks[i].v = +v; save(); render(); }
+    if(v!==null && v!=='' && !isNaN(v)){ trucks[i].v = +v; save(); render(); }
   }
 
-  // Добавление нового БелАЗа
   window.addTruck = () => {
     let n = prompt('Номер БелАЗа')?.trim().toUpperCase();
-    if (!n) return;
-    if (trucks.some(t => t.n === n)) return alert('Этот номер уже есть');
-    let ch = prompt(`Кубатура для ${n}:\n1 — 37.8\n2 — 36\n3 — 21`, '1');
+    if(!n) return;
+    if(trucks.some(t=>t.n===n)) return alert('Номер уже есть');
+    let ch = prompt(`Кубатура:\n1 — 37.8\n2 — 36\n3 — 21`, '1');
     let v = ch==='2'?36 : ch==='3'?21 : 37.8;
     trucks.push({n, c:0, v, on:true});
     save(); render();
@@ -137,37 +157,29 @@
     location.href='whatsapp://send?text='+encodeURIComponent(txt);
   }
 
-  window.resetShift = () => {
-    if (confirm('Сбросить смену?')) { trucks=[]; save(); render(); }
-  }
+  window.resetShift = () => confirm('Сбросить смену?') && (trucks=[]; save(); render());
 
-  // Свайп влево = удалить
-  let startX;
-  window.swipeStart = (e, el) => {
-    if (e.pointerType === 'mouse') return;
-    startX = e.touches[0].clientX;
-    const move = ev => {
-      let dx = ev.touches[0].clientX - startX;
-      if (dx < 0) el.style.transform = `translateX(${dx}px)`;
-    };
-    const end = () => {
-      if (startX - e.changedTouches[0].clientX > 80) {
-        if (confirm(`Удалить ${trucks[el.dataset.i].n}?`)) {
+  // свайп-удаление
+  let sx;
+  window.swipe = (e,el) => {
+    if(e.pointerType==='mouse') return;
+    sx = e.touches[0].clientX;
+    const m = ev => { let d=ev.touches[0].clientX-sx; if(d<0) el.style.transform=`translateX(${d}px)` };
+    const up = () => {
+      if(sx - e.changedTouches[0].clientX > 90){
+        if(confirm(`Удалить ${trucks[el.dataset.i].n}?`)){
           trucks.splice(el.dataset.i,1); save(); render();
         }
       }
-      el.style.transform = '';
-      document.removeEventListener('touchmove', move);
-      document.removeEventListener('touchend', end);
+      el.style.transform='';
+      document.removeEventListener('touchmove',m);
+      document.removeEventListener('touchend',up);
     };
-    document.addEventListener('touchmove', move);
-    document.addEventListener('touchend', end);
+    document.addEventListener('touchmove',m);
+    document.addEventListener('touchend',up);
   }
 
-  document.getElementById('plan').onchange = e => {
-    target = +e.target.value || 3000;
-    save(); calc();
-  }
+  document.getElementById('plan').onchange = e => { target=+e.target.value||3000; save(); calc(); }
 
   render();
 </script>

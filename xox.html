@@ -13,7 +13,7 @@
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:-apple-system,system-ui,sans-serif;background:url('https://i.imgur.com/8pZ3XKp.jpg') center/cover fixed;color:#fff;min-height:100dvh;padding-bottom:110px;overflow-x:hidden}
         .o{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:var(--b);-webkit-backdrop-filter:var(--b);pointer-events:none;z-index:-1}
-        .g{background:var(--gl);backdrop-filter:var(--b);-webkit-backdrop-filter:var(--b);border:1px solid var(--br);border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.5);margin:0 14px 10px}
+        .g{background:var(--gl);backdrop-filter:var(--b);-webkit-backdrop-filter:var(--b);border:1px solid var(--br);border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.5);margin:0 14px 10px;overflow:hidden}
         .p{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:20px}
         .p input{background:0;border:0;color:#fff;font-size:40px;font-weight:800;width:160px;text-align:right;outline:0}
         .bc{height:36px;margin:14px;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid var(--br)}
@@ -21,7 +21,7 @@
         .s{display:flex;justify-content:space-between;margin:8px 20px 20px;font-weight:600}
         .s > div > div:first-child{opacity:.7;font-size:15px}
         .s > div > div:last-child{font-size:32px;font-weight:800}
-        .c{padding:14px 18px;display:flex;align-items:center;min-height:76px}
+        .c{padding:14px 18px;display:flex;align-items:center;min-height:76px;margin-bottom:9px}
         .c.ex{opacity:.3;transform:scale(.97)}
         .t{font-size:24px;font-weight:800}
         .k{font-size:20px;font-weight:600;opacity:.9;margin-top:2px}
@@ -51,74 +51,19 @@
     <div style="text-align:right"><div>Осталось / +</div><div id="left">3000.0</div></div>
 </div>
 
-<div id="cards></div>
+<div id="cards"></div>
 
 <button class="f" id="fab">+</button>
 
 <div class="mnu" id="menu">
-    <button class="a">Добавить БелАЗ</button>
-    <button class="s">Отправить диспетчеру</button>
-    <button class="r">Сбросить смену</button>
-    <button class="c">Закрыть</button>
+    <button class="a" onclick="addB()">Добавить БелАЗ</button>
+    <button class="s" onclick="sendR()">Отправить диспетчеру</button>
+    <button class="r" onclick="resetS()">Сбросить смену</button>
+    <button class="c" onclick="closeM()">Закрыть</button>
 </div>
 
 <script>
-const caps=[37.8,36.0,21.0];
-let list=JSON.parse(localStorage.getItem('l')||'[]'),plan=Math.max(parseFloat(localStorage.getItem('p')||'3000'),1);
-document.getElementById('plan').value=plan;
-
-const cards=document.getElementById('cards'),bar=document.getElementById('bar'),done=document.getElementById('done'),left=document.getElementById('left'),menu=document.getElementById('menu'),fab=document.getElementById('fab');
-
-function save(){localStorage.setItem('l',JSON.stringify(list));localStorage.setItem('p',plan)}
-let rafId=null;
-function update(){
-    if(rafId)cancelAnimationFrame(rafId);
-    rafId=requestAnimationFrame(()=>{
-        const total=list.reduce((s,b)=>s+b.trips*b.capacity,0);
-        const pct=total/plan,over=Math.max(0,total-plan);
-        done.textContent=total.toFixed(1);
-        left.textContent=over>0?'+'+over.toFixed(1):(plan-total).toFixed(1);
-        left.style.color=over>0?'var(--p)':'#ff9f0a';
-        bar.style.width=Math.min(pct*100,200)+'%';
-        bar.style.background=pct<0.7?'var(--r)':pct<1?'var(--y)':'var(--g)';
-        rafId=null;
-    });
-}
-
-function render(){
-    const frag=document.createDocumentFragment();
-    list.forEach((b,i)=>{
-        const d=document.createElement('div');d.className='c g'+(b.ex?' ex':'');
-        d.innerHTML=`<div style="flex:1"><div class="t">БелАЗ ${b.number}</div><div class="k">${b.capacity}</div></div>
-        <div class="n"><button class="btn m" onclick="trip(${i},-1)">−</button><div>${b.trips}</div><button class="btn pl" onclick="trip(${i},1)">+</button></div>
-        <input type="checkbox" ${b.ex?'checked':''} onchange="ex(${i})" style="transform:scale(1.7);margin-left:18px">`;
-        frag.appendChild(d);
-    });
-    cards.innerHTML='';cards.appendChild(frag);
-    update();
-}
-window.trip=(i,d)=>{if(list[i].trips+d>=0){list[i].trips+=d;save();render()}}
-window.ex=i=>{list[i].ex=!list[i].ex;save();render()}
-
-document.getElementById('plan').oninput=e=>{plan=Math.max(parseFloat(e.target.value)||3000,1);save();update()}
-
-fab.onclick=()=>menu.classList.add('o');
-menu.onclick=e=>{if(e.target===menu)menu.classList.remove('o')}
-document.querySelector('.c').onclick=()=>menu.classList.remove('o');
-
-document.querySelector('.a').onclick=()=>{const n=prompt('Номер БелАЗа:');if(!n)return;const s=prompt('Кубатура:\n1) 37.8\n2) 36.0\n3) 21.0','1');const c=caps[parseInt(s)-1]||37.8;list.push({number:n.trim(),capacity:c,trips:0,ex:false});save();render();menu.classList.remove('o')}
-
-document.querySelector('.s').onclick=()=>{
-    let t='';
-    list.forEach(b=>{if(!b.ex&&b.trips>0)t+=`${b.number} - ${b.trips}\n`});
-    if(!t)t='Рейсов нет';
-    open(`https://api.whatsapp.com/send?text=${encodeURIComponent(t)}`,'_blank');
-    menu.classList.remove('o');
-}
-
-document.querySelector('.r').onclick=()=>{if(confirm('Сбросить смену?')){list=[];plan=3000;localStorage.clear();document.getElementById('plan').value=3000;render();menu.classList.remove('o')}};
-
-render();
+const caps=[37.8,36,21];let list=JSON.parse(localStorage.getItem('l')||'[]'),plan=Math.max(parseFloat(localStorage.getItem('p')||'3000'),1);document.getElementById('plan').value=plan;const cards=document.getElementById('cards'),bar=document.getElementById('bar'),done=document.getElementById('done'),left=document.getElementById('left'),menu=document.getElementById('menu'),fab=document.getElementById('fab');function save(){localStorage.setItem('l',JSON.stringify(list));localStorage.setItem('p',plan)}let raf=null;function update(){if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const total=list.reduce((s,b)=>s+b.trips*b.capacity,0),pct=total/plan,over=Math.max(0,total-plan);done.textContent=total.toFixed(1);left.textContent=over>0?`+${over.toFixed(1)}`:(plan-total).toFixed(1);left.style.color=over>0?'var(--p)':'#ff9f0a';bar.style.width=`${Math.min(pct*100,200)}%`;bar.style.background=pct<0.7?'var(--r)':pct<1?'var(--y)':'var(--g)';raf=null})}function render(){const frag=document.createDocumentFragment();list.forEach((b,i)=>{const d=document.createElement('div');d.className=`c g${b.ex?' ex':''}`;d.innerHTML=`<div style="flex:1"><div class="t">БелАЗ ${b.number}</div><div class="k">${b.capacity}</div></div><div class="n"><button class="btn m" onclick="trip(${i},-1)">−</button><div>${b.trips}</div><button class="btn pl" onclick="trip(${i},1)">+</button></div><input type="checkbox" ${b.ex?'checked':''} onchange="ex(${i})" style="transform:scale(1.7);margin-left:18px">`;frag.appendChild(d)});cards.innerHTML='';cards.appendChild(frag);update()}function trip(i,d){if(list[i].trips+d>=0){list[i].trips+=d;save();render()}}function ex(i){list[i].ex=!list[i].ex;save();render()}function addB(){const n=prompt('Номер БелАЗа:');if(!n)return;const s=prompt('Кубатура:\n1) 37.8\n2) 36.0\n3) 21.0','1'),c=caps[parseInt(s)-1]||37.8;list.push({number:n.trim(),capacity:c,trips:0,ex:false});save();render();closeM()}function sendR(){let t='';list.filter(b=>!b.ex&&b.trips>0).forEach(b=>t+=`${b.number} - ${b.trips}\n`);if(!t)t='Рейсов нет';window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(t)}`,'_blank');closeM()}function resetS(){if(confirm('Сбросить смену?')){list=[];plan=3000;localStorage.clear();document.getElementById('plan').value=3000;render();closeM()}}function closeM(){menu.classList.remove('o')}fab.onclick=()=>menu.classList.add('o');menu.onclick=e=>{if(e.target===menu)closeM()};document.getElementById('plan').oninput=e=>{plan=Math.max(parseFloat(e.target.value)||3000,1);save();update()};render();
 </script>
 </body>
 </html>

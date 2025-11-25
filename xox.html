@@ -141,6 +141,37 @@
         .send   { background: linear-gradient(135deg, #30d158, #28a745); }
         .reset  { background: linear-gradient(135deg, #ff453a, #ff2d1a); }
         .close  { background: rgba(255,255,255,0.12); }
+    /* Выравнивание внутренностей карточки без изменения HTML */
+.card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.card > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.counter div {
+    width: 55px;           /* фикс ширина для ровности */
+    text-align: center;
+}
+
+/* Ровный чекбокс по центру */
+.card input[type="checkbox"] {
+    transform: scale(1.5);
+    margin-left: 6px;
+    margin-right: 2px;
+    align-self: center;     /* вертикальное выравнивание */
+}
     </style>
 </head>
 <body>

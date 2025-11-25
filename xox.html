@@ -1,187 +1,341 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Точковка</title>
-<style>
-  :root{
-    --bg:#000;
-    --glass:rgba(35,40,55,0.6);
-    --glass2:rgba(50,60,85,0.75);
-    --border:rgba(90,110,150,0.2);
-    --accent:#0a84ff;
-    --text:#fff;
-    --text2:rgba(255,255,255,0.6);
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html,body{height:100dvh;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;overflow:hidden}
-  body{display:flex;flex-direction:column}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>БелАЗ Счётчик</title>
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/96/truck.png">
+    <style>
+        :root {
+            --red: #ff3b30;
+            --yellow: #ffcc00;
+            --green: #34c759;
+            --purple: #af52de;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f2c2c2e;
+            color: white;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        header {
+            padding: 20px;
+            text-align: center;
+            background: #1c1c1e;
+        }
+        .plan {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #38383a;
+            margin: 15px;
+            padding: 15px;
+            border-radius: 16px;
+        }
+        .plan input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            width: 120px;
+            text-align: right;
+        }
+        .bar-container {
+            height: 50px;
+            background: #38383a;
+            margin: 15px;
+            border-radius: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 25px;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+        .done { color: #34c759; }
+        .left { color: #ff9f0a; }
+        .over { color: var(--purple); font-weight: bold; }
 
-  .top{padding:44px 16px 12px;background:var(--glass);backdrop-filter:blur(32px);border-bottom:1px solid var(--border)}
-  #plan{width:100%;padding:8px 0;font-size:40px;font-weight:800;text-align:center;background:transparent;border:none;color:var(--text);border-bottom:2px solid var(--accent);margin-bottom:12px}
-  .pr{height:7px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin:8px 0}
-  .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#30d158);transition:width .6s ease}
-  .fill.over{background:linear-gradient(90deg,#30d158,#ff9f0a)}
-  .stats{display:flex;justify-content:space-between;align-items:center;font-weight:700}
-  .done{font-size:26px}
-  .left{font-size:18px;color:var(--text2)}
+        .cards {
+            padding: 10px;
+        }
+        .card {
+            background: #38383a;
+            margin: 12px 15px;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            opacity: 1;
+            transition: all 0.3s;
+        }
+        .card.excluded {
+            opacity: 0.4;
+        }
+        .card-info {
+            flex: 1;
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .card-capacity {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .counter {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 32px;
+        }
+        .btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            font-size: 28px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .minus { background: var(--red); }
+        .plus { background: var(--green); }
 
-  .list{flex:1;overflow-y:auto;padding:6px 16px 100px}
-  .t{
-    display:flex;align-items:center;padding:12px 16px;
-    background:var(--glass);border:1px solid var(--border);border-radius:18px;
-    margin-bottom:8px;backdrop-filter:blur(32px);position:relative;overflow:hidden;
-    user-select:none;
-  }
-  .chk{margin-right:14px;width:24px;height:24px;accent-color:var(--accent)}
-  .n{font-size:28px;font-weight:800;width:66px;text-align:center;color:var(--text2)}
-  .c{font-size:46px;font-weight:900;min-width:86px;text-align:center}
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            background: #007aff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 10px 30px rgba(0,122,255,0.5);
+            z-index: 10;
+        }
 
-  /* Маленькие спокойные кнопки */
-  .btn{
-    width:40px;height:40px;border-radius:20px;
-    border:none;font-size:26px;font-weight:800;
-    color:var(--text);background:rgba(255,255,255,0.09);
-    margin:0 5px;box-shadow:0 2px 8px rgba(0,0,0,0.3);
-  }
-  .btn:active{background:rgba(255,255,255,0.2);transform:scale(0.92)}
-
-  .v{
-    margin-left:auto;padding:5px 11px;background:rgba(10,132,255,0.15);
-    border-radius:11px;font-size:17px;font-weight:700;min-width:68px;text-align:center
-  }
-
-  .fab{position:fixed;bottom:max(24px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
-       width:56px;height:56px;background:var(--accent);border-radius:28px;
-       font-size:30px;color:#fff;border:none;box-shadow:0 8px 30px rgba(10,132,255,0.45);z-index:99}
-  .sh{position:fixed;bottom:-100%;left:0;right:0;background:var(--glass2);backdrop-filter:blur(40px);
-       border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(40px,env(safe-area-inset-bottom));
-       transition:bottom .4s cubic-bezier(0.16,1,0.3,1);z-index:100}
-  .sh.open{bottom:0}
-  .h{width:36px;height:4px;background:#666;border-radius:2px;margin:0 auto 20px}
-  .sh button{width:100%;padding:18px;margin-bottom:12px;background:rgba(255,255,255,0.08);border:none;
-            border-radius:16px;color:#fff;font-size:19px;font-weight:600}
-</style>
+        .menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1c1c1e;
+            border-radius: 30px 30px 0 0;
+            padding: 30px 20px 40px;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+        .menu.open {
+            transform: translateY(0);
+        }
+        .menu button {
+            width: 100%;
+            padding: 18px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        .add { background: #007aff; }
+        .send { background: #34c759; }
+        .reset { background: #ff3b30; }
+        .close { background: #38383a; }
+    </style>
 </head>
 <body>
 
-<div class="top">
-  <input id="plan" type="number" value="3000">
-  <div class="pr"><div class="fill" id="f"></div></div>
-  <div class="stats">
-    <div class="done" id="done">0 м³</div>
-    <div class="left" id="left">Осталось: 3000 м³</div>
-  </div>
-</div>
+    <header>
+        <h1>Счётчик БелАЗов</h1>
+    </header>
 
-<div class="list" id="list"></div>
-
-<button class="fab" onclick="s.classList.toggle('open')">+</button>
-
-<div class="sh" id="s">
-  <div class="h"></div>
-  <button onclick="addTruck();s.classList.remove('open')">Добавить БелАЗ</button>
-  <button onclick="sendWA();s.classList.remove('open')">В WhatsApp</button>
-  <button onclick="resetShift();s.classList.remove('open')" style="background:rgba(255,59,48,0.2)">Сбросить смену</button>
-</div>
-
-<script>
-  const list = document.getElementById('list');
-  const s = document.getElementById('s');
-  let trucks = JSON.parse(localStorage.getItem('t2025')) || [];
-  let target = +localStorage.getItem('tgt2025') || 3000;
-  document.getElementById('plan').value = target;
-
- 3000;
-
-  function save() {
-    localStorage.setItem('t2025', JSON.stringify(trucks));
-    localStorage.setItem('tgt2025', target);
-  }
-
-  function calc() {
-    const total = trucks.reduce((a,t)=>a + (t.on===false?0:t.c*t.v), 0);
-    const left = Math.max(0, target - total);
-    document.getElementById('f').style.width = Math.min(200, total/target*100) + '%';
-    document.getElementById('done').textContent = Math.round(total).toLocaleString() + ' м³';
-    document.getElementById('left').textContent = left===0 ? 'НОРМА!' : 'Осталось ' + Math.round(left).toLocaleString() + ' м³';
-    document.getElementById('f').classList.toggle('over', total > target);
-  }
-
-  function render() {
-    list.innerHTML = trucks.map((t,i)=>`
-      <div class="t" data-i="${i}" onpointerdown="swipe(event,this)">
-        <div style="position:absolute;left:0;top:0;bottom:0;width:100px;background:#ff3b30;color:#fff;
-             display:flex;align-items:center;justify-content:center;font-weight:700;transform:translateX(-100%)">
-          Удалить
+    <div class="plan">
+        <span>ПЛАН</span>
+        <div>
+            <input type="number" id="plan" value="3000"> <span style="font-size:32px;font-weight:bold">м³</span>
         </div>
-        <input type="checkbox" class="chk" ${t.on===false?'':'checked'} onchange="trucks[i].on=!trucks[i].on;save();calc()">
-        <div class="n">${t.n}</div>
-        <button class="btn" onclick="event.stopPropagation();sub(i)">−</button>
-        <div class="c">${t.c}</div>
-        <button class="btn" onclick="event.stopPropagation();add(i)">+</button>
-        <div class="v" onclick="event.stopPropagation();vol(i)}">${t.v} м³</div>
-      </div>
-    `).join('');
-    calc();
-  }
+    </div>
 
-  window.add = i => { trucks[i].c++; save(); render(); navigator.vibrate?.(30); }
-  window.sub = i => {
-    if(trucks[i].c===0){
-      if(confirm(`Удалить ${trucks[i].n}?`)){ trucks.splice(i,1); save(); render(); }
-    }else{
-      trucks[i].c--; save(); render(); navigator.vibrate?.(30);
-    }
-  }
-  window.vol = i => {
-    let v = prompt('Кубатура', trucks[i].v);
-    if(v!==null && v!=='' && !isNaN(v)){ trucks[i].v = +v; save(); render(); }
-  }
+    <div class="bar-container">
+        <div class="bar" id="bar"></div>
+    </div>
 
-  window.addTruck = () => {
-    let n = prompt('Номер БелАЗа')?.trim().toUpperCase();
-    if(!n) return;
-    if(trucks.some(t=>t.n===n)) return alert('Номер уже есть');
-    let ch = prompt(`Кубатура:\n1 — 37.8\n2 — 36\n3 — 21`, '1');
-    let v = ch==='2'?36 : ch==='3'?21 : 37.8;
-    trucks.push({n, c:0, v, on:true});
-    save(); render();
-  }
+    <div class="stats">
+        <div>
+            <div style="color:#888">Сделано</div>
+            <div class="done" id="done">0.0 м³</div>
+        </div>
+        <div style="text-align:right">
+            <div style="color:#888">Осталось</div>
+            <div class="left" id="left">3000.0 м³</div>
+        </div>
+    </div>
 
-  window.sendWA = () => {
-    const txt = trucks.filter(t=>t.on!==false && t.c>0).map(t=>`${t.n} — ${t.c}`).join('\n') || '—';
-    location.href='whatsapp://send?text='+encodeURIComponent(txt);
-  }
+    <div class="cards" id="cards">
+        <!-- карточки будут тут -->
+    </div>
 
-  window.resetShift = () => confirm('Сбросить смену?') && (trucks=[]; save(); render());
+    <button class="fab" id="fab">+</button>
 
-  // свайп-удаление
-  let sx;
-  window.swipe = (e,el) => {
-    if(e.pointerType==='mouse') return;
-    sx = e.touches[0].clientX;
-    const m = ev => { let d=ev.touches[0].clientX-sx; if(d<0) el.style.transform=`translateX(${d}px)` };
-    const up = () => {
-      if(sx - e.changedTouches[0].clientX > 90){
-        if(confirm(`Удалить ${trucks[el.dataset.i].n}?`)){
-          trucks.splice(el.dataset.i,1); save(); render();
+    <div class="menu" id="menu">
+        <button class="add" onclick="addBelaz()">Добавить БелАЗ</button>
+        <button class="send" onclick="sendReport()">Отправить диспетчеру</button>
+        <button class="reset" onclick="resetShift()">Сбросить смену</button>
+        <button class="close" onclick="closeMenu()">Закрыть</button>
+    </div>
+
+    <script>
+        const capacities = [38.7, 36.0, 21.0];
+        let belazList = JSON.parse(localStorage.getItem('belazList') || '[]');
+        let plan = parseFloat(localStorage.getItem('plan') || '3000');
+
+        document.getElementById('plan').value = plan;
+
+        function save() {
+            localStorage.setItem('belazList', JSON.stringify(belazList));
+            localStorage.setItem('plan', plan);
         }
-      }
-      el.style.transform='';
-      document.removeEventListener('touchmove',m);
-      document.removeEventListener('touchend',up);
-    };
-    document.addEventListener('touchmove',m);
-    document.addEventListener('touchend',up);
-  }
 
-  document.getElementById('plan').onchange = e => { target=+e.target.value||3000; save(); calc(); }
+        function calc() {
+            let total = belazList.reduce((sum, b) => sum + b.trips * b.capacity, 0);
+            let percent = total / plan;
+            let over = Math.max(0, total - plan);
 
-  render();
-</script>
+            document.getElementById('done').innerText = total.toFixed(1) + ' м³';
+            document.getElementById('left').innerText = over > 0 ? '+' + over.toFixed(1) + ' м³' : (plan - total).toFixed(1) + ' м³';
+            document.getElementById('left').style.color = over > 0 ? 'var(--purple)' : '#ff9f0a';
+
+            let bar = document.getElementById('bar');
+            bar.style.width = Math.min(percent * 100, 200) + '%';
+
+            if (percent < 0.7) bar.style.background = 'var(--red)';
+            else if (percent < 1) bar.style.background = 'var(--yellow)';
+            else if (percent < 1.3) bar.style.background = 'var(--green)';
+            else bar.style.background = 'var(--purple)';
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cards');
+            container.innerHTML = '';
+            belazList.forEach((b, i) => {
+                const div = document.createElement('div');
+                div.className = 'card' + (b.exclude ? ' excluded' : '');
+                div.innerHTML = `
+                    <div class="card-info">
+                        <div class="card-title">БелАЗ ${b.number}</div>
+                        <div class="card-capacity">${b.capacity} м³ за рейс</div>
+                    </div>
+                    <div class="counter">
+                        <button class="btn minus" onclick="changeTrip(${i}, -1)">−</button>
+                        <span style="font-size:28px;font-weight:bold;min-width:60px;text-align:center">${b.trips}</span>
+                        <button class="btn plus" onclick="changeTrip(${i}, 1)">+</button>
+                    </div>
+                    <input type="checkbox" ${b.exclude ? 'checked' : ''} onchange="toggleExclude(${i})" style="transform:scale(1.5);margin-left:15px">
+                `;
+                container.appendChild(div);
+            });
+            calc();
+        }
+
+        function changeTrip(i, delta) {
+            if (belazList[i].trips + delta >= 0) {
+                belazList[i].trips += delta;
+                save();
+                renderCards();
+            }
+        }
+
+        function toggleExclude(i) {
+            belazList[i].exclude = !belazList[i].exclude;
+            save();
+            renderCards();
+        }
+
+        function addBelaz() {
+            const number = prompt('Номер БелАЗа (например 118, А-07):');
+            if (!number) return;
+
+            const capStr = prompt('Кубатура за рейс:\n1) 38.7\n2) 36.0\n3) 21.0', '1');
+            const cap = capacities[parseInt(capStr)-1] || 38.7;
+
+            belazList.push({
+                number: number.trim(),
+                capacity: cap,
+                trips: 0,
+                exclude: false
+            });
+            save();
+            renderCards();
+        }
+
+        function sendReport() {
+            let text = `СМЕНА ${new Date().toLocaleString('ru')}\n`;
+            text += `План: ${plan} м³\n`;
+            let total = 0;
+            belazList.forEach(b => {
+                total += b.trips * b.capacity;
+            });
+            text += `Выполнено: ${total.toFixed(1)} м³ (${(total/plan*100).toFixed(1)}%)\n`;
+            if (total > plan) && (text += `Перевыполнение: +${(total-plan).toFixed(1)} м³\n`);
+            text += `\nРейсы:\n`;
+
+            belazList.filter(b => !b.exclude && b.trips > 0).forEach(b => {
+                text += `• БелАЗ ${b.number}: ${b.trips} рейс. × ${b.capacity} = ${(b.trips*b.capacity).toFixed(1)} м³\n`;
+            });
+
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        function resetShift() {
+            if (confirm('Сбросить всю смену?')) {
+                belazList = [];
+                plan = 3000;
+                document.getElementById('plan').value = plan;
+                localStorage.clear();
+                renderCards();
+            }
+        }
+
+        function closeMenu() {
+            document.getElementById('menu').classList.remove('open');
+        }
+
+        // события
+        document.getElementById('fab').onclick = () => {
+            document.getElementById('menu').classList.add('open');
+        };
+
+        document.getElementById('plan').oninput = (e) => {
+            plan = parseFloat(e.target.value) || 3000;
+            save();
+            calc();
+        };
+
+        // старт
+        renderCards();
+    </script>
 </body>
 </html>

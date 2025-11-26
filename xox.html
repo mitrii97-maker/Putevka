@@ -210,6 +210,7 @@
 </div>
 
 <script>
+    
     const capacities = [37.8, 36.0, 21.0];
     let belazList = JSON.parse(localStorage.getItem('belazList') || '[]');
     let plan = Math.max(parseFloat(localStorage.getItem('plan') || '3000'), 1);
@@ -232,10 +233,7 @@
 
         const bar = document.getElementById('bar');
         bar.style.width = Math.min(percent * 100, 200) + '%';
-
-        if (percent < 0.7)      bar.style.background = 'var(--red)';
-        else if (percent < 1)   bar.style.background = 'var(--yellow)';
-        else                    bar.style.background = 'var(--green)';
+        bar.style.background = percent < 0.7 ? 'var(--red)' : percent < 1 ? 'var(--yellow)' : 'var(--green)';
     }
 
     function renderCards() {
@@ -246,7 +244,7 @@
             card.className = 'card glass' + (b.exclude ? ' excluded' : '');
             card.innerHTML = `
                 <div style="flex:1">
-                    <div class="card-title">${b.number}</div>
+                    <div class="card-title">БелАЗ ${b.number}</div>
                     <div class="card-capacity">${b.capacity}</div>
                 </div>
                 <div class="counter">
@@ -264,13 +262,15 @@
     function changeTrip(i, d) {
         if (belazList[i].trips + d >= 0) {
             belazList[i].trips += d;
-            save(); renderCards();
+            save();
+            renderCards();
         }
     }
 
     function toggleExclude(i) {
         belazList[i].exclude = !belazList[i].exclude;
-        save(); renderCards();
+        save();
+        renderCards();
     }
 
     function addBelaz() {
@@ -280,29 +280,43 @@
         const cap = capacities[parseInt(sel)-1] || 37.8;
 
         belazList.push({ number: num.trim(), capacity: cap, trips: 0, exclude: false });
-        save(); renderCards(); closeMenu();
+        save();
+        renderCards();
+        closeMenu();
     }
 
+    // ТВОЯ НОВАЯ СУПЕР-ФУНКЦИЯ ОТПРАВКИ
     function sendReport() {
-        let text = '';
-        belazList
-            .filter(b => !b.exclude && b.trips > 0)
-            .forEach(b => {
-                text += `${b.number} - ${b.trips}\n`;
-            });
+        const active = belazList.filter(x => !x.exclude && x.trips > 0);
+        const totalCubes = active.reduce((s, x) => s + x.trips * x.capacity, 0);
 
-        if (text === '') text = 'Рейсов нет';
+        let text = `Точковка ${new Date().toLocaleDateString('ru-RU')}\n\n`;
+        text += active.map(x => `${x.number} — ${x.trips}`).join('\n') || '—';
+        text += `\n\nИтого: ${Math.round(totalCubes).toLocaleString('ru-RU')} м³`;
 
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        const dispatcherPhone = "+79521667733"; // ← твой диспетчер
+
+        // Сначала пробуем нативное приложение WhatsApp
+        location.href = `whatsapp://send?phone=${dispatcherPhone}&text=` + encodeURIComponent(text);
+
+        // Если не сработает (например, WhatsApp не установлен) — откроем веб-версию
+        setTimeout(() => {
+            if (document.hidden || !navigator.userAgent.includes('WhatsApp')) {
+                window.open(`https://api.whatsapp.com/send?phone=${dispatcherPhone}&text=` + encodeURIComponent(text), '_blank');
+            }
+        }, 800);
+
         closeMenu();
     }
 
     function resetShift() {
         if (confirm('Сбросить смену?')) {
-            belazList = []; plan = 3000;
+            belazList = [];
+            plan = 3000;
             localStorage.clear();
             document.getElementById('plan').value = 3000;
-            renderCards(); closeMenu();
+            renderCards();
+            closeMenu();
         }
     }
 
@@ -311,7 +325,11 @@
     }
 
     document.getElementById('fab').onclick = () => document.getElementById('menu').classList.add('open');
-    document.getElementById('plan').oninput = e => { plan = Math.max(parseFloat(e.target.value)||3000,1); save(); calc(); };
+    document.getElementById('plan').oninput = e => {
+        plan = Math.max(parseFloat(e.target.value) || 3000, 1);
+        save();
+        calc();
+    };
 
     renderCards();
 </script>

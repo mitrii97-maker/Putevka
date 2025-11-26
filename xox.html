@@ -194,6 +194,11 @@
         .reset { background: linear-gradient(135deg,#ff3b30,#ff1a1a); }
         .close { background: rgba(255,255,255,0.12); }
 
+.btn.disabled {
+    opacity: 0.3;
+    pointer-events: none;   /* кнопка больше не нажимается */
+}
+
     </style>
 </head>
 
@@ -272,7 +277,7 @@ function renderCards() {
         card.className = 'card glass';
 
         card.innerHTML = `
-            <button class="btn minus" onclick="changeTrip(${i},-1)">−</button>
+          <button class="btn minus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},-1)">−</button>
 
             <div class="card-center">
                 <div class="card-title">${b.number}</div>
@@ -282,7 +287,7 @@ function renderCards() {
                 </div>
             </div>
 
-            <button class="btn plus" onclick="changeTrip(${i},1)">+</button>
+          <button class="btn plus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},1)">+</button>
 
             <input type="checkbox"
                    class="card-checkbox"

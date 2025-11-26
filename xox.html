@@ -95,7 +95,12 @@
             justify-content: space-between;
             border-radius: 18px;
             margin-bottom: 12px;
+            
+    transition: transform 0.35s ease, opacity 0.35s ease;
         }
+.card.moving {
+    transform: scale(0.97);
+    opacity: 0.3;
 
         /* Кубатура в уголке */
         .card-capacity-corner {
@@ -318,24 +323,34 @@ function changeTrip(i,d) {
 function toggleExclude(i) {
     belazList[i].exclude = !belazList[i].exclude;
 
-    // Если отключили → переносим вниз
-    if (belazList[i].exclude) {
-        const item = belazList.splice(i, 1)[0];
-        belazList.push(item);
-    } 
-    // Если включили обратно → возвращаем на своё место
-    else {
-        const item = belazList.splice(i, 1)[0];
-
-        // ищем позиции с таким же originalIndex
-        let insertPos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
-        if (insertPos === -1) insertPos = belazList.length;
-
-        belazList.splice(insertPos, 0, item);
+    // Добавляем анимационный класс
+    const cards = document.querySelectorAll('.card');
+    if (cards[i]) {
+        cards[i].classList.add('moving');
     }
 
-    save();
-    renderCards();
+    // ДЕЛАЕМ ПЕРЕМЕЩЕНИЕ ЧЕРЕЗ ЗАДЕРЖКУ (шоб анимация успела)
+    setTimeout(() => {
+        // Если отключили — отправляем вниз
+        if (belazList[i].exclude) {
+            const item = belazList.splice(i, 1)[0];
+            belazList.push(item);
+        } 
+        // Если включили — возвращаем на своё место
+        else {
+            const item = belazList.splice(i, 1)[0];
+
+            // Находим новую позицию по originalIndex
+            let insertPos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
+            if (insertPos === -1) insertPos = belazList.length;
+
+            belazList.splice(insertPos, 0, item);
+        }
+
+        save();
+        renderCards();
+
+    }, 300); // ← 300 мс даёт время для анимации
 }
 
 function addBelaz(){

@@ -287,27 +287,27 @@
 
     // ТВОЯ НОВАЯ СУПЕР-ФУНКЦИЯ ОТПРАВКИ
     function sendReport() {
-        const active = belazList.filter(x => !x.exclude && x.trips > 0);
-        const totalCubes = active.reduce((s, x) => s + x.trips * x.capacity, 0);
+    let text = '';
+    belazList
+        .filter(b => !b.exclude && b.trips > 0)
+        .forEach(b => {
+            text += `${b.number} - ${b.trips}\n`;
+        });
 
-        let text = `Точковка ${new Date().toLocaleDateString('ru-RU')}\n\n`;
-        text += active.map(x => `${x.number} — ${x.trips}`).join('\n') || '—';
-        text += `\n\nИтого: ${Math.round(totalCubes).toLocaleString('ru-RU')} м³`;
+    if (text === '') text = '-';
 
-        const dispatcherPhone = "+79521667733"; // ← твой диспетчер
+    const dispatcherPhone = "+79521667733"; // твой диспетчер
 
-        // Сначала пробуем нативное приложение WhatsApp
-        location.href = `whatsapp://send?phone=${dispatcherPhone}&text=` + encodeURIComponent(text);
+    // Прямо в чат WhatsApp
+    location.href = `whatsapp://send?phone=${dispatcherPhone}&text=` + encodeURIComponent(text);
 
-        // Если не сработает (например, WhatsApp не установлен) — откроем веб-версию
-        setTimeout(() => {
-            if (document.hidden || !navigator.userAgent.includes('WhatsApp')) {
-                window.open(`https://api.whatsapp.com/send?phone=${dispatcherPhone}&text=` + encodeURIComponent(text), '_blank');
-            }
-        }, 800);
+    // На всякий случай — если WhatsApp не установлен
+    setTimeout(() => {
+        window.open(`https://web.whatsapp.com/send?phone=${dispatcherPhone}&text=` + encodeURIComponent(text), '_blank');
+    }, 1000);
 
-        closeMenu();
-    }
+    closeMenu();
+}
 
     function resetShift() {
         if (confirm('Сбросить смену?')) {

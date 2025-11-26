@@ -269,12 +269,13 @@
             const card = document.createElement('div');
             card.className = 'card glass' + (b.exclude ? ' excluded' : '');
             card.innerHTML = `
-                  <button class="btn minus" onclick="changeTrip(${i},-1)">−</button>
+               card.innerHTML = `
+    <button class="btn minus" onclick="changeTrip(${i},-1)">−</button>
 
     <div class="card-center">
         <div class="card-title">${b.number}</div>
-        <div class="card-capacity">${b.capacity}</div>
-        <div class="card-count">${b.trips}</div>
+        <div class="card-capacity-small">${b.capacity}</div>
+        <div class="card-trips">${b.trips}</div>
     </div>
 
     <button class="btn plus" onclick="changeTrip(${i},1)">+</button>

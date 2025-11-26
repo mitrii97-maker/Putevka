@@ -315,9 +315,27 @@ function changeTrip(i,d) {
     }
 }
 
-function toggleExclude(i){
+function toggleExclude(i) {
     belazList[i].exclude = !belazList[i].exclude;
-    save(); renderCards();
+
+    // Если отключили → переносим вниз
+    if (belazList[i].exclude) {
+        const item = belazList.splice(i, 1)[0];
+        belazList.push(item);
+    } 
+    // Если включили обратно → возвращаем на своё место
+    else {
+        const item = belazList.splice(i, 1)[0];
+
+        // ищем позиции с таким же originalIndex
+        let insertPos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
+        if (insertPos === -1) insertPos = belazList.length;
+
+        belazList.splice(insertPos, 0, item);
+    }
+
+    save();
+    renderCards();
 }
 
 function addBelaz(){
@@ -327,7 +345,13 @@ function addBelaz(){
     const sel = prompt("Кубатура:\n1) 37.8\n2) 36.0\n3) 21.0","1");
     const cap = capacities[parseInt(sel)-1] || 37.8;
 
-    belazList.push({ number: num.trim(), capacity: cap, trips: 0, exclude: false });
+    belazList.push({
+    number: num.trim(),
+    capacity: cap,
+    trips: 0,
+    exclude: false,
+    originalIndex: belazList.length   // ← фиксируем место добавления
+});
     save(); renderCards(); closeMenu();
 }
 

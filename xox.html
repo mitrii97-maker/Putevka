@@ -292,7 +292,7 @@
     if (!text) text = '-';
 
     const total = active.reduce((s, b) => s + b.trips * b.volume, 0);
-    const message = `${new Date().toLocaleDateString('ru-RU')}\n\n${text}`;
+    const message = `\n${text}`;
 
     const url = `https://wa.me/79521667733?text=` + encodeURIComponent(message);
     

@@ -265,17 +265,20 @@
             const card = document.createElement('div');
             card.className = 'card glass' + (b.exclude ? ' excluded' : '');
             card.innerHTML = `
-                <div style="flex:1">
-                    <div class="card-title">БелАЗ ${b.number}</div>
-                    <div class="card-capacity">${b.capacity}</div>
-                </div>
-                <div class="counter">
-                    <button class="btn minus" onclick="changeTrip(${i},-1)">−</button>
-                    <div>${b.trips}</div>
-                    <button class="btn plus" onclick="changeTrip(${i},1)">+</button>
-                </div>
-                <input type="checkbox" ${b.exclude?'checked':''} onchange="toggleExclude(${i})" style="transform:scale(1.7);margin-left:18px">
-            `;
+                  <button class="btn minus" onclick="changeTrip(${i},-1)">−</button>
+
+    <div class="card-center">
+        <div class="card-title">БелАЗ ${b.number}</div>
+        <div class="card-capacity">${b.capacity}</div>
+        <div class="card-count">${b.trips}</div>
+    </div>
+
+    <button class="btn plus" onclick="changeTrip(${i},1)">+</button>
+
+    <input type="checkbox" ${b.exclude?'checked':''}
+        onchange="toggleExclude(${i})"
+        style="transform:scale(1.5)">
+`;
             c.appendChild(card);
         });
         calc();

@@ -31,6 +31,42 @@
             padding-bottom: 110px;
         }
 
+/* ===========================
+   iOS 26 ULTRA GLASS BUTTONS
+   =========================== */
+
+.ios26-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 30px;
+    font-weight: 900;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    background: rgba(255,255,255,0.08);
+
+    box-shadow:
+        0 0 18px rgba(0,170,255,0.4),        /* внешнее неоновое свечение */
+        inset 0 0 8px rgba(140,200,255,0.35), /* внутренний мягкий свет */
+        inset 0 0 20px rgba(0,140,255,0.25);  /* глубокий синий внутри */
+
+    border: 1px solid rgba(140,200,255,0.25);
+
+    transition: all 0.2s ease;
+}
+
+.ios26-btn:active {
+    transform: scale(0.92);
+    box-shadow:
+        0 0 12px rgba(0,170,255,0.4),
+        inset 0 0 20px rgba(140,200,255,0.35),
+        inset 0 0 28px rgba(0,140,255,0.4);
+}
+
         .overlay {
             position: fixed;
             inset: 0;
@@ -299,7 +335,7 @@ function renderCards() {
         card.className = 'card glass';
 
         card.innerHTML = `
-          <button class="btn minus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},-1)">−</button>
+          <button class="btn ios26-btn minus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},-1)">−</button>
 
             <div class="card-center">
                 <div class="card-title">${b.number}</div>
@@ -308,7 +344,7 @@ function renderCards() {
                 </div>
             </div>
 
-          <button class="btn plus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},1)">+</button>
+          <button class="btn ios26-btn plus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},1)">+</button>
 
             <input type="checkbox"
                    class="card-checkbox"

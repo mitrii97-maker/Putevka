@@ -31,13 +31,15 @@
     padding-bottom: 110px;
 }
 
-        .overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: var(--blur);
-            -webkit-backdrop-filter: var(--blur);
-            z-index: -1;
-        }
+      .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.25); /* затемнение = регулируешь 0–0.4 */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    pointer-events: none;
+    z-index: -1;
+}
 
         .glass {
             background: var(--glass);

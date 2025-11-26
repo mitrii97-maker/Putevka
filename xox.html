@@ -287,25 +287,16 @@
 
     // ТВОЯ НОВАЯ СУПЕР-ФУНКЦИЯ ОТПРАВКИ
     function sendReport() {
-    let text = '';
-    belazList
-        .filter(b => !b.exclude && b.trips > 0)
-        .forEach(b => {
-            text += `${b.number} - ${b.trips}\n`;
-        });
+    const active = belazList.filter(b => !b.exclude && b.trips > 0);
+    let text = active.map(b => `${b.number} - ${b.trips}`).join('\n');
+    if (!text) text = '-';
 
-    if (text === '') text = '-';
+    const total = active.reduce((s, b) => s + b.trips * b.volume, 0);
+    const message = `Точковка ${new Date().toLocaleDateString('ru-RU')}\n\n${text}\n\nИтого: ${Math.round(total).toLocaleString()} м³`;
 
-    const dispatcherPhone = "+79521667733"; // твой диспетчер
-
-    // Прямо в чат WhatsApp
-    location.href = `whatsapp://send?phone=${dispatcherPhone}&text=` + encodeURIComponent(text);
-
-    // На всякий случай — если WhatsApp не установлен
-    setTimeout(() => {
-        window.open(`https://web.whatsapp.com/send?phone=${dispatcherPhone}&text=` + encodeURIComponent(text), '_blank');
-    }, 1000);
-
+    const url = `https://wa.me/79521667733?text=` + encodeURIComponent(message);
+    
+    window.location.href = url; // ← вот и всё
     closeMenu();
 }
 

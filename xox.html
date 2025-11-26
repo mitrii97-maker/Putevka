@@ -8,6 +8,7 @@
     <meta name="theme-color" content="#000000">
     <title>БелАЗ</title>
     <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/fluency/180/truck.png">
+
     <style>
         :root {
             --red: #ff453a;
@@ -15,8 +16,8 @@
             --green: #1e7b3a;
             --purple: #bf5af2;
             --blur: blur(20px);
-            --glass: rgba(30, 30, 36, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(30,30,36,0.65);
+            --glass-border: rgba(255,255,255,0.08);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,7 +27,7 @@
             background: url('https://i.imgur.com/8pZ3XKp.jpg') center/cover fixed;
             color: white;
             min-height: 100vh;
-            padding-bottom: 110px;
+            padding-bottom: 120px;
         }
 
         .overlay {
@@ -34,7 +35,7 @@
             background: rgba(0,0,0,0.55);
             backdrop-filter: var(--blur);
             -webkit-backdrop-filter: var(--blur);
-            pointer-events: none; z-index: -1;
+            z-index: -1;
         }
 
         .glass {
@@ -43,7 +44,6 @@
             -webkit-backdrop-filter: var(--blur);
             border-radius: 18px;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
             margin: 0 14px 10px;
             overflow: hidden;
         }
@@ -54,100 +54,107 @@
             font-size: 20px; font-weight: 700;
         }
         .plan input {
-            background: transparent; border: none; color: white;
-            font-size: 40px; font-weight: 800; width: 160px; text-align: right; outline: none;
+            background: none; border: none; color: white;
+            font-size: 40px; font-weight: 800; text-align: right;
+            width: 160px; outline: none;
         }
 
         .bar-container {
-            height: 36px;
-            margin: 14px;
-            border-radius: 18px;
-            overflow: hidden;
+            height: 36px; margin: 14px;
+            border-radius: 18px; overflow: hidden;
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--glass-border);
         }
         .bar {
-            height: 100%; width: 0%; border-radius: 18px;
-            transition: all 0.7s ease;
+            height: 100%; width: 0%;
+            transition: 0.7s ease;
         }
 
         .stats {
             display: flex; justify-content: space-between;
             margin: 8px 20px 20px;
-            font-weight: 600;
         }
         .stats div div:first-child { opacity: 0.7; font-size: 15px; }
         .stats div div:last-child { font-size: 32px; font-weight: 800; }
 
         .cards { padding: 0 8px; }
 
-.card {
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    margin-bottom: 9px;
-    min-height: 76px;
-    position: relative;
-}
+        /* =========================
+           КАРТОЧКА БЕЛАЗа
+        ==========================*/
 
-.card-center {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.card-title {
-    font-size: 30px;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.card-capacity-small {
-    font-size: 12px;
-    opacity: 0.45;
-    margin-top: 3px;
-    line-height: 1;
-}
-.card-capacity-corner {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    font-size: 14px;
-    opacity: 0.45;
-    line-height: 1;
-}
-
-.card-trips {
-    font-size: 50px;
-    font-weight: 900;
-    margin-top: 10px;
-    line-height: 1;
-}
-
-        .counter {
-            display: flex; align-items: center; gap: 22px;
+        .card {
+            position: relative;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-radius: 18px;
         }
-        .counter div {
-            width: 70px; text-align: center; font-size: 38px; font-weight: 800;
+
+        /* маленькая кубатура в правом верхнем углу */
+        .card-capacity-corner {
+            position: absolute;
+            top: 8px;
+            right: 16px;
+            opacity: 0.45;
+            font-size: 14px;
+            line-height: 1;
         }
+
+        .card-title {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* Центр — идеально по середине между кнопками */
+        .card-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 80px; /* фикс высота, чтобы цифра расположилась строго по центру */
+        }
+
+        /* контейнер для вертикального центрирования */
+        .card-trips-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .card-trips {
+            font-size: 50px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
         .btn {
-            width: 50px; height: 50px; border-radius: 50%; border: none;
-            font-size: 30px; color: white; font-weight: bold;
-            box-shadow: 0 5px 14px rgba(0,0,0,0.5);
+            width: 54px; height: 54px;
+            border-radius: 50%; border: none;
+            font-size: 32px; font-weight: 900;
+            color: white;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.45);
         }
         .minus { background: var(--red); }
-        .plus { background: #30d158; }
+        .plus  { background: #30d158; }
 
         .fab {
-            position: fixed; bottom: 28px; left: 50%;
+            position: fixed;
+            bottom: 28px; left: 50%;
             transform: translateX(-50%);
             width: 70px; height: 70px;
-            background: linear-gradient(135deg, #0a84ff, #007aff);
-            border-radius: 50%; font-size: 36px; color: white;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#0a84ff,#007aff);
+            color: white;
+            font-size: 40px; border: none;
             box-shadow: 0 12px 35px rgba(10,132,255,0.6);
-            z-index: 10; border: none;
         }
 
         .menu {
@@ -155,65 +162,34 @@
             background: var(--glass);
             backdrop-filter: var(--blur);
             -webkit-backdrop-filter: var(--blur);
-            border-radius: 30px 30px 0 0;
             padding: 40px 24px 50px;
-            transform: translateY(100%);
-            transition: transform 0.4s ease;
+            border-radius: 30px 30px 0 0;
             border-top: 1px solid var(--glass-border);
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            transform: translateY(100%);
+            transition: 0.4s ease;
             z-index: 100;
         }
         .menu.open { transform: translateY(0); }
         .menu button {
-            width: 100%; padding: 19px; margin: 11px 0;
-            border: none; border-radius: 16px;
+            width: 100%; padding: 19px; border: none;
+            margin: 12px 0; border-radius: 16px;
             font-size: 18px; font-weight: 700; color: white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-        .add    { background: linear-gradient(135deg, #0a84ff, #007aff); }
-        .send   { background: linear-gradient(135deg, #30d158, #28a745); }
-        .reset  { background: linear-gradient(135deg, #ff453a, #ff2d1a); }
-        .close  { background: rgba(255,255,255,0.12); }
-    /* Выравнивание внутренностей карточки без изменения HTML */
-.card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-}
+        .add { background: linear-gradient(135deg,#0a84ff,#007aff); }
+        .send { background: linear-gradient(135deg,#30d158,#28a745); }
+        .reset { background: linear-gradient(135deg,#ff3b30,#ff1a1a); }
+        .close { background: rgba(255,255,255,0.12); }
 
-.card > div:first-child {
-    flex: 1;
-    min-width: 0;
-}
-
-.counter {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.counter div {
-    width: 55px;           /* фикс ширина для ровности */
-    text-align: center;
-}
-
-/* Ровный чекбокс по центру */
-.card input[type="checkbox"] {
-    transform: scale(1.5);
-    margin-left: 6px;
-    margin-right: 2px;
-    align-self: center;     /* вертикальное выравнивание */
-}
     </style>
 </head>
+
 <body>
 
 <div class="overlay"></div>
 
 <div class="glass plan">
     <span>ПЛАН</span>
-    <div><input type="number" id="plan" value="3000"></div>
+    <input type="number" id="plan" value="3000">
 </div>
 
 <div class="bar-container glass">
@@ -236,130 +212,133 @@
 <button class="fab" id="fab">+</button>
 
 <div class="menu glass" id="menu">
-    <button class="add"    onclick="addBelaz()">Добавить БелАЗ</button>
-    <button class="send"   onclick="sendReport()">Отправить диспетчеру</button>
-    <button class="reset"  onclick="resetShift()">Сбросить смену</button>
-    <button class="close"  onclick="closeMenu()">Закрыть</button>
+    <button class="add" onclick="addBelaz()">Добавить БелАЗ</button>
+    <button class="send" onclick="sendReport()">Отправить диспетчеру</button>
+    <button class="reset" onclick="resetShift()">Сбросить смену</button>
+    <button class="close" onclick="closeMenu()">Закрыть</button>
 </div>
 
 <script>
-    
-    const capacities = [37.8, 36.0, 21.0];
-    let belazList = JSON.parse(localStorage.getItem('belazList') || '[]');
-    let plan = Math.max(parseFloat(localStorage.getItem('plan') || '3000'), 1);
+const capacities = [37.8, 36.0, 21.0];
+let belazList = JSON.parse(localStorage.getItem('belazList') || '[]');
+let plan = parseFloat(localStorage.getItem('plan') || '3000') || 3000;
 
-    document.getElementById('plan').value = plan;
+document.getElementById('plan').value = plan;
 
-    function save() {
-        localStorage.setItem('belazList', JSON.stringify(belazList));
-        localStorage.setItem('plan', plan);
-    }
+function save() {
+    localStorage.setItem('belazList', JSON.stringify(belazList));
+    localStorage.setItem('plan', plan);
+}
 
-    function calc() {
-        const total = belazList.reduce((s, b) => s + b.trips * b.capacity, 0);
-        const percent = total / plan;
-        const over = Math.max(0, total - plan);
+function calc() {
+    const total = belazList.reduce((s,b)=>s + b.trips * b.capacity,0);
+    const percent = total / plan;
+    const over = Math.max(0, total - plan);
 
-        document.getElementById('done').textContent = total.toFixed(1);
-        document.getElementById('left').textContent = over > 0 ? '+' + over.toFixed(1) : (plan - total).toFixed(1);
-        document.getElementById('left').style.color = over > 0 ? 'var(--purple)' : '#ff9f0a';
+    document.getElementById('done').textContent = total.toFixed(1);
+    document.getElementById('left').textContent =
+        over > 0 ? "+" + over.toFixed(1) : (plan-total).toFixed(1);
+    document.getElementById('left').style.color =
+        over > 0 ? 'var(--purple)' : '#ff9f0a';
 
-        const bar = document.getElementById('bar');
-        bar.style.width = Math.min(percent * 100, 200) + '%';
-        bar.style.background = percent < 0.7 ? 'var(--red)' : percent < 1 ? 'var(--yellow)' : 'var(--green)';
-    }
+    const bar = document.getElementById('bar');
+    bar.style.width = Math.min(percent*100,200)+'%';
+    bar.style.background =
+        percent < 0.7 ? 'var(--red)' :
+        percent < 1   ? 'var(--yellow)' :
+                        'var(--green)';
+}
 
-    function renderCards() {
-        const c = document.getElementById('cards');
-        c.innerHTML = '';
-        belazList.forEach((b, i) => {
-            const card = document.createElement('div');
-            card.className = 'card glass' + (b.exclude ? ' excluded' : '');
-          card.innerHTML = `
-    <button class="btn minus" onclick="changeTrip(${i},-1)">−</button>
+function renderCards() {
+    const c = document.getElementById('cards');
+    c.innerHTML = '';
 
-    <div class="card-center">
-        <div class="card-title">${b.number}</div>
-        <div class="card-trips">${b.trips}</div>
-    </div>
+    belazList.forEach((b,i)=>{
+        const card = document.createElement('div');
+        card.className = 'card glass';
 
-    <button class="btn plus" onclick="changeTrip(${i},1)">+</button>
+        card.innerHTML = `
+            <button class="btn minus" onclick="changeTrip(${i},-1)">−</button>
 
-    <input type="checkbox" ${b.exclude ? 'checked' : ''}
-        onchange="toggleExclude(${i})"
-        style="transform:scale(1.5)">
+            <div class="card-center">
+                <div class="card-title">${b.number}</div>
 
-    <div class="card-capacity-corner">${b.capacity}</div>
-`;
-            c.appendChild(card);
-        });
-        calc();
-    }
+                <div class="card-trips-wrapper">
+                    <div class="card-trips">${b.trips}</div>
+                </div>
+            </div>
 
-    function changeTrip(i, d) {
-        if (belazList[i].trips + d >= 0) {
-            belazList[i].trips += d;
-            save();
-            renderCards();
-        }
-    }
+            <button class="btn plus" onclick="changeTrip(${i},1)">+</button>
 
-    function toggleExclude(i) {
-        belazList[i].exclude = !belazList[i].exclude;
+            <input type="checkbox"
+                   style="transform:scale(1.4)"
+                   onchange="toggleExclude(${i})"
+                   ${b.exclude?'checked':''}>
+
+            <div class="card-capacity-corner">${b.capacity}</div>
+        `;
+
+        c.appendChild(card);
+
+        if(b.exclude) card.style.opacity = "0.35";
+    });
+
+    calc();
+}
+
+function changeTrip(i,d) {
+    if(belazList[i].trips+d >= 0){
+        belazList[i].trips += d;
         save();
         renderCards();
     }
+}
 
-    function addBelaz() {
-        const num = prompt('Номер БелАЗа:');
-        if (!num) return;
-        const sel = prompt('Кубатура:\n1) 37.8\n2) 36.0\n3) 21.0', '1');
-        const cap = capacities[parseInt(sel)-1] || 37.8;
+function toggleExclude(i){
+    belazList[i].exclude = !belazList[i].exclude;
+    save(); renderCards();
+}
 
-        belazList.push({ number: num.trim(), capacity: cap, trips: 0, exclude: false });
-        save();
-        renderCards();
-        closeMenu();
-    }
+function addBelaz(){
+    const num = prompt("Номер БелАЗа:");
+    if(!num) return;
 
-    // ТВОЯ НОВАЯ СУПЕР-ФУНКЦИЯ ОТПРАВКИ
-    function sendReport() {
-    const active = belazList.filter(b => !b.exclude && b.trips > 0);
-    let text = active.map(b => `${b.number} - ${b.trips}`).join('\n');
-    if (!text) text = '-';
+    const sel = prompt("Кубатура:\n1) 37.8\n2) 36.0\n3) 21.0","1");
+    const cap = capacities[parseInt(sel)-1] || 37.8;
 
-    const total = active.reduce((s, b) => s + b.trips * b.volume, 0);
-    const message = `\n${text}`;
+    belazList.push({ number: num.trim(), capacity: cap, trips: 0, exclude: false });
+    save(); renderCards(); closeMenu();
+}
 
-    const url = `https://wa.me/79521667733?text=` + encodeURIComponent(message);
-    
-    window.location.href = url; // ← вот и всё
+function sendReport(){
+    const active = belazList.filter(b=>!b.exclude && b.trips>0);
+    let text = active.map(b=>`${b.number} - ${b.trips}`).join("\n");
+    if(!text) text = "-";
+
+    const url = "https://wa.me/79521667733?text=" + encodeURIComponent(text);
+    window.location.href = url;
     closeMenu();
 }
 
-    function resetShift() {
-        if (confirm('Сбросить смену?')) {
-            belazList = [];
-            plan = 3000;
-            localStorage.clear();
-            document.getElementById('plan').value = 3000;
-            renderCards();
-            closeMenu();
-        }
+function resetShift(){
+    if(confirm("Сбросить смену?")){
+        belazList = [];
+        plan = 3000;
+        localStorage.clear();
+        document.getElementById('plan').value = plan;
+        renderCards(); closeMenu();
     }
+}
 
-    function closeMenu() {
-        document.getElementById('menu').classList.remove('open');
-    }
+document.getElementById('fab').onclick = ()=>document.getElementById('menu').classList.add('open');
+function closeMenu(){ document.getElementById('menu').classList.remove('open'); }
 
-    document.getElementById('fab').onclick = () => document.getElementById('menu').classList.add('open');
-    document.getElementById('plan').oninput = e => {
-        plan = Math.max(parseFloat(e.target.value) || 3000, 1);
-        save();
-        calc();
-    };
+document.getElementById('plan').oninput = e=>{
+    plan = Math.max(parseFloat(e.target.value)||3000,1);
+    save(); calc();
+};
 
-    renderCards();
+renderCards();
 </script>
 </body>
 </html>

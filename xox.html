@@ -390,34 +390,7 @@ function toggleExclude(i) {
         renderCards();
     }, { once: true });
 }
-    save();
-    renderCards();
-
-    // 3) ищем новую карточку (та же логика, но массив уже изменился)
-    const newCards = [...document.querySelectorAll('.card')];
-    const newIndex = belazList.indexOf(item);
-    const cardAfter = newCards[newIndex];
-    const rectAfter = cardAfter.getBoundingClientRect();
-
-    // 4) считаем разницу
-    const dx = rectBefore.left - rectAfter.left;
-    const dy = rectBefore.top - rectAfter.top;
-
-    // 5) применяем FLIP-анимацию
-    cardAfter.style.transform = `translate(${dx}px, ${dy}px)`;
-    cardAfter.style.opacity = "0.3";
-
-    requestAnimationFrame(() => {
-        cardAfter.classList.add("animating");
-        cardAfter.style.transform = "";
-        cardAfter.style.opacity = item.exclude ? "0.35" : "1";
-    });
-
-    // 6) чистим анимацию
-    cardAfter.addEventListener("transitionend", () => {
-        cardAfter.classList.remove("animating");
-    }, { once: true });
-}
+    
 
 function addBelaz(){
     const num = prompt("Номер БелАЗа:");

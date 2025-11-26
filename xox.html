@@ -98,8 +98,12 @@
             border-radius: 18px;
             margin-bottom: 12px;
             transition: transform 0.35s ease, opacity 0.35s ease;
+              position: relative;
+    transition: transform 0.35s ease, opacity 0.35s ease;
         }
-
+.card.animating {
+    transition: transform 0.35s ease, opacity 0.35s ease;
+}
         .card.moving {
             transform: scale(0.97);
             opacity: 0.3;
@@ -331,27 +335,53 @@ function changeTrip(i,d) {
 }
 
 function toggleExclude(i) {
+    const cards = [...document.querySelectorAll('.card')];
+    const card = cards[i];
+
+    // 1) фиксируем позицию ДО
+    const rectBefore = card.getBoundingClientRect();
+
     belazList[i].exclude = !belazList[i].exclude;
 
-    const cards = document.querySelectorAll('.card');
-    if (cards[i]) cards[i].classList.add('moving');
+    // 2) меняем массив
+    let item = belazList.splice(i, 1)[0];
 
-    setTimeout(() => {
-        if (belazList[i].exclude) {
-            const item = belazList.splice(i, 1)[0];
-            belazList.push(item);
-        } else {
-            const item = belazList.splice(i, 1)[0];
+    if (item.exclude) {
+        belazList.push(item);        // вниз
+    } else {
+        // вернуть вверх по originalIndex
+        let pos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
+        if (pos === -1) pos = belazList.length;
+        belazList.splice(pos, 0, item);
+    }
 
-            let insertPos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
-            if (insertPos === -1) insertPos = belazList.length;
+    save();
+    renderCards();
 
-            belazList.splice(insertPos, 0, item);
-        }
+    // 3) ищем новую карточку (та же логика, но массив уже изменился)
+    const newCards = [...document.querySelectorAll('.card')];
+    const newIndex = belazList.indexOf(item);
+    const cardAfter = newCards[newIndex];
+    const rectAfter = cardAfter.getBoundingClientRect();
 
-        save();
-        renderCards();
-    }, 300);
+    // 4) считаем разницу
+    const dx = rectBefore.left - rectAfter.left;
+    const dy = rectBefore.top - rectAfter.top;
+
+    // 5) применяем FLIP-анимацию
+    cardAfter.style.transform = `translate(${dx}px, ${dy}px)`;
+    cardAfter.style.opacity = "0.3";
+
+    requestAnimationFrame(() => {
+        cardAfter.classList.add("animating");
+        cardAfter.style.transform = "";
+        cardAfter.style.opacity = item.exclude ? "0.35" : "1";
+    });
+
+    // 6) чистим анимацию
+    cardAfter.addEventListener("transitionend", () => {
+        cardAfter.classList.remove("animating");
+    }, { once: true });
 }
 
 function addBelaz(){

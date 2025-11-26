@@ -90,29 +90,33 @@
 }
 
 .card-center {
-    flex: 1;                 /* центр растягивается */
-    text-align: center;      /* текст по центру */
+    flex: 1;
     display: flex;
-    flex-direction: column;  /* номер сверху, кубатура ниже */
+    flex-direction: column;
     align-items: center;
-    pointer-events: none;
+    text-align: center;
 }
 
-.card.excluded { 
-    opacity: 0.3; 
-    transform: scale(0.97); 
+.card-title {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
 }
 
-.card-title { 
-    font-size: 24px; 
-    font-weight: 800; 
-}
-
-.card-capacity {
-    font-size: 20px; 
-    font-weight: 600; 
-    opacity: 0.9; 
+/* Кубатура — маленькая */
+.card-capacity-small {
+    font-size: 14px;
+    opacity: 0.5;
     margin-top: 2px;
+    line-height: 1;
+}
+
+/* Количество рейсов — ОЧЕНЬ крупно */
+.card-trips {
+    font-size: 42px;
+    font-weight: 900;
+    margin-top: 6px;
+    line-height: 1;
 }
 
         .counter {

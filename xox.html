@@ -252,6 +252,12 @@
 
 const capacities = [37.8, 36.0, 21.0];
 let belazList = JSON.parse(localStorage.getItem('belazList') || '[]');
+
+// Восстанавливаем оригинальные позиции — иначе карточки не вернутся на своё место
+belazList = belazList.map((b, i) => ({
+    ...b,
+    originalIndex: b.originalIndex ?? i
+}));
 let plan = parseFloat(localStorage.getItem('plan') || '3000') || 3000;
 
 document.getElementById('plan').value = plan;

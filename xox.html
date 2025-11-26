@@ -147,6 +147,8 @@ body {
    КАРТОЧКА — ТВОЯ СТАРАЯ РАБОЧАЯ ВЕРСИЯ
 ============================ */
 
+/* ========== КАРТОЧКА (твоё старое позиционирование) ========== */
+
 .card {
     position: relative;
     padding: 8px 18px;
@@ -157,7 +159,7 @@ body {
     margin-bottom: 12px;
 }
 
-/* Кубатура в правом верхнем углу */
+/* Кубатура в углу — как у тебя было */
 .card-capacity-corner {
     position: absolute;
     top: 5px;
@@ -167,19 +169,19 @@ body {
     line-height: 1;
 }
 
-/* Номер БелАЗа (твои старые идеальные настройки) */
+/* Номер БелАЗа — твоя идеальная позиция */
 .card-title {
     font-size: 28px;
     font-weight: 800;
     line-height: 1;
     height: 28px;
-    margin-top: -10px;  /* ← поднимает номер ровно как тебе нравилось */
+    margin-top: -10px;   /* ← поднято ровно как ты хотел */
     display: flex;
     align-items: flex-end;
     justify-content: center;
 }
 
-/* Центр карточки — хороший фиксированный контейнер */
+/* Центр карточки */
 .card-center {
     flex: 1;
     display: flex;
@@ -190,7 +192,7 @@ body {
     text-align: center;
 }
 
-/* Область рейсов */
+/* Контейнер для больших рейсов */
 .card-trips-wrapper {
     flex: 1;
     display: flex;
@@ -199,7 +201,7 @@ body {
     width: 100%;
 }
 
-/* Большие рейсы (старый ровный вариант) */
+/* Цифра рейсов (старое ровное позиционирование) */
 .card-trips {
     font-size: 50px;
     font-weight: 900;
@@ -207,29 +209,73 @@ body {
     line-height: 1;
 }
 
-/* Кнопки */
-.btn {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    border: none;
-    font-size: 32px;
-    font-weight: 900;
-    color: white;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.45);
-}
-
-/* Красная и зелёная */
-.minus { background: var(--red); }
-.plus  { background: #30d158; }
-
-/* Чекбокс (левый верхний угол) */
+/* Чекбокс — левый верхний угол, как ты делал */
 .card-checkbox {
     position: absolute;
     left: 6px;
     top: 5px;
     transform: scale(1.3);
     opacity: 0.85;
+}
+
+
+/* ========== КНОПКИ iOS  (новый стиль) ========== */
+
+.btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    font-size: 36px;
+    font-weight: 900;
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(255,255,255,0.07);
+    box-shadow:
+        inset 0 0 10px rgba(255,255,255,0.25),
+        0 0 18px rgba(0,0,0,0.45);
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    transition: transform .12s ease, box-shadow .2s ease;
+}
+
+/* Нажатие */
+.btn:active {
+    transform: scale(0.9);
+    box-shadow:
+        inset 0 0 4px rgba(255,255,255,0.18),
+        0 0 10px rgba(0,0,0,0.3);
+}
+
+/* Мягкий зелёный (+) */
+.plus {
+    background: radial-gradient(circle at 50% 50%,
+        rgba(80, 255, 120, 0.22),
+        rgba(0, 150, 50, 0.22),
+        rgba(0, 120, 40, 0.20)
+    );
+}
+
+/* Мягкий красный (−) */
+.minus {
+    background: radial-gradient(circle at 50% 50%,
+        rgba(255, 90, 90, 0.25),
+        rgba(180, 40, 40, 0.22),
+        rgba(120, 20, 20, 0.18)
+    );
+}
+
+/* Выключенная кнопка */
+.btn.disabled {
+    opacity: 0.28;
+    filter: grayscale(1);
+    pointer-events: none;
 }
 
 .fab {

@@ -335,60 +335,59 @@ function changeTrip(i,d) {
 }
 
 function toggleExclude(i) {
-    const cardsBefore = [...document.querySelectorAll('.card')];
-    const cardBefore = cardsBefore[i];
-    const rectBefore = cardBefore.getBoundingClientRect();
+    const cards = [...document.querySelectorAll(".card")];
+    const card = cards[i];
+    const rectBefore = card.getBoundingClientRect();
 
-    // Переключаем чекбокс
+    // Обновляем модель данных
     belazList[i].exclude = !belazList[i].exclude;
     const item = belazList.splice(i, 1)[0];
 
-    // Перенос
     if (item.exclude) {
-        belazList.push(item); // вниз
+        belazList.push(item);
     } else {
         const pos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
-        belazList.splice(pos === -1 ? belazList.length : pos, 0, item); // обратно вверх
+        belazList.splice(pos === -1 ? belazList.length : pos, 0, item);
     }
 
     save();
 
-    // готовим чистый HTML
-    const container = document.getElementById("cards");
-    const oldHTML = container.innerHTML;
+    // === ШАГ 1: фиксируем старые позиции всех карточек ===
+    const oldRects = cards.map(el => el.getBoundingClientRect());
 
-    // пересчитываем DOM, но пока не показываем
+    // === ШАГ 2: перерисовываем список ===
     renderCards();
-    const newCards = [...document.querySelectorAll('.card')];
+
+    const newCards = [...document.querySelectorAll(".card")];
     const indexAfter = belazList.indexOf(item);
-    const cardAfter = newCards[indexAfter];
-    const rectAfter = cardAfter.getBoundingClientRect();
 
-    // возвращаем DOM обратно (старый)
-    container.innerHTML = oldHTML;
+    // === ШАГ 3: фиксируем новые позиции ===
+    const newRects = newCards.map(el => el.getBoundingClientRect());
 
-    const animatedCard = [...container.querySelectorAll('.card')][indexAfter];
+    // === ШАГ 4: применяем FLIP ===
+    newCards.forEach((el, idx) => {
+        const dx = oldRects[idx].left - newRects[idx].left;
+        const dy = oldRects[idx].top  - newRects[idx].top;
 
-    // вычисляем смещение
-    const dx = rectBefore.left - rectAfter.left;
-    const dy = rectBefore.top - rectAfter.top;
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+        el.style.opacity = belazList[idx].exclude ? 0.3 : 1;
+    });
 
-    // ставим начальное положение
-    animatedCard.style.transform = `translate(${dx}px, ${dy}px)`;
-    animatedCard.style.opacity = item.exclude ? "0.3" : "1";
+    // форсируем reflow
+    newCards[0].getBoundingClientRect();
 
-    animatedCard.getBoundingClientRect(); // фиксируем
+    // === ШАГ 5: включаем плавный переход ===
+    newCards.forEach((el, idx) => {
+        requestAnimationFrame(() => {
+            el.style.transition = "transform 0.35s ease, opacity 0.35s ease";
+            el.style.transform = "translate(0,0)";
+            el.style.opacity = belazList[idx].exclude ? 0.35 : 1;
+        });
 
-    // включаем анимацию
-    animatedCard.style.transition = "transform 0.35s ease, opacity 0.35s ease";
-    animatedCard.style.transform = "translate(0,0)";
-    animatedCard.style.opacity = item.exclude ? "0.35" : "1";
-
-    // в конце — перерисовываем окончательно
-    animatedCard.addEventListener("transitionend", () => {
-        animatedCard.style.transition = "";
-        renderCards();
-    }, { once: true });
+        el.addEventListener("transitionend", () => {
+            el.style.transition = "";
+        }, { once: true });
+    });
 }
     
 

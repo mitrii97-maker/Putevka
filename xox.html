@@ -335,26 +335,76 @@ function changeTrip(i,d) {
 }
 
 function toggleExclude(i) {
-    const cards = [...document.querySelectorAll('.card')];
-    const card = cards[i];
-
-    // 1) фиксируем позицию ДО
+    const card = document.querySelectorAll('.card')[i];
     const rectBefore = card.getBoundingClientRect();
 
+    // переключаем флаг
     belazList[i].exclude = !belazList[i].exclude;
+    const item = belazList.splice(i, 1)[0];
 
-    // 2) меняем массив
-    let item = belazList.splice(i, 1)[0];
-
+    // перенос
     if (item.exclude) {
-        belazList.push(item);        // вниз
+        belazList.push(item);
     } else {
-        // вернуть вверх по originalIndex
-        let pos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
-        if (pos === -1) pos = belazList.length;
-        belazList.splice(pos, 0, item);
+        const newPos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
+        belazList.splice(newPos === -1 ? belazList.length : newPos, 0, item);
     }
 
+    save();
+
+    // контейнер
+    const container = document.getElementById("cards");
+
+    // реальный DOM до пересборки
+    const oldCards = [...document.querySelectorAll(".card")];
+
+    // 🔥 создаём временный DOM, чтобы узнать новые координаты
+    const temp = document.createElement("div");
+    temp.style.visibility = "hidden";
+    temp.style.position = "absolute";
+    temp.style.top = "-9999px";
+
+    temp.innerHTML = belazList.map(b => `
+        <div class="card glass">
+        </div>
+    `).join("");
+
+    document.body.appendChild(temp);
+
+    const rectAfter = [...temp.children][belazList.indexOf(item)].getBoundingClientRect();
+
+    document.body.removeChild(temp);
+
+    // расчет смещения
+    const dx = rectBefore.left - rectAfter.left;
+    const dy = rectBefore.top - rectAfter.top;
+
+    // перерисовываем карточки, но БЕЗ анимации пока
+    const htmlBackup = container.innerHTML;
+    renderCards();
+    container.innerHTML = htmlBackup;
+
+    const cards = [...container.querySelectorAll('.card')];
+    const newCard = cards[belazList.indexOf(item)];
+
+    // ставим начальное смещение
+    newCard.style.transform = `translate(${dx}px, ${dy}px)`;
+    newCard.style.opacity = item.exclude ? "0.3" : "1";
+
+    // заставляем браузер применить стиль
+    newCard.getBoundingClientRect();
+
+    // включаем анимацию
+    newCard.style.transition = "transform 0.35s ease, opacity 0.35s ease";
+    newCard.style.transform = "translate(0,0)";
+    newCard.style.opacity = item.exclude ? "0.35" : "1";
+
+    // после анимации обновляем HTML окончательно
+    newCard.addEventListener("transitionend", () => {
+        newCard.style.transition = "";
+        renderCards();
+    }, { once: true });
+}
     save();
     renderCards();
 

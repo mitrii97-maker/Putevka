@@ -335,52 +335,45 @@ function changeTrip(i,d) {
 }
 
 function toggleExclude(i) {
-    const cardBefore = document.querySelectorAll('.card')[i];
+    const cardsBefore = [...document.querySelectorAll('.card')];
+    const cardBefore = cardsBefore[i];
     const rectBefore = cardBefore.getBoundingClientRect();
 
-    // переключили чекбокс
+    // Переключаем чекбокс
     belazList[i].exclude = !belazList[i].exclude;
     const item = belazList.splice(i, 1)[0];
 
-    // перенос вниз или возврат вверх
+    // Перенос
     if (item.exclude) {
-        belazList.push(item);
+        belazList.push(item); // вниз
     } else {
         const pos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
-        belazList.splice(pos === -1 ? belazList.length : pos, 0, item);
+        belazList.splice(pos === -1 ? belazList.length : pos, 0, item); // обратно вверх
     }
 
     save();
 
+    // готовим чистый HTML
     const container = document.getElementById("cards");
+    const oldHTML = container.innerHTML;
 
-    // делаем временный список чтобы узнать новую позицию
-    const temp = document.createElement("div");
-    temp.style.visibility = "hidden";
-    temp.style.position = "absolute";
-    temp.style.top = "-9999px";
+    // пересчитываем DOM, но пока не показываем
+    renderCards();
+    const newCards = [...document.querySelectorAll('.card')];
+    const indexAfter = belazList.indexOf(item);
+    const cardAfter = newCards[indexAfter];
+    const rectAfter = cardAfter.getBoundingClientRect();
 
-    temp.innerHTML = belazList.map(() => `<div class="card glass"></div>`).join("");
-    document.body.appendChild(temp);
+    // возвращаем DOM обратно (старый)
+    container.innerHTML = oldHTML;
 
-    const indexNow = belazList.indexOf(item);
-    const rectAfter = temp.children[indexNow].getBoundingClientRect();
-
-    document.body.removeChild(temp);
+    const animatedCard = [...container.querySelectorAll('.card')][indexAfter];
 
     // вычисляем смещение
     const dx = rectBefore.left - rectAfter.left;
     const dy = rectBefore.top - rectAfter.top;
 
-    // РИСУЕМ КАРТОЧКИ БЕЗ АНИМАЦИИ
-    const backup = container.innerHTML;
-    renderCards();
-    container.innerHTML = backup;
-
-    const cards = [...container.querySelectorAll('.card')];
-    const animatedCard = cards[indexNow];
-
-    // начальное состояние
+    // ставим начальное положение
     animatedCard.style.transform = `translate(${dx}px, ${dy}px)`;
     animatedCard.style.opacity = item.exclude ? "0.3" : "1";
 
@@ -391,9 +384,10 @@ function toggleExclude(i) {
     animatedCard.style.transform = "translate(0,0)";
     animatedCard.style.opacity = item.exclude ? "0.35" : "1";
 
+    // в конце — перерисовываем окончательно
     animatedCard.addEventListener("transitionend", () => {
         animatedCard.style.transition = "";
-        renderCards(); // обновляем окончательно
+        renderCards();
     }, { once: true });
 }
     save();

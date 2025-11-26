@@ -80,18 +80,39 @@
         .stats div div:last-child { font-size: 32px; font-weight: 800; }
 
         .cards { padding: 0 8px; }
-        .card {
-            padding: 14px 18px;
-            display: flex; align-items: center;
-            margin-bottom: 9px;
-            min-height: 76px; /* компактные карточки */
-        }
-        .card.excluded { opacity: 0.3; transform: scale(0.97); }
 
-        .card-title { font-size: 24px; font-weight: 800; }
-        .card-capacity {
-            font-size: 20px; font-weight: 600; opacity: 0.9; margin-top: 2px;
-        }
+.card {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 9px;
+    min-height: 76px;
+}
+
+.card-center {
+    flex: 1;                 /* центр растягивается */
+    text-align: center;      /* текст по центру */
+    display: flex;
+    flex-direction: column;  /* номер сверху, кубатура ниже */
+    align-items: center;
+}
+
+.card.excluded { 
+    opacity: 0.3; 
+    transform: scale(0.97); 
+}
+
+.card-title { 
+    font-size: 24px; 
+    font-weight: 800; 
+}
+
+.card-capacity {
+    font-size: 20px; 
+    font-weight: 600; 
+    opacity: 0.9; 
+    margin-top: 2px;
+}
 
         .counter {
             display: flex; align-items: center; gap: 22px;

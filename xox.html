@@ -31,42 +31,6 @@
             padding-bottom: 110px;
         }
 
-/* ===========================
-   iOS 26 ULTRA GLASS BUTTONS
-   =========================== */
-
-.ios26-btn {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    color: white;
-    font-size: 30px;
-    font-weight: 900;
-
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-
-    background: rgba(255,255,255,0.08);
-
-    box-shadow:
-        0 0 18px rgba(0,170,255,0.4),        /* внешнее неоновое свечение */
-        inset 0 0 8px rgba(140,200,255,0.35), /* внутренний мягкий свет */
-        inset 0 0 20px rgba(0,140,255,0.25);  /* глубокий синий внутри */
-
-    border: 1px solid rgba(140,200,255,0.25);
-
-    transition: all 0.2s ease;
-}
-
-.ios26-btn:active {
-    transform: scale(0.92);
-    box-shadow:
-        0 0 12px rgba(0,170,255,0.4),
-        inset 0 0 20px rgba(140,200,255,0.35),
-        inset 0 0 28px rgba(0,140,255,0.4);
-}
-
         .overlay {
             position: fixed;
             inset: 0;
@@ -133,16 +97,7 @@
             justify-content: space-between;
             border-radius: 18px;
             margin-bottom: 12px;
-            transition: transform 0.35s ease, opacity 0.35s ease;
-              position: relative;
-    transition: transform 0.35s ease, opacity 0.35s ease;
-        }
-.card.animating {
-    transition: transform 0.35s ease, opacity 0.35s ease;
-}
-        .card.moving {
-            transform: scale(0.97);
-            opacity: 0.3;
+            transition: opacity 0.3s ease;
         }
 
         .card-capacity-corner {
@@ -175,14 +130,6 @@
             text-align: center;
         }
 
-        .card-trips-wrapper {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
         .card-trips {
             font-size: 50px;
             font-weight: 900;
@@ -190,16 +137,41 @@
             line-height: 1;
         }
 
-        .btn {
-            width: 54px; height: 54px;
-            border-radius: 50%; border: none;
-            font-size: 32px; font-weight: 900;
+        /* ============================
+           iOS 26 ULTRA GLASS BUTTONS
+        =============================*/
+
+        .ios26-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
             color: white;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+            font-size: 32px;
+            font-weight: 900;
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            background: rgba(255,255,255,0.08);
+
+            box-shadow:
+                0 0 18px rgba(0,170,255,0.4),
+                inset 0 0 8px rgba(140,200,255,0.35),
+                inset 0 0 20px rgba(0,140,255,0.25);
+
+            border: 1px solid rgba(140,200,255,0.25);
+
+            transition: all 0.2s ease;
         }
 
-        .minus { background: var(--red); }
-        .plus { background: #30d158; }
+        .ios26-btn:active {
+            transform: scale(0.92);
+            box-shadow:
+                0 0 12px rgba(0,170,255,0.4),
+                inset 0 0 20px rgba(140,200,255,0.35),
+                inset 0 0 28px rgba(0,140,255,0.4);
+        }
 
         .btn.disabled {
             opacity: 0.3;
@@ -293,13 +265,12 @@
 const capacities = [37.8, 36.0, 21.0];
 let belazList = JSON.parse(localStorage.getItem('belazList') || '[]');
 
-// Восстанавливаем оригинальные позиции — иначе карточки не вернутся на своё место
+// Восстанавливаем originalIndex
 belazList = belazList.map((b, i) => ({
-    ...b,
-    originalIndex: b.originalIndex ?? i
+    ...b, originalIndex: b.originalIndex ?? i
 }));
-let plan = parseFloat(localStorage.getItem('plan') || '3000') || 3000;
 
+let plan = parseFloat(localStorage.getItem('plan') || '3000') || 3000;
 document.getElementById('plan').value = plan;
 
 function save() {
@@ -315,6 +286,7 @@ function calc() {
     document.getElementById('done').textContent = total.toFixed(1);
     document.getElementById('left').textContent =
         over > 0 ? "+" + over.toFixed(1) : (plan-total).toFixed(1);
+
     document.getElementById('left').style.color =
         over > 0 ? 'var(--purple)' : '#ff9f0a';
 
@@ -335,16 +307,14 @@ function renderCards() {
         card.className = 'card glass';
 
         card.innerHTML = `
-          <button class="btn ios26-btn minus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},-1)">−</button>
+          <button class="ios26-btn minus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},-1)">−</button>
 
             <div class="card-center">
                 <div class="card-title">${b.number}</div>
-                <div class="card-trips-wrapper">
-                    <div class="card-trips">${b.trips}</div>
-                </div>
+                <div class="card-trips">${b.trips}</div>
             </div>
 
-          <button class="btn ios26-btn plus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},1)">+</button>
+          <button class="ios26-btn plus ${b.exclude ? 'disabled' : ''}" onclick="changeTrip(${i},1)">+</button>
 
             <input type="checkbox"
                    class="card-checkbox"
@@ -363,7 +333,7 @@ function renderCards() {
 }
 
 function changeTrip(i,d) {
-    if(belazList[i].trips+d >= 0){
+    if(belazList[i].trips + d >= 0){
         belazList[i].trips += d;
         save();
         renderCards();
@@ -371,17 +341,13 @@ function changeTrip(i,d) {
 }
 
 function toggleExclude(i) {
-    // меняем флаг
-    belazList[i].exclude = !belazList[i].exclude;
-
-    // достаем элемент
     const item = belazList.splice(i, 1)[0];
 
-    if (item.exclude) {
-        // выключили — переносим вниз
+    if (item.exclude === false) {
+        item.exclude = true;
         belazList.push(item);
     } else {
-        // включили — возвращаем по originalIndex
+        item.exclude = false;
         const pos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
         belazList.splice(pos === -1 ? belazList.length : pos, 0, item);
     }
@@ -389,7 +355,6 @@ function toggleExclude(i) {
     save();
     renderCards();
 }
-    
 
 function addBelaz(){
     const num = prompt("Номер БелАЗа:");

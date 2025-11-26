@@ -23,23 +23,23 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-    background: url('bag.WEBP') no-repeat center center fixed;
-    background-size: cover;
-    color: white;
-    min-height: 100vh;
-    padding-bottom: 110px;
-}
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: url('bag.WEBP') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            padding-bottom: 110px;
+        }
 
-      .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.25); /* затемнение = регулируешь 0–0.4 */
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(4px);
-    pointer-events: none;
-    z-index: -1;
-}
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(4px);
+            pointer-events: none;
+            z-index: -1;
+        }
 
         .glass {
             background: var(--glass);
@@ -56,6 +56,7 @@
             display: flex; justify-content: space-between; align-items: center;
             font-size: 20px; font-weight: 700;
         }
+
         .plan input {
             background: none; border: none; color: white;
             font-size: 40px; font-weight: 800; text-align: right;
@@ -67,8 +68,8 @@
             border-radius: 18px; overflow: hidden;
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--glass-border);
-            
         }
+
         .bar {
             height: 100%; width: 0%;
             transition: 0.7s ease;
@@ -78,13 +79,14 @@
             display: flex; justify-content: space-between;
             margin: 8px 20px 20px;
         }
+
         .stats div div:first-child { opacity: 0.7; font-size: 15px; }
         .stats div div:last-child { font-size: 32px; font-weight: 800; }
 
         .cards { padding: 0 8px; }
 
         /* ============================
-           КАРТОЧКА БЕЛАЗа
+           КАРТОЧКА
         =============================*/
 
         .card {
@@ -95,14 +97,14 @@
             justify-content: space-between;
             border-radius: 18px;
             margin-bottom: 12px;
-            
-    transition: transform 0.35s ease, opacity 0.35s ease;
+            transition: transform 0.35s ease, opacity 0.35s ease;
         }
-.card.moving {
-    transform: scale(0.97);
-    opacity: 0.3;
-}
-        /* Кубатура в уголке */
+
+        .card.moving {
+            transform: scale(0.97);
+            opacity: 0.3;
+        }
+
         .card-capacity-corner {
             position: absolute;
             top: 5px;
@@ -117,13 +119,12 @@
             font-weight: 800;
             line-height: 1;
             height: 28px;
-            margin-top: -10px;  /* ← поднимаем номер БелАЗа */
+            margin-top: -10px;
             display: flex;
             align-items: flex-end;
             justify-content: center;
         }
 
-        /* Центр с фиксацией положения */
         .card-center {
             flex: 1;
             display: flex;
@@ -137,16 +138,16 @@
         .card-trips-wrapper {
             flex: 1;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             width: 100%;
         }
 
         .card-trips {
             font-size: 50px;
             font-weight: 900;
+            margin-top: -10px;
             line-height: 1;
-            margin-top: -10px
         }
 
         .btn {
@@ -156,17 +157,22 @@
             color: white;
             box-shadow: 0 6px 16px rgba(0,0,0,0.45);
         }
-        .minus { background: var(--red); }
-        .plus  { background: #30d158; }
 
-        /* Чекбокс — закреплён справа */
+        .minus { background: var(--red); }
+        .plus { background: #30d158; }
+
+        .btn.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
         .card-checkbox {
-    position: absolute;
-    left: 6px;          /* ← ставим в левый угол */
-    top: 5px;           /* ← выравнивание по вертикали */
-    transform: scale(1.3);
-    opacity: 0.85;
-}
+            position: absolute;
+            left: 6px;
+            top: 5px;
+            transform: scale(1.3);
+            opacity: 0.85;
+        }
 
         .fab {
             position: fixed;
@@ -191,22 +197,19 @@
             transition: 0.4s ease;
             z-index: 100;
         }
+
         .menu.open { transform: translateY(0); }
+
         .menu button {
             width: 100%; padding: 19px; border: none;
             margin: 12px 0; border-radius: 16px;
             font-size: 18px; font-weight: 700; color: white;
         }
+
         .add { background: linear-gradient(135deg,#0a84ff,#007aff); }
         .send { background: linear-gradient(135deg,#30d158,#28a745); }
         .reset { background: linear-gradient(135deg,#ff3b30,#ff1a1a); }
         .close { background: rgba(255,255,255,0.12); }
-
-.btn.disabled {
-    opacity: 0.3;
-    pointer-events: none;   /* кнопка больше не нажимается */
-}
-
     </style>
 </head>
 
@@ -246,6 +249,7 @@
 </div>
 
 <script>
+
 const capacities = [37.8, 36.0, 21.0];
 let belazList = JSON.parse(localStorage.getItem('belazList') || '[]');
 let plan = parseFloat(localStorage.getItem('plan') || '3000') || 3000;
@@ -289,7 +293,6 @@ function renderCards() {
 
             <div class="card-center">
                 <div class="card-title">${b.number}</div>
-
                 <div class="card-trips-wrapper">
                     <div class="card-trips">${b.trips}</div>
                 </div>
@@ -306,6 +309,7 @@ function renderCards() {
         `;
 
         if(b.exclude) card.style.opacity = "0.35";
+
         c.appendChild(card);
     });
 
@@ -323,24 +327,16 @@ function changeTrip(i,d) {
 function toggleExclude(i) {
     belazList[i].exclude = !belazList[i].exclude;
 
-    // Добавляем анимационный класс
     const cards = document.querySelectorAll('.card');
-    if (cards[i]) {
-        cards[i].classList.add('moving');
-    }
+    if (cards[i]) cards[i].classList.add('moving');
 
-    // ДЕЛАЕМ ПЕРЕМЕЩЕНИЕ ЧЕРЕЗ ЗАДЕРЖКУ (шоб анимация успела)
     setTimeout(() => {
-        // Если отключили — отправляем вниз
         if (belazList[i].exclude) {
             const item = belazList.splice(i, 1)[0];
             belazList.push(item);
-        } 
-        // Если включили — возвращаем на своё место
-        else {
+        } else {
             const item = belazList.splice(i, 1)[0];
 
-            // Находим новую позицию по originalIndex
             let insertPos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
             if (insertPos === -1) insertPos = belazList.length;
 
@@ -349,8 +345,7 @@ function toggleExclude(i) {
 
         save();
         renderCards();
-
-    }, 300); // ← 300 мс даёт время для анимации
+    }, 300);
 }
 
 function addBelaz(){
@@ -361,13 +356,16 @@ function addBelaz(){
     const cap = capacities[parseInt(sel)-1] || 37.8;
 
     belazList.push({
-    number: num.trim(),
-    capacity: cap,
-    trips: 0,
-    exclude: false,
-    originalIndex: belazList.length   // ← фиксируем место добавления
-});
-    save(); renderCards(); closeMenu();
+        number: num.trim(),
+        capacity: cap,
+        trips: 0,
+        exclude: false,
+        originalIndex: belazList.length
+    });
+
+    save();
+    renderCards();
+    closeMenu();
 }
 
 function sendReport(){
@@ -386,7 +384,8 @@ function resetShift(){
         plan = 3000;
         localStorage.clear();
         document.getElementById('plan').value = plan;
-        renderCards(); closeMenu();
+        renderCards();
+        closeMenu();
     }
 }
 
@@ -399,6 +398,7 @@ document.getElementById('plan').oninput = e=>{
 };
 
 renderCards();
+
 </script>
 </body>
 </html>

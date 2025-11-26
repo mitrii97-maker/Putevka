@@ -335,57 +335,23 @@ function changeTrip(i,d) {
 }
 
 function toggleExclude(i) {
-    const cardsBefore = [...document.querySelectorAll(".card")];
-    const oldRects = cardsBefore.map(el => el.getBoundingClientRect());
-
-    // === обновляем данные ===
+    // меняем флаг
     belazList[i].exclude = !belazList[i].exclude;
+
+    // достаем элемент
     const item = belazList.splice(i, 1)[0];
 
     if (item.exclude) {
+        // выключили — переносим вниз
         belazList.push(item);
     } else {
+        // включили — возвращаем по originalIndex
         const pos = belazList.findIndex(b => b.originalIndex > item.originalIndex);
         belazList.splice(pos === -1 ? belazList.length : pos, 0, item);
     }
 
     save();
-
-    // === пересобираем DOM (новый HTML) ===
     renderCards();
-    const cardsAfter = [...document.querySelectorAll(".card")];
-    const newRects = cardsAfter.map(el => el.getBoundingClientRect());
-
-    // === Ставим transform к НОВЫМ карточкам, пока они НЕ видны Safari ===
-    cardsAfter.forEach((el, idx) => {
-        const dx = oldRects[idx].left - newRects[idx].left;
-        const dy = oldRects[idx].top - newRects[idx].top;
-
-        el.style.transform = `translate(${dx}px, ${dy}px)`;
-        el.style.opacity = belazList[idx].exclude ? 0.3 : 1;
-    });
-
-    // ===== САМАЯ ВАЖНАЯ ЧАСТЬ ДЛЯ iPHONE =====
-    // принудительный рефлоу
-    void cardsAfter[0].offsetWidth;
-
-    // двойной RAF — только так iPhone применяет transform
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            cardsAfter.forEach((el, idx) => {
-                el.style.transition = "transform 0.35s ease, opacity 0.35s ease";
-                el.style.transform = "translate(0,0)";
-                el.style.opacity = belazList[idx].exclude ? 0.35 : 1;
-            });
-
-            // удаляем transition после анимации
-            cardsAfter.forEach(el => {
-                el.addEventListener("transitionend", () => {
-                    el.style.transition = "";
-                }, { once: true });
-            });
-        });
-    });
 }
     
 

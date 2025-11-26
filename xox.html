@@ -87,6 +87,7 @@
     align-items: center;
     margin-bottom: 9px;
     min-height: 76px;
+    position: relative;
 }
 
 .card-center {
@@ -107,6 +108,14 @@
     font-size: 12px;
     opacity: 0.45;
     margin-top: 3px;
+    line-height: 1;
+}
+.card-capacity-corner {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 14px;
+    opacity: 0.45;
     line-height: 1;
 }
 
@@ -266,20 +275,21 @@
         belazList.forEach((b, i) => {
             const card = document.createElement('div');
             card.className = 'card glass' + (b.exclude ? ' excluded' : '');
-            card.innerHTML = `
+          card.innerHTML = `
     <button class="btn minus" onclick="changeTrip(${i},-1)">−</button>
 
     <div class="card-center">
         <div class="card-title">${b.number}</div>
-        <div class="card-capacity-small">${b.capacity}</div>
         <div class="card-trips">${b.trips}</div>
     </div>
 
     <button class="btn plus" onclick="changeTrip(${i},1)">+</button>
 
-    <input type="checkbox" ${b.exclude?'checked':''}
+    <input type="checkbox" ${b.exclude ? 'checked' : ''}
         onchange="toggleExclude(${i})"
         style="transform:scale(1.5)">
+
+    <div class="card-capacity-corner">${b.capacity}</div>
 `;
             c.appendChild(card);
         });

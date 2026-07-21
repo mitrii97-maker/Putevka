@@ -2,511 +2,794 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
-    <title>БелАЗ</title>
+    <meta name="theme-color" content="#0b0f14">
+    <title>БелАЗ | Смена</title>
     <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/fluency/180/truck.png">
 
 <style>
 :root {
-    --red: #ff453a;
-    --yellow: #ffd60a;
-    --green: #1e7b3a;
-    --purple: #bf5af2;
-    --blur: blur(1px);
-    --glass: rgba(30,30,36,0.65);
-    --glass-border: rgba(255,255,255,0.08);
+    --bg: #080b10;
+    --panel: rgba(18, 23, 31, 0.74);
+    --panel-strong: rgba(19, 25, 35, 0.88);
+    --line: rgba(255, 255, 255, 0.12);
+    --muted: rgba(255, 255, 255, 0.64);
+    --text: #f8fafc;
+    --orange: #ffb340;
+    --blue: #38bdf8;
+    --green: #34d399;
+    --red: #fb7185;
+    --violet: #c084fc;
+    --shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
+    --page-x: 14px;
+    --safe-top: max(18px, env(safe-area-inset-top));
+    --safe-bottom: max(18px, env(safe-area-inset-bottom));
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    min-height: 100%;
+    background: var(--bg);
+}
 
 body {
-    font-family: -apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;
-    background: url('bag.WEBP') no-repeat center center fixed;
-    background-size: cover;
-    color: white;
+    margin: 0;
     min-height: 100vh;
-    padding-bottom: 110px;
+    min-height: 100dvh;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    background:
+        linear-gradient(145deg, rgba(8, 11, 16, 0.40), rgba(8, 11, 16, 0.88)),
+        radial-gradient(circle at 15% 5%, rgba(56, 189, 248, 0.24), transparent 32rem),
+        radial-gradient(circle at 90% 10%, rgba(52, 211, 153, 0.16), transparent 30rem),
+        linear-gradient(180deg, rgba(12, 17, 25, 0.30), rgba(8, 11, 16, 0.95)),
+        url("bag.WEBP") center / cover fixed no-repeat;
+    padding: var(--safe-top) 0 calc(116px + var(--safe-bottom));
+    overflow-x: hidden;
+    touch-action: manipulation;
 }
 
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.25);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(4px);
-    pointer-events: none;
-    z-index: -1;
+button,
+input {
+    font: inherit;
 }
 
-.glass {
-    background: var(--glass);
-    backdrop-filter: var(--blur);
-    -webkit-backdrop-filter: var(--blur);
-    border-radius: 18px;
-    border: 1px solid var(--glass-border);
-    margin: 0 14px 12px;
-    overflow: hidden;
+button {
+    cursor: pointer;
 }
 
-.plan {
-    padding: 8px 15px;
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 20px; font-weight: 700;
+.shell {
+    width: min(430px, 100%);
+    margin: 0 auto;
 }
 
-.plan input {
-    background: none; border: none; color: white;
-    font-size: 40px; font-weight: 800; text-align: right;
-    width: 160px; outline: none;
+.topbar {
+    padding: 0 var(--page-x) 12px;
 }
 
-.bar-container {
-    height: 14px; margin: 7px;
-    border-radius: 18px; overflow: hidden;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid var(--glass-border);
-}
-
-.bar {
-    height: 100%; width: 0%;
-    transition: 0.7s ease;
-}
-
-.stats {
-    display: flex; justify-content: space-between;
-    margin: 8px 20px 20px;
-}
-
-.stats div div:first-child { opacity: 0.7; font-size: 15px; }
-.stats div div:last-child { font-size: 32px; font-weight: 800; }
-
-.cards { padding: 0 8px; }
-
-/* ============================
-   NEW iOS 17/18 STYLE BUTTONS
-============================ */
-.btn {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    border: none;
-    font-size: 36px;
-    font-weight: 900;
-    color: white;
-
-    background: rgba(255,255,255,0.07);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-
-    box-shadow:
-        inset 0 0 10px rgba(255,255,255,0.25),
-        0 0 18px rgba(0,0,0,0.45);
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    transition: transform .12s ease, box-shadow .2s ease;
-}
-
-.btn:active {
-    transform: scale(0.9);
-    box-shadow:
-        inset 0 0 4px rgba(255,255,255,0.18),
-        0 0 10px rgba(0,0,0,0.25);
-}
-
-/* SOFT GREEN PLUS */
-.plus {
-    background: radial-gradient(circle at 50% 50%,
-        rgba(80,255,120,0.25) 0%,
-        rgba(0,150,50,0.20) 60%,
-        rgba(0,110,40,0.18) 100%
-    );
-}
-
-/* SOFT RED MINUS */
-.minus {
-    background: radial-gradient(circle at 50% 50%,
-        rgba(255,90,90,0.25) 0%,
-        rgba(180,40,40,0.20) 60%,
-        rgba(120,20,20,0.18) 100%
-    );
-}
-
-.btn.disabled {
-    opacity: .28;
-    pointer-events: none;
-    filter: grayscale(1);
-}
-
-/* ============================
-   КАРТОЧКА — ТВОЯ СТАРАЯ РАБОЧАЯ ВЕРСИЯ
-============================ */
-
-/* ========== КАРТОЧКА (твоё старое позиционирование) ========== */
-
-.card {
-    position: relative;
-    padding: 8px 18px;
+.brand {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-radius: 18px;
-    margin-bottom: 12px;
+    gap: 14px;
 }
 
-/* Кубатура в углу — как у тебя было */
-.card-capacity-corner {
-    position: absolute;
-    top: 5px;
-    right: 6px;
-    opacity: 0.45;
-    font-size: 14px;
-    line-height: 1;
-}
-
-/* Номер БелАЗа — твоя идеальная позиция */
-.card-title {
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1;
-    height: 28px;
-    margin-top: -20px;   /* ← поднято ровно как ты хотел */
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-}
-
-/* Центр карточки */
-.card-center {
-    flex: 1;
+.brand-title {
     display: flex;
     flex-direction: column;
+    gap: 3px;
+}
+
+.brand-title strong {
+    font-size: clamp(34px, 9vw, 44px);
+    line-height: 0.95;
+    letter-spacing: 0;
+}
+
+.brand-title span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-chip {
+    min-width: 92px;
+    padding: 9px 11px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.10);
+}
+
+.glass {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    backdrop-filter: blur(18px) saturate(1.25);
+    box-shadow: var(--shadow);
+}
+
+.dashboard {
+    margin: 0 var(--page-x) 14px;
+    border-radius: 22px;
+    overflow: hidden;
+}
+
+.plan-row {
+    display: grid;
+    grid-template-columns: 1fr minmax(120px, 42%);
+    gap: 14px;
     align-items: center;
-    justify-content: center;
-    height: 80px;
+    padding: 16px;
+}
+
+.label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.plan-value {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.plan-value span:last-child {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.plan-row input {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 18px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    padding: 12px 13px;
+    font-size: 28px;
+    font-weight: 900;
+    text-align: right;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.10);
+}
+
+.progress-wrap {
+    padding: 0 16px 16px;
+}
+
+.bar-track {
+    height: 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.09);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.bar {
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--red), var(--orange));
+    transition: width 0.45s ease, background 0.25s ease;
+    box-shadow: 0 0 22px currentColor;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat {
+    padding: 14px 16px 15px;
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.stat.right {
+    text-align: right;
+}
+
+.stat-value {
+    margin-top: 4px;
+    font-size: clamp(28px, 8vw, 38px);
+    font-weight: 950;
+    line-height: 1;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 var(--page-x) 10px;
+}
+
+.toolbar h2 {
+    margin: 0;
+    font-size: 17px;
+    letter-spacing: 0;
+}
+
+.counter {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.cards {
+    display: grid;
+    gap: 10px;
+    padding: 0 var(--page-x);
+}
+
+.card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) 58px;
+    align-items: center;
+    gap: 9px;
+    min-height: 100px;
+    padding: 13px;
+    border-radius: 21px;
+    overflow: hidden;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.10), transparent 42%);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.card.excluded {
+    opacity: 0.48;
+}
+
+.card-center {
+    position: relative;
+    min-width: 0;
     text-align: center;
 }
 
-/* Контейнер для больших рейсов */
-.card-trips-wrapper {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-/* Цифра рейсов (старое ровное позиционирование) */
-.card-trips {
-    font-size: 50px;
-    font-weight: 900;
-    margin-top: -10px;
+.card-title {
+    overflow: hidden;
+    color: #ffffff;
+    font-size: clamp(24px, 7vw, 34px);
+    font-weight: 950;
     line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Чекбокс — левый верхний угол, как ты делал */
-/* скрываем обычный чекбокс */
-.card-checkbox {
-    appearance: none;
-    -webkit-appearance: none;
-    position: absolute;
-    left: 5px;
-    top: 5px;
-
-    width: 20px;
-    height: 20px;
-    border-radius: 8px;
-
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.18);
-
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-
-    box-shadow:
-        inset 0 0 4px rgba(255,255,255,0.25),
-        0 3px 8px rgba(0,0,0,0.45);
-
-    transition: all 0.25s ease;
+.card-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 9px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 750;
 }
 
-/* состояние ВКЛ */
-.card-checkbox:checked {
-    background: linear-gradient(135deg, #0a84ff, #007aff);
-    border-color: rgba(255,255,255,0.5);
-
-    box-shadow:
-        0 0 12px rgba(0,122,255,0.6),
-        inset 0 0 6px rgba(255,255,255,0.35);
+.dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--blue);
+    box-shadow: 0 0 14px var(--blue);
 }
 
-/* галочка внутри */
-.card-checkbox:checked::after {
-    content: '✓';
-    display: block;
-    color: white;
-    font-size: 16px;
-    font-weight: 700;
-
-    position: absolute;
-    top: -1px;   /* центрируем вертикально */
-    left: 1px;   /* центрируем горизонтально */
-
-    text-shadow: 0 0 5px rgba(255,255,255,0.8);
-
-    transition: 0.2s ease;
+.card-trips {
+    margin-top: 8px;
+    font-size: clamp(42px, 12vw, 50px);
+    font-weight: 950;
+    line-height: 0.9;
 }
-
-
-/* ========== КНОПКИ iOS  (новый стиль) ========== */
 
 .btn {
+    position: relative;
+    z-index: 1;
     width: 58px;
     height: 58px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 50%;
-    border: none;
+    color: white;
     font-size: 36px;
     font-weight: 900;
-    color: white;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    background: rgba(255,255,255,0.07);
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.08);
     box-shadow:
-        inset 0 0 10px rgba(255,255,255,0.25),
-        0 0 18px rgba(0,0,0,0.45);
-
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-
-    transition: transform .12s ease, box-shadow .2s ease;
+        inset 0 1px rgba(255, 255, 255, 0.20),
+        0 12px 26px rgba(0, 0, 0, 0.34);
+    transition: transform 0.12s ease, filter 0.18s ease, opacity 0.18s ease;
 }
 
-/* Нажатие */
 .btn:active {
-    transform: scale(0.9);
-    box-shadow:
-        inset 0 0 4px rgba(255,255,255,0.18),
-        0 0 10px rgba(0,0,0,0.3);
+    transform: scale(0.92);
 }
 
-/* Мягкий зелёный (+) */
-.plus {
-    background: radial-gradient(circle at 50% 50%,
-        rgba(80, 255, 120, 0.22),
-        rgba(0, 150, 50, 0.22),
-        rgba(0, 120, 40, 0.20)
-    );
+.btn.plus {
+    background:
+        radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.20), transparent 26px),
+        linear-gradient(145deg, rgba(52, 211, 153, 0.95), rgba(18, 138, 92, 0.84));
 }
 
-/* Мягкий красный (−) */
-.minus {
-    background: radial-gradient(circle at 50% 50%,
-        rgba(255, 90, 90, 0.25),
-        rgba(180, 40, 40, 0.22),
-        rgba(120, 20, 20, 0.18)
-    );
+.btn.minus {
+    background:
+        radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.18), transparent 26px),
+        linear-gradient(145deg, rgba(251, 113, 133, 0.94), rgba(183, 45, 72, 0.82));
 }
 
-/* Выключенная кнопка */
 .btn.disabled {
-    opacity: 0.28;
+    opacity: 0.24;
     filter: grayscale(1);
     pointer-events: none;
+}
+
+.card-checkbox {
+    position: absolute;
+    left: 11px;
+    top: 10px;
+    z-index: 2;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.10);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.15), 0 7px 18px rgba(0, 0, 0, 0.32);
+}
+
+.card-checkbox:checked {
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+}
+
+.card-checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    left: 5px;
+    top: -1px;
+    color: white;
+    font-size: 18px;
+    font-weight: 950;
+}
+
+.empty {
+    margin: 18px 18px 0;
+    padding: 30px 22px;
+    border: 1px dashed rgba(255, 255, 255, 0.20);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--muted);
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .fab {
     position: fixed;
-    bottom: 14px; left: 50%;
+    left: 50%;
+    bottom: calc(var(--safe-bottom) + 2px);
+    z-index: 10;
+    width: 72px;
+    height: 72px;
     transform: translateX(-50%);
-    width: 70px; height: 70px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 50%;
-    background: linear-gradient(135deg,#0a84ff,#007aff);
+    background:
+        radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.25), transparent 28px),
+        linear-gradient(145deg, #38bdf8, #2563eb 62%, #1d4ed8);
     color: white;
-    font-size: 40px; border: none;
-    box-shadow: 0 12px 35px rgba(10,132,255,0.6);
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: 0 18px 46px rgba(37, 99, 235, 0.52);
+}
+
+.menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 11;
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.menu-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .menu {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--glass);
-    backdrop-filter: var(--blur);
-    padding: 40px 24px 50px;
-    border-radius: 30px 30px 0 0;
-    border-top: 1px solid var(--glass-border);
-    transform: translateY(100%);
-    transition: 0.4s ease;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 12;
+    width: min(430px, 100%);
+    margin: 0 auto;
+    padding: 16px var(--page-x) calc(18px + var(--safe-bottom));
+    border-radius: 28px 28px 0 0;
+    border: 1px solid var(--line);
+    border-bottom: none;
+    background: var(--panel-strong);
+    -webkit-backdrop-filter: blur(24px) saturate(1.25);
+    backdrop-filter: blur(24px) saturate(1.25);
+    box-shadow: 0 -22px 50px rgba(0, 0, 0, 0.42);
+    transform: translateY(105%);
+    transition: transform 0.32s cubic-bezier(.2, .8, .2, 1);
 }
 
-.menu.open { transform: translateY(0); }
-
-.menu button {
-    width: 100%; padding: 19px; border: none;
-    margin: 12px 0; border-radius: 16px;
-    font-size: 18px; font-weight: 700; color: white;
+.menu.open {
+    transform: translateY(0);
 }
 
-.add { background: linear-gradient(135deg,#0a84ff,#007aff); }
-.send { background: linear-gradient(135deg,#30d158,#28a745); }
-.reset { background: linear-gradient(135deg,#ff3b30,#ff1a1a); }
-.close { background: rgba(255,255,255,0.12); }
+.handle {
+    width: 44px;
+    height: 5px;
+    margin: 0 auto 16px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.24);
+}
 
+.menu-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.action {
+    width: 100%;
+    min-height: 58px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 18px;
+    color: white;
+    font-size: 17px;
+    font-weight: 850;
+    text-align: left;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.action span:last-child {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.add { background: linear-gradient(135deg, #38bdf8, #2563eb); }
+.send { background: linear-gradient(135deg, #34d399, #15803d); }
+.reset { background: linear-gradient(135deg, #fb7185, #dc2626); }
+.close { background: rgba(255, 255, 255, 0.10); }
+
+@media (max-width: 380px) {
+    :root {
+        --page-x: 10px;
+    }
+
+    body {
+        padding-top: var(--safe-top);
+    }
+
+    .card {
+        grid-template-columns: 54px minmax(0, 1fr) 54px;
+        gap: 8px;
+        min-height: 96px;
+        padding: 11px;
+    }
+
+    .btn {
+        width: 54px;
+        height: 54px;
+        font-size: 32px;
+    }
+
+    .plan-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .plan-row input {
+        font-size: 26px;
+    }
+
+    .action {
+        min-height: 54px;
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 390px) and (max-width: 430px) {
+    .dashboard {
+        margin-bottom: 12px;
+    }
+
+    .card {
+        min-height: 98px;
+    }
+
+    .brand-title span,
+    .label,
+    .counter {
+        font-size: 12px;
+    }
+}
 </style>
 </head>
 
 <body>
-<div class="glass plan">
-    <span>ПЛАН</span>
-    <input type="number" id="plan" value="3000">
-</div>
+<main class="shell">
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-title">
+                <span>Сменный учет</span>
+                <strong>БелАЗ</strong>
+            </div>
+            <div class="status-chip" id="status">0 машин</div>
+        </div>
+    </header>
 
-<div class="bar-container glass"><div class="bar" id="bar"></div></div>
+    <section class="dashboard glass">
+        <div class="plan-row">
+            <div class="plan-value">
+                <span class="label">План</span>
+                <span>Кубатура за смену</span>
+            </div>
+            <input type="number" id="plan" value="3000" inputmode="decimal" aria-label="План">
+        </div>
 
-<div class="stats">
-    <div><div>Сделано</div><div id="done">0.0</div></div>
-    <div style="text-align:right"><div>Осталось / +</div><div id="left">3000.0</div></div>
-</div>
+        <div class="progress-wrap">
+            <div class="bar-track"><div class="bar" id="bar"></div></div>
+        </div>
 
-<div class="cards" id="cards"></div>
+        <div class="stats">
+            <div class="stat">
+                <div class="label">Сделано</div>
+                <div class="stat-value" id="done">0.0</div>
+            </div>
+            <div class="stat right">
+                <div class="label">Осталось / плюс</div>
+                <div class="stat-value" id="left">3000.0</div>
+            </div>
+        </div>
+    </section>
 
-<button class="fab" id="fab">+</button>
+    <div class="toolbar">
+        <h2>Машины</h2>
+        <div class="counter" id="counter">Нет активных рейсов</div>
+    </div>
 
-<div class="menu glass" id="menu">
-    <button class="add" onclick="addBelaz()">Добавить БелАЗ</button>
-    <button class="send" onclick="sendReport()">Отправить диспетчеру</button>
-    <button class="reset" onclick="resetShift()">Сбросить смену</button>
-    <button class="close" onclick="closeMenu()">Закрыть</button>
+    <section class="cards" id="cards"></section>
+</main>
+
+<button class="fab" id="fab" aria-label="Меню">+</button>
+<div class="menu-backdrop" id="menuBackdrop"></div>
+
+<div class="menu" id="menu">
+    <div class="handle"></div>
+    <div class="menu-grid">
+        <button class="action add" onclick="addBelaz()"><span>Добавить БелАЗ</span><span>+</span></button>
+        <button class="action send" onclick="sendReport()"><span>Отправить диспетчеру</span><span>↗</span></button>
+        <button class="action reset" onclick="resetShift()"><span>Сбросить смену</span><span>×</span></button>
+        <button class="action close" onclick="closeMenu()"><span>Закрыть</span><span>⌄</span></button>
+    </div>
 </div>
 
 <script>
-const capacities=[37.8,36,21];
-let belazList=JSON.parse(localStorage.getItem('belazList')||'[]')
-    .map((b,i)=>({...b,originalIndex:b.originalIndex??i}));
+const capacities = [37.8, 36, 22];
+let belazList = JSON.parse(localStorage.getItem("belazList") || "[]")
+    .map((b, i) => ({ ...b, originalIndex: b.originalIndex ?? i }));
 
-let plan=parseFloat(localStorage.getItem('plan')||'3000');
-document.getElementById('plan').value=plan;
+let plan = parseFloat(localStorage.getItem("plan") || "3000");
+const planInput = document.getElementById("plan");
+const cards = document.getElementById("cards");
+const menu = document.getElementById("menu");
+const menuBackdrop = document.getElementById("menuBackdrop");
 
-function save(){
-    localStorage.setItem('belazList',JSON.stringify(belazList));
-    localStorage.setItem('plan',plan);
+planInput.value = plan;
+
+function save() {
+    localStorage.setItem("belazList", JSON.stringify(belazList));
+    localStorage.setItem("plan", plan);
 }
 
-function calc(){
-    const total=belazList.reduce((s,b)=>s+b.trips*b.capacity,0);
-    const percent=total/plan;
-    const over=Math.max(0,total-plan);
+function calc() {
+    const active = belazList.filter(b => !b.exclude);
+    const total = active.reduce((sum, b) => sum + b.trips * b.capacity, 0);
+    const percent = total / plan;
+    const over = Math.max(0, total - plan);
+    const trips = active.reduce((sum, b) => sum + b.trips, 0);
 
-    document.getElementById('done').textContent=total.toFixed(1);
-    document.getElementById('left').textContent =
-        over>0?`+${over.toFixed(1)}` : (plan-total).toFixed(1);
-    document.getElementById('left').style.color =
-        over>0?'var(--purple)':'#ff9f0a';
+    document.getElementById("done").textContent = total.toFixed(1);
+    document.getElementById("left").textContent = over > 0 ? `+${over.toFixed(1)}` : (plan - total).toFixed(1);
+    document.getElementById("left").style.color = over > 0 ? "var(--violet)" : "var(--orange)";
+    document.getElementById("counter").textContent = trips ? `${trips} рейсов сегодня` : "Нет активных рейсов";
+    document.getElementById("status").textContent = `${active.length} ${machineWord(active.length)}`;
 
-    const bar=document.getElementById('bar');
-    bar.style.width=Math.min(percent*100,200)+'%';
-    bar.style.background = percent<0.7?'var(--red)': percent<1?'var(--yellow)':'var(--green)';
+    const bar = document.getElementById("bar");
+    bar.style.width = `${Math.min(percent * 100, 100)}%`;
+    bar.style.background = percent < 0.7
+        ? "linear-gradient(90deg, var(--red), var(--orange))"
+        : percent < 1
+            ? "linear-gradient(90deg, var(--orange), var(--yellow, #fde047))"
+            : "linear-gradient(90deg, var(--green), var(--blue))";
 }
 
-function renderCards(){
-    const c=document.getElementById('cards');
-    c.innerHTML='';
+function machineWord(count) {
+    if (count % 10 === 1 && count % 100 !== 11) return "машина";
+    if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) return "машины";
+    return "машин";
+}
 
-    belazList.forEach((b,i)=>{
-        const card=document.createElement('div');
-        card.className='card glass';
+function renderCards() {
+    cards.innerHTML = "";
 
-        card.innerHTML=`
-            <button class="btn minus ${b.exclude?'disabled':''}" onclick="changeTrip(${i},-1)">−</button>
+    if (!belazList.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Нажмите плюс, чтобы добавить первый БелАЗ";
+        cards.appendChild(empty);
+        calc();
+        return;
+    }
 
-            <div class="card-center">
-                <div class="card-title">${b.number}</div>
-                <div class="card-trips">${b.trips}</div>
-            </div>
+    belazList.forEach((b, i) => {
+        const card = document.createElement("article");
+        card.className = `card glass${b.exclude ? " excluded" : ""}`;
 
-            <button class="btn plus ${b.exclude?'disabled':''}" onclick="changeTrip(${i},1)">+</button>
+        const minus = document.createElement("button");
+        minus.className = `btn minus${b.exclude ? " disabled" : ""}`;
+        minus.type = "button";
+        minus.textContent = "−";
+        minus.setAttribute("aria-label", "Уменьшить рейсы");
+        minus.onclick = () => changeTrip(i, -1);
 
-            <input type="checkbox" class="card-checkbox" ${b.exclude?'checked':''} onchange="toggleExclude(${i})">
-            <div class="card-capacity-corner">${b.capacity}</div>
-        `;
+        const center = document.createElement("div");
+        center.className = "card-center";
 
-        if(b.exclude) card.style.opacity='0.35';
-        c.appendChild(card);
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = b.number;
+
+        const meta = document.createElement("div");
+        meta.className = "card-meta";
+        meta.innerHTML = `<span class="dot"></span><span>${b.capacity} м³</span>`;
+
+        const trips = document.createElement("div");
+        trips.className = "card-trips";
+        trips.textContent = b.trips;
+
+        center.append(title, meta, trips);
+
+        const plus = document.createElement("button");
+        plus.className = `btn plus${b.exclude ? " disabled" : ""}`;
+        plus.type = "button";
+        plus.textContent = "+";
+        plus.setAttribute("aria-label", "Добавить рейс");
+        plus.onclick = () => changeTrip(i, 1);
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "card-checkbox";
+        checkbox.checked = Boolean(b.exclude);
+        checkbox.setAttribute("aria-label", "Исключить машину из расчета");
+        checkbox.onchange = () => toggleExclude(i);
+
+        card.append(minus, center, plus, checkbox);
+        cards.appendChild(card);
     });
 
     calc();
 }
 
-function changeTrip(i,d){
-    if(belazList[i].trips+d>=0){
-        belazList[i].trips+=d;
-        save(); renderCards();
+function changeTrip(i, delta) {
+    const next = belazList[i].trips + delta;
+    if (next >= 0) {
+        belazList[i].trips = next;
+        save();
+        renderCards();
     }
 }
 
-function toggleExclude(i){
-    const b=belazList[i];
-    b.exclude=!b.exclude;
+function toggleExclude(i) {
+    const item = belazList[i];
+    item.exclude = !item.exclude;
+    belazList.splice(i, 1);
 
-    const it=belazList.splice(i,1)[0];
-
-    if(it.exclude) belazList.push(it);
-    else {
-        const pos=belazList.findIndex(e=>e.originalIndex>it.originalIndex);
-        belazList.splice(pos===-1?belazList.length:pos,0,it);
+    if (item.exclude) {
+        belazList.push(item);
+    } else {
+        const pos = belazList.findIndex(e => e.originalIndex > item.originalIndex);
+        belazList.splice(pos === -1 ? belazList.length : pos, 0, item);
     }
 
-    save(); renderCards();
+    save();
+    renderCards();
 }
 
-function addBelaz(){
-    const num=prompt("Номер БелАЗа:");
-    if(!num) return;
-    const sel=prompt("Кубатура:\n1) 37.8\n2) 36.0\n3) 22.0","1");
-    const cap=capacities[parseInt(sel)-1]||37.8;
+function addBelaz() {
+    const number = prompt("Номер БелАЗа:");
+    if (!number) return;
+
+    const selected = prompt("Кубатура:\n1) 37.8\n2) 36.0\n3) 22.0", "1");
+    const capacity = capacities[parseInt(selected, 10) - 1] || 37.8;
 
     belazList.push({
-        number:num.trim(),
-        capacity:cap,
-        trips:0,
-        exclude:false,
-        originalIndex:belazList.length
+        number: number.trim(),
+        capacity,
+        trips: 0,
+        exclude: false,
+        originalIndex: belazList.length
     });
 
-    save(); renderCards(); closeMenu();
+    save();
+    renderCards();
+    closeMenu();
 }
 
-function sendReport(){
-    const active=belazList.filter(b=>!b.exclude&&b.trips>0);
-    let text=active.map(b=>`${b.number} - ${b.trips}`).join("\n");
-    if(!text) text="-";
-    location.href="https://wa.me/79617080028?text="+encodeURIComponent(text);
-};
+function sendReport() {
+    const active = belazList.filter(b => !b.exclude && b.trips > 0);
+    const text = active.length ? active.map(b => `${b.number} - ${b.trips}`).join("\n") : "-";
+    location.href = "https://wa.me/79617080028?text=" + encodeURIComponent(text);
+}
 
-function resetShift(){
-    if(confirm("Сбросить смену?")){
-        belazList=[]; plan=3000; localStorage.clear();
-        document.getElementById('plan').value=plan;
-        renderCards(); closeMenu();
+function resetShift() {
+    if (confirm("Сбросить смену?")) {
+        belazList = [];
+        plan = 3000;
+        localStorage.clear();
+        planInput.value = plan;
+        renderCards();
+        closeMenu();
     }
 }
 
-document.getElementById('fab').onclick=()=>document.getElementById('menu').classList.add('open');
-function closeMenu(){ document.getElementById('menu').classList.remove('open'); }
+function openMenu() {
+    menu.classList.add("open");
+    menuBackdrop.classList.add("open");
+}
 
-document.getElementById('plan').oninput=e=>{
-    plan=Math.max(parseFloat(e.target.value)||3000,1);
-    save(); calc();
+function closeMenu() {
+    menu.classList.remove("open");
+    menuBackdrop.classList.remove("open");
+}
+
+document.getElementById("fab").onclick = openMenu;
+menuBackdrop.onclick = closeMenu;
+
+planInput.oninput = event => {
+    plan = Math.max(parseFloat(event.target.value) || 3000, 1);
+    save();
+    calc();
 };
 
 renderCards();
 </script>
-
 </body>
 </html>

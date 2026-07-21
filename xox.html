@@ -857,17 +857,17 @@ function save() {
 }
 
 function calc() {
-    const active = belazList.filter(b => !b.exclude);
-    const total = active.reduce((sum, b) => sum + b.trips * b.capacity, 0);
+    const total = belazList.reduce((sum, b) => sum + b.trips * b.capacity, 0);
     const percent = total / plan;
     const over = Math.max(0, total - plan);
-    const trips = active.reduce((sum, b) => sum + b.trips, 0);
+    const trips = belazList.reduce((sum, b) => sum + b.trips, 0);
+    const activeCount = belazList.filter(b => !b.exclude).length;
 
     document.getElementById("done").textContent = total.toFixed(1);
     document.getElementById("left").textContent = over > 0 ? `+${over.toFixed(1)}` : (plan - total).toFixed(1);
     document.getElementById("left").style.color = over > 0 ? "var(--violet)" : "var(--orange)";
     document.getElementById("counter").textContent = trips ? `${trips} рейсов сегодня` : "Нет активных рейсов";
-    document.getElementById("status").textContent = `${active.length} ${machineWord(active.length)}`;
+    document.getElementById("status").textContent = `${activeCount}/${belazList.length} активны`;
 
     const bar = document.getElementById("bar");
     bar.style.width = `${Math.min(percent * 100, 100)}%`;

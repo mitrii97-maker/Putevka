@@ -847,7 +847,6 @@ const menuBackdrop = document.getElementById("menuBackdrop");
 const addModal = document.getElementById("addModal");
 const belazNumber = document.getElementById("belazNumber");
 const capacityGrid = document.getElementById("capacityGrid");
-const dispatcherMaxUrl = "https://web.max.ru/141457464";
 let selectedCapacity = capacities[0];
 
 planInput.value = plan;
@@ -1049,17 +1048,10 @@ function updateCapacityButtons() {
     });
 }
 
-async function sendReport() {
+function sendReport() {
     const active = belazList.filter(b => !b.exclude && b.trips > 0);
     const text = active.length ? active.map(b => `${b.number} - ${b.trips}`).join("\n") : "-";
-
-    try {
-        await navigator.clipboard.writeText(text);
-        alert("Отчет скопирован. Сейчас откроется чат диспетчера в MAX, вставьте текст в сообщение.");
-        location.href = dispatcherMaxUrl;
-    } catch (error) {
-        location.href = "https://max.ru/:share?text=" + encodeURIComponent(text);
-    }
+    location.href = "https://max.ru/:share?text=" + encodeURIComponent(text);
 }
 
 function resetShift() {

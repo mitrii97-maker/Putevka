@@ -28,7 +28,7 @@
     --safe-bottom: max(18px, env(safe-area-inset-bottom));
     --card-h: 86px;
     --card-title: 28px;
-    --card-trips: 42px;
+    --card-trips: 44px;
     --card-gap: 8px;
     --button-size: 54px;
 }
@@ -264,7 +264,7 @@ button {
 .card {
     position: relative;
     display: grid;
-    grid-template-columns: var(--button-size) minmax(0, 1fr) var(--button-size);
+    grid-template-columns: var(--button-size) minmax(76px, 92px) minmax(54px, 1fr) var(--button-size);
     align-items: center;
     gap: 8px;
     height: var(--card-h);
@@ -290,10 +290,25 @@ button {
 .card-center {
     position: relative;
     min-width: 0;
+    height: 100%;
+    display: grid;
+    align-content: center;
+    gap: 5px;
+    padding-left: 28px;
+    text-align: left;
+}
+
+.card-count {
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
 }
 
 .card-title {
+    max-width: 100%;
     overflow: hidden;
     color: #ffffff;
     font-size: var(--card-title);
@@ -307,7 +322,6 @@ button {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    margin-top: 5px;
     color: var(--muted);
     font-size: 13px;
     font-weight: 750;
@@ -322,10 +336,12 @@ button {
 }
 
 .card-trips {
-    margin-top: 4px;
+    min-width: 0;
+    margin: 0;
     font-size: var(--card-trips);
     font-weight: 950;
-    line-height: 0.9;
+    line-height: 1;
+    text-align: center;
 }
 
 .btn {
@@ -371,8 +387,9 @@ button {
 
 .card-checkbox {
     position: absolute;
-    left: 9px;
-    top: 8px;
+    left: calc(var(--button-size) + 18px);
+    top: 50%;
+    transform: translateY(-50%);
     z-index: 2;
     width: 24px;
     height: 24px;
@@ -684,20 +701,19 @@ button {
 .cards.compact {
     --card-h: 72px;
     --card-title: 24px;
-    --card-trips: 34px;
+    --card-trips: 38px;
     --card-gap: 7px;
     --button-size: 48px;
 }
 
 .cards.compact .card-meta {
-    margin-top: 4px;
     font-size: 12px;
 }
 
 .cards.ultra {
     --card-h: 58px;
     --card-title: 21px;
-    --card-trips: 28px;
+    --card-trips: 32px;
     --card-gap: 5px;
     --button-size: 42px;
 }
@@ -705,6 +721,7 @@ button {
 .cards.ultra .card {
     padding: 7px;
     border-radius: 15px;
+    grid-template-columns: var(--button-size) minmax(58px, 74px) minmax(42px, 1fr) var(--button-size);
 }
 
 .cards.ultra .card-meta {
@@ -715,10 +732,20 @@ button {
     font-size: 28px;
 }
 
+.cards.ultra .card-center {
+    padding-left: 24px;
+}
+
+.cards.ultra .card-trips {
+    min-width: 0;
+}
+
 .cards.ultra .card-checkbox {
     width: 20px;
     height: 20px;
     border-radius: 7px;
+    left: calc(var(--button-size) + 13px);
+    top: 50%;
 }
 
 .cards.ultra .card-checkbox:checked::after {
@@ -820,6 +847,7 @@ const menuBackdrop = document.getElementById("menuBackdrop");
 const addModal = document.getElementById("addModal");
 const belazNumber = document.getElementById("belazNumber");
 const capacityGrid = document.getElementById("capacityGrid");
+const dispatcherMaxUrl = "https://web.max.ru/141457464";
 let selectedCapacity = capacities[0];
 
 planInput.value = plan;
@@ -897,7 +925,11 @@ function renderCards() {
         trips.className = "card-trips";
         trips.textContent = b.trips;
 
-        center.append(title, meta, trips);
+        const count = document.createElement("div");
+        count.className = "card-count";
+        count.appendChild(trips);
+
+        center.append(title, meta);
 
         const plus = document.createElement("button");
         plus.className = `btn plus${b.exclude ? " disabled" : ""}`;
@@ -913,7 +945,7 @@ function renderCards() {
         checkbox.setAttribute("aria-label", "Исключить машину из расчета");
         checkbox.onchange = () => toggleExclude(i);
 
-        card.append(minus, center, plus, checkbox);
+        card.append(minus, center, count, plus, checkbox);
         cards.appendChild(card);
     });
 
@@ -948,7 +980,7 @@ function adjustCardDensity() {
     cards.style.setProperty("--card-h", `${rowHeight}px`);
     cards.style.setProperty("--button-size", `${Math.max(30, rowHeight - 8)}px`);
     cards.style.setProperty("--card-title", `${Math.max(15, Math.min(21, rowHeight * 0.36))}px`);
-    cards.style.setProperty("--card-trips", `${Math.max(18, Math.min(28, rowHeight * 0.48))}px`);
+    cards.style.setProperty("--card-trips", `${Math.max(20, Math.min(32, rowHeight * 0.56))}px`);
 }
 
 function changeTrip(i, delta) {
@@ -1017,10 +1049,17 @@ function updateCapacityButtons() {
     });
 }
 
-function sendReport() {
+async function sendReport() {
     const active = belazList.filter(b => !b.exclude && b.trips > 0);
     const text = active.length ? active.map(b => `${b.number} - ${b.trips}`).join("\n") : "-";
-    location.href = "https://wa.me/79617080028?text=" + encodeURIComponent(text);
+
+    try {
+        await navigator.clipboard.writeText(text);
+        alert("Отчет скопирован. Сейчас откроется чат диспетчера в MAX, вставьте текст в сообщение.");
+        location.href = dispatcherMaxUrl;
+    } catch (error) {
+        location.href = "https://max.ru/:share?text=" + encodeURIComponent(text);
+    }
 }
 
 function resetShift() {

@@ -1014,7 +1014,7 @@ button {
 .card,
 .shift-card {
     touch-action: pan-y;
-    transition: transform 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+    transition: transform 0.18s ease, opacity 0.18s ease, filter 0.18s ease, border-radius 0.18s ease;
     will-change: transform;
 }
 
@@ -1025,8 +1025,7 @@ button {
 
 .card.delete-ready,
 .shift-card.delete-ready {
-    filter: saturate(1.1);
-    box-shadow: var(--shadow), var(--inner), 0 0 0 1px rgba(251, 113, 133, 0.42);
+    filter: saturate(1.04);
 }
 
 .card.deleting,
@@ -1035,28 +1034,69 @@ button {
     transform: translateX(-120%) scale(0.96) !important;
 }
 
-.card::after,
-.shift-card::after {
-    content: "Удалить";
+.swipe-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    min-height: var(--card-h);
+}
+
+.shift-list .swipe-wrap {
+    min-height: auto;
+}
+
+.swipe-wrap .card,
+.swipe-wrap .shift-card {
+    position: relative;
+    z-index: 2;
+}
+
+.delete-confirm {
     position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 0;
-    padding: 8px 11px;
-    border-radius: 999px;
-    background: rgba(251, 113, 133, 0.18);
-    color: #fecdd3;
-    font-size: 12px;
+    inset: 0 0 0 auto;
+    z-index: 1;
+    width: 104px;
+    border: 0;
+    border-radius: 0 24px 24px 0;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.22), transparent 34px),
+        linear-gradient(135deg, #fb7185, #dc2626);
+    color: white;
+    font-size: 13px;
     font-weight: 950;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.14s ease;
+    display: grid;
+    place-items: center;
+    box-shadow: inset 1px 0 rgba(255, 255, 255, 0.16);
 }
 
-.card.delete-ready::after,
-.shift-card.delete-ready::after {
+.swipe-wrap.delete-ready .delete-confirm {
+    pointer-events: auto;
     opacity: 1;
+}
+
+.swipe-wrap.delete-ready {
+    box-shadow: var(--shadow);
+}
+
+.swipe-wrap.delete-ready .card,
+.swipe-wrap.delete-ready .shift-card {
+    box-shadow: var(--inner);
+}
+
+.swipe-wrap.delete-ready .card {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.swipe-wrap.delete-ready .shift-card {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.swipe-wrap.delete-ready .delete-confirm {
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 </style>
 </head>
@@ -1241,17 +1281,44 @@ function machineWord(count) {
 }
 
 function attachSwipeDelete(element, onDelete) {
+    const wrap = document.createElement("div");
+    wrap.className = "swipe-wrap";
+    element.replaceWith(wrap);
+    wrap.appendChild(element);
+
     let startX = 0;
     let startY = 0;
     let currentX = 0;
     let swiping = false;
-    const limit = -92;
+    let armed = false;
+    let ignoreNextClick = false;
+    const openOffset = -104;
+    const threshold = -70;
+
+    const confirmButton = document.createElement("button");
+    confirmButton.type = "button";
+    confirmButton.className = "delete-confirm";
+    confirmButton.textContent = "Удалить";
+    confirmButton.setAttribute("aria-label", "Подтвердить удаление");
+    confirmButton.onclick = event => {
+        event.stopPropagation();
+        element.classList.add("deleting");
+        setTimeout(onDelete, 160);
+    };
+    wrap.appendChild(confirmButton);
+
+    const closeDelete = () => {
+        armed = false;
+        wrap.classList.remove("delete-ready");
+        element.classList.remove("delete-ready");
+        element.style.transform = "";
+    };
 
     element.addEventListener("pointerdown", event => {
         if (event.target.closest("button, input")) return;
         startX = event.clientX;
         startY = event.clientY;
-        currentX = 0;
+        currentX = armed ? openOffset : 0;
         swiping = true;
         element.classList.add("swiping");
         element.setPointerCapture?.(event.pointerId);
@@ -1263,30 +1330,42 @@ function attachSwipeDelete(element, onDelete) {
         const dy = event.clientY - startY;
         if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
             swiping = false;
-            element.classList.remove("swiping", "delete-ready");
-            element.style.transform = "";
+            element.classList.remove("swiping");
+            if (!armed) closeDelete();
             return;
         }
-        currentX = Math.min(0, dx);
-        element.style.transform = `translateX(${Math.max(currentX, -118)}px)`;
-        element.classList.toggle("delete-ready", currentX < -58);
+        currentX = Math.min(0, (armed ? openOffset : 0) + dx);
+        currentX = Math.max(currentX, -118);
+        element.style.transform = `translateX(${currentX}px)`;
+        wrap.classList.toggle("delete-ready", currentX < -42);
+        element.classList.toggle("delete-ready", currentX < -42);
     });
 
     const finish = () => {
         if (!swiping) return;
         swiping = false;
         element.classList.remove("swiping");
-        if (currentX <= limit) {
-            element.classList.add("deleting");
-            setTimeout(onDelete, 160);
+        if (currentX <= threshold) {
+            armed = true;
+            ignoreNextClick = true;
+            wrap.classList.add("delete-ready");
+            element.classList.add("delete-ready");
+            element.style.transform = `translateX(${openOffset}px)`;
         } else {
-            element.classList.remove("delete-ready");
-            element.style.transform = "";
+            closeDelete();
         }
     };
 
     element.addEventListener("pointerup", finish);
     element.addEventListener("pointercancel", finish);
+    element.addEventListener("click", event => {
+        if (ignoreNextClick) {
+            ignoreNextClick = false;
+            return;
+        }
+        if (!armed || event.target.closest("button, input")) return;
+        closeDelete();
+    });
 }
 
 function renderCards() {
@@ -1350,8 +1429,8 @@ function renderCards() {
         checkbox.onchange = () => toggleExclude(i);
 
         card.append(minus, center, count, plus, checkbox);
-        attachSwipeDelete(card, () => deleteBelaz(i));
         cards.appendChild(card);
+        attachSwipeDelete(card, () => deleteBelaz(i));
     });
 
     adjustCardDensity();
@@ -1562,8 +1641,8 @@ function renderStats() {
             </div>
             <div class="shift-progress"><span style="width: ${percent}%"></span></div>
         `;
-        attachSwipeDelete(card, () => deleteShift(shift._index));
         shiftList.appendChild(card);
+        attachSwipeDelete(card, () => deleteShift(shift._index));
     });
 }
 
@@ -1651,6 +1730,9 @@ renderCards();
 </script>
 </body>
 </html>
+
+
+
 
 
 

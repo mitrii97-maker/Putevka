@@ -1098,6 +1098,45 @@ button {
 .swipe-wrap.delete-ready .delete-confirm {
     border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+.edit-confirm {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 1;
+    width: 104px;
+    border: 0;
+    border-radius: 24px 0 0 24px;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.22), transparent 34px),
+        linear-gradient(135deg, #38bdf8, #2563eb);
+    color: white;
+    font-size: 13px;
+    font-weight: 950;
+    opacity: 0;
+    pointer-events: none;
+    display: grid;
+    place-items: center;
+    box-shadow: inset -1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.swipe-wrap.edit-ready .edit-confirm {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.swipe-wrap.edit-ready {
+    box-shadow: var(--shadow);
+}
+
+.swipe-wrap.edit-ready .card {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    box-shadow: var(--inner);
+}
+
+.swipe-wrap.edit-ready .edit-confirm {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
 </style>
 </head>
 
@@ -1148,7 +1187,7 @@ button {
 <section class="stats-page" id="statsPage" aria-label="Статистика смен">
     <div class="stats-head">
         <div>
-            <span class="label">Архив</span>
+            <span class="label">Общая</span>
             <h2>Статистика</h2>
         </div>
         <button class="back-btn" type="button" onclick="closeStats()" aria-label="Назад">←</button>
@@ -1225,6 +1264,7 @@ let idleRunning = localStorage.getItem("idleRunning") === "true";
 let idleStartedAt = parseInt(localStorage.getItem("idleStartedAt") || Date.now(), 10);
 let idleTicker = null;
 let selectedCapacity = capacities[0];
+let editingBelazIndex = null;
 
 planInput.value = plan;
 
@@ -1280,7 +1320,7 @@ function machineWord(count) {
     return "машин";
 }
 
-function attachSwipeDelete(element, onDelete) {
+function attachSwipeActions(element, actions = {}) {
     const wrap = document.createElement("div");
     wrap.className = "swipe-wrap";
     element.replaceWith(wrap);
@@ -1290,27 +1330,34 @@ function attachSwipeDelete(element, onDelete) {
     let startY = 0;
     let currentX = 0;
     let swiping = false;
-    let armed = false;
+    let armed = null;
     let ignoreNextClick = false;
-    const openOffset = -104;
-    const threshold = -70;
+    const openOffset = 104;
+    const threshold = 70;
 
-    const confirmButton = document.createElement("button");
-    confirmButton.type = "button";
-    confirmButton.className = "delete-confirm";
-    confirmButton.textContent = "Удалить";
-    confirmButton.setAttribute("aria-label", "Подтвердить удаление");
-    confirmButton.onclick = event => {
-        event.stopPropagation();
-        element.classList.add("deleting");
-        setTimeout(onDelete, 160);
+    const createActionButton = (type, text, onAction) => {
+        if (!onAction) return null;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `${type}-confirm`;
+        button.textContent = text;
+        button.setAttribute("aria-label", text);
+        button.onclick = event => {
+            event.stopPropagation();
+            if (type === "delete") element.classList.add("deleting");
+            setTimeout(onAction, type === "delete" ? 160 : 0);
+        };
+        wrap.appendChild(button);
+        return button;
     };
-    wrap.appendChild(confirmButton);
 
-    const closeDelete = () => {
-        armed = false;
-        wrap.classList.remove("delete-ready");
-        element.classList.remove("delete-ready");
+    createActionButton("edit", "Изменить", actions.onEdit);
+    createActionButton("delete", "Удалить", actions.onDelete);
+
+    const closeActions = () => {
+        armed = null;
+        wrap.classList.remove("delete-ready", "edit-ready");
+        element.classList.remove("delete-ready", "edit-ready");
         element.style.transform = "";
     };
 
@@ -1318,7 +1365,7 @@ function attachSwipeDelete(element, onDelete) {
         if (event.target.closest("button, input")) return;
         startX = event.clientX;
         startY = event.clientY;
-        currentX = armed ? openOffset : 0;
+        currentX = armed === "delete" ? -openOffset : armed === "edit" ? openOffset : 0;
         swiping = true;
         element.classList.add("swiping");
         element.setPointerCapture?.(event.pointerId);
@@ -1331,28 +1378,43 @@ function attachSwipeDelete(element, onDelete) {
         if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
             swiping = false;
             element.classList.remove("swiping");
-            if (!armed) closeDelete();
+            if (!armed) closeActions();
             return;
         }
-        currentX = Math.min(0, (armed ? openOffset : 0) + dx);
-        currentX = Math.max(currentX, -118);
+
+        const base = armed === "delete" ? -openOffset : armed === "edit" ? openOffset : 0;
+        const minX = actions.onDelete ? -118 : 0;
+        const maxX = actions.onEdit ? 118 : 0;
+        currentX = Math.max(minX, Math.min(maxX, base + dx));
         element.style.transform = `translateX(${currentX}px)`;
         wrap.classList.toggle("delete-ready", currentX < -42);
+        wrap.classList.toggle("edit-ready", currentX > 42);
         element.classList.toggle("delete-ready", currentX < -42);
+        element.classList.toggle("edit-ready", currentX > 42);
     });
 
     const finish = () => {
         if (!swiping) return;
         swiping = false;
         element.classList.remove("swiping");
-        if (currentX <= threshold) {
-            armed = true;
+        if (actions.onDelete && currentX <= -threshold) {
+            armed = "delete";
             ignoreNextClick = true;
             wrap.classList.add("delete-ready");
+            wrap.classList.remove("edit-ready");
             element.classList.add("delete-ready");
+            element.classList.remove("edit-ready");
+            element.style.transform = `translateX(${-openOffset}px)`;
+        } else if (actions.onEdit && currentX >= threshold) {
+            armed = "edit";
+            ignoreNextClick = true;
+            wrap.classList.add("edit-ready");
+            wrap.classList.remove("delete-ready");
+            element.classList.add("edit-ready");
+            element.classList.remove("delete-ready");
             element.style.transform = `translateX(${openOffset}px)`;
         } else {
-            closeDelete();
+            closeActions();
         }
     };
 
@@ -1364,7 +1426,7 @@ function attachSwipeDelete(element, onDelete) {
             return;
         }
         if (!armed || event.target.closest("button, input")) return;
-        closeDelete();
+        closeActions();
     });
 }
 
@@ -1430,7 +1492,7 @@ function renderCards() {
 
         card.append(minus, center, count, plus, checkbox);
         cards.appendChild(card);
-        attachSwipeDelete(card, () => deleteBelaz(i));
+        attachSwipeActions(card, { onEdit: () => editBelaz(i), onDelete: () => deleteBelaz(i) });
     });
 
     adjustCardDensity();
@@ -1505,14 +1567,27 @@ function toggleExclude(i) {
     renderCards();
 }
 
-function addBelaz() {
+function openBelazModal(mode, item = null) {
     closeMenu();
-    selectedCapacity = capacities[0];
-    belazNumber.value = "";
+    editingBelazIndex = mode === "edit" ? belazList.indexOf(item) : null;
+    selectedCapacity = item ? item.capacity : capacities[0];
+    belazNumber.value = item ? item.number : "";
+    document.getElementById("addModalTitle").textContent = mode === "edit" ? "Изменить БелАЗ" : "Новый БелАЗ";
+    document.querySelector(".modal-btn.primary").textContent = mode === "edit" ? "Сохранить" : "Добавить";
     updateCapacityButtons();
     addModal.classList.add("open");
     menuBackdrop.classList.add("open");
     setTimeout(() => belazNumber.focus(), 120);
+}
+
+function addBelaz() {
+    openBelazModal("add");
+}
+
+function editBelaz(index) {
+    const item = belazList[index];
+    if (!item) return;
+    openBelazModal("edit", item);
 }
 
 function confirmAddBelaz() {
@@ -1522,13 +1597,18 @@ function confirmAddBelaz() {
         return;
     }
 
-    belazList.push({
-        number,
-        capacity: selectedCapacity,
-        trips: 0,
-        exclude: false,
-        originalIndex: belazList.length
-    });
+    if (editingBelazIndex !== null && belazList[editingBelazIndex]) {
+        belazList[editingBelazIndex].number = number;
+        belazList[editingBelazIndex].capacity = selectedCapacity;
+    } else {
+        belazList.push({
+            number,
+            capacity: selectedCapacity,
+            trips: 0,
+            exclude: false,
+            originalIndex: belazList.length
+        });
+    }
 
     save();
     renderCards();
@@ -1536,6 +1616,7 @@ function confirmAddBelaz() {
 }
 
 function closeAddModal() {
+    editingBelazIndex = null;
     addModal.classList.remove("open");
     menuBackdrop.classList.remove("open");
 }
@@ -1642,7 +1723,7 @@ function renderStats() {
             <div class="shift-progress"><span style="width: ${percent}%"></span></div>
         `;
         shiftList.appendChild(card);
-        attachSwipeDelete(card, () => deleteShift(shift._index));
+        attachSwipeActions(card, { onDelete: () => deleteShift(shift._index) });
     });
 }
 
@@ -1730,6 +1811,8 @@ renderCards();
 </script>
 </body>
 </html>
+
+
 
 
 

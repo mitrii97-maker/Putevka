@@ -1099,8 +1099,8 @@ button {
     <section class="dashboard glass">
         <div class="plan-row">
             <div class="plan-value">
-                <span class="label">План</span>
-                <span>Кубатура за смену</span>
+                <span class="label">Volvo №26</span>
+                <span>План на смену</span>
             </div>
             <input type="number" id="plan" value="3000" inputmode="decimal" aria-label="План">
         </div>
@@ -1111,7 +1111,7 @@ button {
 
         <div class="stats">
             <div class="stat">
-                <div class="label">Сделано</div>
+                <div class="label">Кубы</div>
                 <div class="stat-value" id="done">0.0</div>
             </div>
             <div class="stat right">
@@ -1143,7 +1143,7 @@ button {
             <strong id="statsTotalVolume">0.0</strong>
         </div>
         <div class="total-card">
-            <span class="label">Всего простоя</span>
+            <span class="label">общее время простоя</span>
             <strong id="statsTotalIdle">00:00</strong>
         </div>
     </div>
@@ -1158,22 +1158,22 @@ button {
 <div class="menu" id="menu">
     <div class="handle"></div>
     <div class="menu-grid">
-        <button class="action add" onclick="addBelaz()"><span>Добавить БелАЗ</span><span>+</span></button>
+        <button class="action add" onclick="addBelaz()"><span>Добавить машину</span><span>+</span></button>
         <button class="action send" onclick="sendReport()"><span>Отправить диспетчеру</span><span>↗</span></button>
-        <button class="action stats-action" onclick="openStats()"><span>Статистика</span><span>▦</span></button>
+        <button class="action stats-action" onclick="openStats()"><span>Статистика смен</span><span>▦</span></button>
         <button class="action reset" onclick="resetShift()"><span>Сбросить смену</span><span>×</span></button>
         <button class="action close" onclick="closeMenu()"><span>Закрыть</span><span>⌄</span></button>
     </div>
 </div>
 
 <div class="modal" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
-    <h3 id="addModalTitle">Новый БелАЗ</h3>
+    <h3 id="addModalTitle">Новый Машина</h3>
     <label class="field">
         <span class="label">Номер машины</span>
-        <input type="text" id="belazNumber" inputmode="numeric" autocomplete="off" placeholder="Например 128">
+        <input type="text" id="belazNumber" inputmode="numeric" autocomplete="off" placeholder="Введите номер машины: например 529">
     </label>
     <div class="field">
-        <span class="label">Кубатура</span>
+        <span class="label">Обьем кузова</span>
         <div class="capacity-grid" id="capacityGrid">
             <button class="capacity-option active" type="button" data-capacity="37.8"><strong>37.8</strong><span>м³</span></button>
             <button class="capacity-option" type="button" data-capacity="36"><strong>36.0</strong><span>м³</span></button>

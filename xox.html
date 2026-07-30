@@ -448,6 +448,39 @@ button {
     box-shadow: 0 18px 46px rgba(37, 99, 235, 0.52);
 }
 
+.idle-btn {
+    position: fixed;
+    left: calc(50% + 72px);
+    bottom: calc(var(--safe-bottom) + 2px);
+    z-index: 10;
+    width: 68px;
+    height: 68px;
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.20), transparent 23px),
+        linear-gradient(145deg, rgba(255, 179, 64, 0.95), rgba(194, 111, 22, 0.88));
+    color: white;
+    font-size: 14px;
+    font-weight: 950;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 14px 34px rgba(255, 179, 64, 0.34);
+    transition: transform 0.12s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.idle-btn:active {
+    transform: scale(0.92);
+}
+
+.idle-btn.running {
+    background:
+        radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.22), transparent 23px),
+        linear-gradient(145deg, rgba(52, 211, 153, 0.96), rgba(21, 128, 61, 0.88));
+    box-shadow: 0 14px 34px rgba(52, 211, 153, 0.42);
+}
+
 .menu-backdrop {
     position: fixed;
     inset: 0;
@@ -802,6 +835,7 @@ button {
 </main>
 
 <button class="fab" id="fab" aria-label="Меню">+</button>
+<button class="idle-btn" id="idleTimer" type="button" aria-label="Секундомер простоя">00:00</button>
 <div class="menu-backdrop" id="menuBackdrop"></div>
 
 <div class="menu" id="menu">
@@ -847,6 +881,11 @@ const menuBackdrop = document.getElementById("menuBackdrop");
 const addModal = document.getElementById("addModal");
 const belazNumber = document.getElementById("belazNumber");
 const capacityGrid = document.getElementById("capacityGrid");
+const idleTimer = document.getElementById("idleTimer");
+let idleSeconds = parseInt(localStorage.getItem("idleSeconds") || "0", 10);
+let idleRunning = localStorage.getItem("idleRunning") === "true";
+let idleStartedAt = parseInt(localStorage.getItem("idleStartedAt") || Date.now(), 10);
+let idleTicker = null;
 let selectedCapacity = capacities[0];
 
 planInput.value = plan;
@@ -857,11 +896,12 @@ function save() {
 }
 
 function calc() {
-    const total = belazList.reduce((sum, b) => sum + b.trips * b.capacity, 0);
+    const activeBelaz = belazList.filter(b => !b.exclude);
+    const total = activeBelaz.reduce((sum, b) => sum + b.trips * b.capacity, 0);
     const percent = total / plan;
     const over = Math.max(0, total - plan);
-    const trips = belazList.reduce((sum, b) => sum + b.trips, 0);
-    const activeCount = belazList.filter(b => !b.exclude).length;
+    const trips = activeBelaz.reduce((sum, b) => sum + b.trips, 0);
+    const activeCount = activeBelaz.length;
 
     document.getElementById("done").textContent = total.toFixed(1);
     document.getElementById("left").textContent = over > 0 ? `+${over.toFixed(1)}` : (plan - total).toFixed(1);
@@ -1048,9 +1088,60 @@ function updateCapacityButtons() {
     });
 }
 
+
+function getIdleSeconds() {
+    if (!idleRunning) return idleSeconds;
+    return idleSeconds + Math.floor((Date.now() - idleStartedAt) / 1000);
+}
+
+function formatIdleTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    const two = value => String(value).padStart(2, "0");
+    return hours ? `${hours}:${two(minutes)}:${two(secs)}` : `${two(minutes)}:${two(secs)}`;
+}
+
+function saveIdleTimer() {
+    localStorage.setItem("idleSeconds", String(idleSeconds));
+    localStorage.setItem("idleRunning", String(idleRunning));
+    localStorage.setItem("idleStartedAt", String(idleStartedAt));
+}
+
+function renderIdleTimer() {
+    idleTimer.textContent = formatIdleTime(getIdleSeconds());
+    idleTimer.classList.toggle("running", idleRunning);
+    idleTimer.setAttribute("aria-label", idleRunning ? "Пауза секундомера простоя" : "Запустить секундомер простоя");
+}
+
+function startIdleTicker() {
+    if (idleTicker) clearInterval(idleTicker);
+    idleTicker = setInterval(renderIdleTimer, 1000);
+}
+
+function toggleIdleTimer() {
+    if (idleRunning) {
+        idleSeconds = getIdleSeconds();
+        idleRunning = false;
+    } else {
+        idleStartedAt = Date.now();
+        idleRunning = true;
+    }
+    saveIdleTimer();
+    renderIdleTimer();
+}
+
+function resetIdleTimer() {
+    idleSeconds = 0;
+    idleRunning = false;
+    idleStartedAt = Date.now();
+    saveIdleTimer();
+    renderIdleTimer();
+}
 function sendReport() {
     const active = belazList.filter(b => !b.exclude && b.trips > 0);
-    const text = active.length ? active.map(b => `${b.number} - ${b.trips}`).join("\n") : "-";
+    const reportLines = active.length ? active.map(b => `${b.number} - ${b.trips}`) : ["-"];
+    const text = reportLines.join("\n");
     location.href = "https://max.ru/:share?text=" + encodeURIComponent(text);
 }
 
@@ -1059,6 +1150,7 @@ function resetShift() {
         belazList = [];
         plan = 3000;
         localStorage.clear();
+        resetIdleTimer();
         planInput.value = plan;
         renderCards();
         closeMenu();
@@ -1102,6 +1194,9 @@ planInput.oninput = event => {
 
 window.addEventListener("resize", adjustCardDensity);
 
+idleTimer.onclick = toggleIdleTimer;
+startIdleTicker();
+renderIdleTimer();
 renderCards();
 </script>
 </body>

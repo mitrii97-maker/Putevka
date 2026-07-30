@@ -1010,6 +1010,54 @@ button {
     font-size: 15px;
     font-weight: 800;
 }
+
+.card,
+.shift-card {
+    touch-action: pan-y;
+    transition: transform 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+    will-change: transform;
+}
+
+.card.swiping,
+.shift-card.swiping {
+    transition: none;
+}
+
+.card.delete-ready,
+.shift-card.delete-ready {
+    filter: saturate(1.1);
+    box-shadow: var(--shadow), var(--inner), 0 0 0 1px rgba(251, 113, 133, 0.42);
+}
+
+.card.deleting,
+.shift-card.deleting {
+    opacity: 0;
+    transform: translateX(-120%) scale(0.96) !important;
+}
+
+.card::after,
+.shift-card::after {
+    content: "Удалить";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 0;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: rgba(251, 113, 133, 0.18);
+    color: #fecdd3;
+    font-size: 12px;
+    font-weight: 950;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.14s ease;
+}
+
+.card.delete-ready::after,
+.shift-card.delete-ready::after {
+    opacity: 1;
+}
 </style>
 </head>
 
@@ -1192,6 +1240,55 @@ function machineWord(count) {
     return "машин";
 }
 
+function attachSwipeDelete(element, onDelete) {
+    let startX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let swiping = false;
+    const limit = -92;
+
+    element.addEventListener("pointerdown", event => {
+        if (event.target.closest("button, input")) return;
+        startX = event.clientX;
+        startY = event.clientY;
+        currentX = 0;
+        swiping = true;
+        element.classList.add("swiping");
+        element.setPointerCapture?.(event.pointerId);
+    });
+
+    element.addEventListener("pointermove", event => {
+        if (!swiping) return;
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
+        if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
+            swiping = false;
+            element.classList.remove("swiping", "delete-ready");
+            element.style.transform = "";
+            return;
+        }
+        currentX = Math.min(0, dx);
+        element.style.transform = `translateX(${Math.max(currentX, -118)}px)`;
+        element.classList.toggle("delete-ready", currentX < -58);
+    });
+
+    const finish = () => {
+        if (!swiping) return;
+        swiping = false;
+        element.classList.remove("swiping");
+        if (currentX <= limit) {
+            element.classList.add("deleting");
+            setTimeout(onDelete, 160);
+        } else {
+            element.classList.remove("delete-ready");
+            element.style.transform = "";
+        }
+    };
+
+    element.addEventListener("pointerup", finish);
+    element.addEventListener("pointercancel", finish);
+}
+
 function renderCards() {
     cards.innerHTML = "";
     cards.classList.remove("compact", "ultra");
@@ -1253,6 +1350,7 @@ function renderCards() {
         checkbox.onchange = () => toggleExclude(i);
 
         card.append(minus, center, count, plus, checkbox);
+        attachSwipeDelete(card, () => deleteBelaz(i));
         cards.appendChild(card);
     });
 
@@ -1288,6 +1386,19 @@ function adjustCardDensity() {
     cards.style.setProperty("--button-size", `${Math.max(30, rowHeight - 8)}px`);
     cards.style.setProperty("--card-title", `${Math.max(15, Math.min(21, rowHeight * 0.36))}px`);
     cards.style.setProperty("--card-trips", `${Math.max(20, Math.min(32, rowHeight * 0.56))}px`);
+}
+
+function deleteBelaz(index) {
+    belazList.splice(index, 1);
+    belazList = belazList.map((b, i) => ({ ...b, originalIndex: i }));
+    save();
+    renderCards();
+}
+
+function deleteShift(index) {
+    shiftHistory.splice(index, 1);
+    saveShiftHistory();
+    renderStats();
 }
 
 function changeTrip(i, delta) {
@@ -1432,7 +1543,7 @@ function renderStats() {
         return;
     }
 
-    [...shiftHistory].reverse().forEach(shift => {
+    shiftHistory.map((shift, index) => ({ ...shift, _index: index })).reverse().forEach(shift => {
         const percent = shift.plan > 0 ? Math.min((shift.volume / shift.plan) * 100, 100) : 0;
         const card = document.createElement("article");
         card.className = "shift-card";
@@ -1451,6 +1562,7 @@ function renderStats() {
             </div>
             <div class="shift-progress"><span style="width: ${percent}%"></span></div>
         `;
+        attachSwipeDelete(card, () => deleteShift(shift._index));
         shiftList.appendChild(card);
     });
 }
@@ -1539,5 +1651,7 @@ renderCards();
 </script>
 </body>
 </html>
+
+
 
 

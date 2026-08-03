@@ -217,11 +217,55 @@ button {
     letter-spacing: -0.35px;
 }
 
+
+
+
+
+
+
 .counter {
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
+    color: rgba(248, 250, 252, 0.86);
+    font-size: 11px;
+    font-weight: 950;
     text-align: right;
+}
+
+.counter-part {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    padding: 0 10px;
+}
+
+.counter-part.active {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.24), rgba(21, 128, 61, 0.10));
+    color: #bbf7d0;
+}
+
+.counter-part.trips {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(37, 99, 235, 0.10));
+    color: #bae6fd;
+}
+
+.counter-part + .counter-part {
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.counter-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor;
 }
 
 .cards {
@@ -1091,6 +1135,84 @@ button {
 .swipe-wrap.edit-ready .edit-confirm {
     border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+.shift-card .counter {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-align: left;
+}
+
+@media (max-width: 380px) {
+    .counter {
+        font-size: 10px;
+    }
+
+    .counter-part {
+        min-height: 25px;
+        padding: 0 7px;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 380px) {
+    .toolbar {
+        gap: 7px;
+    }
+}
+
+.empty-add {
+    width: 100%;
+    min-height: 112px;
+    border: 1px dashed rgba(52, 211, 153, 0.42);
+    border-radius: 26px;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(52, 211, 153, 0.18), transparent 68%),
+        linear-gradient(145deg, rgba(52, 211, 153, 0.12), rgba(15, 23, 42, 0.44));
+    color: white;
+    display: grid;
+    place-items: center;
+    gap: 8px;
+    padding: 22px;
+    text-align: center;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), 0 14px 34px rgba(34, 197, 94, 0.10);
+}
+
+.empty-add strong {
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 950;
+}
+
+.empty-add span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.empty-add:active {
+    transform: scale(0.985);
+}
+
+.bottom-add {
+    width: 100%;
+    min-height: 58px;
+    border: 1px solid rgba(52, 211, 153, 0.32);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.18), transparent 30px),
+        linear-gradient(135deg, rgba(52, 211, 153, 0.94), rgba(21, 128, 61, 0.88));
+    color: white;
+    font-size: 16px;
+    font-weight: 950;
+    box-shadow: var(--inner), 0 14px 30px rgba(34, 197, 94, 0.24);
+}
+
+.bottom-add:active {
+    transform: scale(0.985);
+}
+
 </style>
 </head>
 
@@ -1158,7 +1280,6 @@ button {
 <div class="menu" id="menu">
     <div class="handle"></div>
     <div class="menu-grid">
-        <button class="action add" onclick="addBelaz()"><span>Добавить машину</span><span>+</span></button>
         <button class="action send" onclick="sendReport()"><span>Отправить диспетчеру</span><span>↗</span></button>
         <button class="action stats-action" onclick="openStats()"><span>Статистика смен</span><span>▦</span></button>
         <button class="action reset" onclick="resetShift()"><span>Сбросить смену</span><span>×</span></button>
@@ -1246,7 +1367,10 @@ function calc() {
     document.getElementById("done").textContent = total.toFixed(1);
     document.getElementById("left").textContent = over > 0 ? `+${over.toFixed(1)}` : (plan - total).toFixed(1);
     document.getElementById("left").style.color = over > 0 ? "var(--violet)" : "var(--orange)";
-    document.getElementById("counter").textContent = trips ? `${activeCount}/${belazList.length} активны • ${trips} рейсов` : `${activeCount}/${belazList.length} активны`;
+    document.getElementById("counter").innerHTML = `
+        <span class="counter-part active"><span class="counter-dot"></span>${activeCount}/${belazList.length} активны</span>
+        <span class="counter-part trips"><span class="counter-dot"></span>${trips} рейсов</span>
+    `;
 
     const bar = document.getElementById("bar");
     bar.style.width = `${Math.min(percent * 100, 100)}%`;
@@ -1378,9 +1502,11 @@ function renderCards() {
     cards.classList.remove("compact", "ultra");
 
     if (!belazList.length) {
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.textContent = "Нажмите плюс, чтобы добавить первый БелАЗ";
+        const empty = document.createElement("button");
+        empty.type = "button";
+        empty.className = "empty-add";
+        empty.innerHTML = "<strong>+ Добавить машину</strong><span>Нажмите, чтобы добавить первую машину</span>";
+        empty.onclick = addBelaz;
         cards.appendChild(empty);
         adjustCardDensity();
         calc();
@@ -1438,6 +1564,13 @@ function renderCards() {
         attachSwipeActions(card, { onEdit: () => editBelaz(i), onDelete: () => deleteBelaz(i) });
     });
 
+    const addButton = document.createElement("button");
+    addButton.type = "button";
+    addButton.className = "bottom-add";
+    addButton.textContent = "+ Добавить машину";
+    addButton.onclick = addBelaz;
+    cards.appendChild(addButton);
+
     adjustCardDensity();
     calc();
 }
@@ -1451,7 +1584,8 @@ function adjustCardDensity() {
     const count = belazList.length;
     if (!count) return;
 
-    const available = cards.clientHeight;
+    const addButtonSpace = 67;
+    const available = Math.max(0, cards.clientHeight - addButtonSpace);
     const normalHeight = 86;
     const compactHeight = 72;
     const normalGap = 8;
@@ -1754,6 +1888,21 @@ renderCards();
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

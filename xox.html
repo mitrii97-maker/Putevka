@@ -1213,6 +1213,129 @@ button {
     transform: scale(0.985);
 }
 
+
+@media (min-width: 390px) and (max-width: 430px) and (min-height: 820px) {
+    :root {
+        --page-x: 10px;
+        --safe-top: max(6px, env(safe-area-inset-top));
+        --safe-bottom: max(10px, env(safe-area-inset-bottom));
+        --card-h: 80px;
+        --card-title: 25px;
+        --card-trips: 38px;
+        --card-gap: 7px;
+        --button-size: 52px;
+    }
+
+    body {
+        padding-bottom: calc(82px + var(--safe-bottom));
+    }
+
+    .shell {
+        height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 82px);
+    }
+
+    .dashboard {
+        margin-bottom: 9px;
+        border-radius: 23px;
+    }
+
+    .plan-row {
+        padding: 11px 13px 10px;
+    }
+
+    .plan-value {
+        gap: 4px;
+    }
+
+    .plan-value span:last-child {
+        font-size: 16px;
+    }
+
+    .plan-row input {
+        padding: 8px 11px;
+        border-radius: 18px;
+        font-size: 23px;
+    }
+
+    .progress-wrap {
+        padding: 0 13px 10px;
+    }
+
+    .bar-track {
+        height: 11px;
+    }
+
+    .stat {
+        padding: 9px 13px 10px;
+    }
+
+    .stat-value {
+        margin-top: 3px;
+        font-size: 31px;
+    }
+
+    .toolbar {
+        margin-bottom: 7px;
+        align-items: center;
+    }
+
+    .toolbar h2 {
+        font-size: 18px;
+    }
+
+    .counter {
+        font-size: 10px;
+    }
+
+    .counter-part {
+        min-height: 25px;
+        padding: 0 7px;
+        gap: 4px;
+    }
+
+    .card {
+        padding: 9px;
+        gap: 8px;
+        border-radius: 22px;
+    }
+
+    .btn {
+        border-radius: 18px;
+        font-size: 32px;
+    }
+
+    .card-center {
+        padding-left: 27px;
+    }
+
+    .card-checkbox {
+        left: calc(var(--button-size) + 15px);
+        width: 23px;
+        height: 23px;
+    }
+
+    .bottom-add {
+        min-height: 50px;
+        border-radius: 20px;
+        font-size: 15px;
+    }
+
+    .fab,
+    .idle-btn {
+        width: 62px;
+        height: 62px;
+        border-radius: 22px;
+    }
+
+    .fab {
+        font-size: 39px;
+    }
+
+    .idle-btn {
+        left: calc(50% + 68px);
+        font-size: 13px;
+    }
+}
 </style>
 </head>
 
@@ -1584,22 +1707,26 @@ function adjustCardDensity() {
     const count = belazList.length;
     if (!count) return;
 
-    const addButtonSpace = 67;
+    const rootStyle = getComputedStyle(document.documentElement);
+    const cardsStyle = getComputedStyle(cards);
+    const px = value => parseFloat(value) || 0;
+    const gap = px(cardsStyle.rowGap || cardsStyle.gap) || px(rootStyle.getPropertyValue("--card-gap")) || 8;
+    const addButton = cards.querySelector(".bottom-add");
+    const addButtonSpace = addButton ? addButton.offsetHeight + gap : 0;
     const available = Math.max(0, cards.clientHeight - addButtonSpace);
-    const normalHeight = 86;
-    const compactHeight = 72;
-    const normalGap = 8;
-    const compactGap = 7;
+    const normalHeight = px(rootStyle.getPropertyValue("--card-h")) || 86;
+    const compactHeight = 68;
+    const compactGap = 6;
 
-    if (count * normalHeight + Math.max(0, count - 1) * normalGap <= available) return;
+    if (count * normalHeight + Math.max(0, count - 1) * gap <= available) return;
 
     cards.classList.add("compact");
     if (count * compactHeight + Math.max(0, count - 1) * compactGap <= available) return;
 
     cards.classList.add("ultra");
-    const gap = 5;
-    const fittedHeight = Math.floor((available - Math.max(0, count - 1) * gap) / count);
-    const rowHeight = Math.max(34, Math.min(58, fittedHeight));
+    const ultraGap = 5;
+    const fittedHeight = Math.floor((available - Math.max(0, count - 1) * ultraGap) / count);
+    const rowHeight = Math.max(34, Math.min(56, fittedHeight));
     cards.style.setProperty("--card-h", `${rowHeight}px`);
     cards.style.setProperty("--button-size", `${Math.max(30, rowHeight - 8)}px`);
     cards.style.setProperty("--card-title", `${Math.max(15, Math.min(21, rowHeight * 0.36))}px`);
@@ -1888,6 +2015,7 @@ renderCards();
 </script>
 </body>
 </html>
+
 
 
 

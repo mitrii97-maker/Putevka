@@ -61,7 +61,7 @@ body {
         linear-gradient(180deg, rgba(2, 6, 23, 0.44), rgba(2, 6, 23, 0.96)),
         url("bag.WEBP") center / cover fixed no-repeat,
         #070a0f;
-    padding: var(--safe-top) 0 calc(96px + var(--safe-bottom));
+    padding: var(--safe-top) 0 calc(72px + var(--safe-bottom));
     overflow: hidden;
     touch-action: manipulation;
     user-select: none;
@@ -95,7 +95,7 @@ button {
 .shell {
     position: relative;
     width: min(430px, 100%);
-    height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 96px);
+    height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 72px);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -785,21 +785,22 @@ button {
 }
 
 .cards.ultra {
-    --card-h: 58px;
-    --card-title: 21px;
+    --card-h: 62px;
+    --card-title: 22px;
     --card-trips: 30px;
     --card-gap: 5px;
-    --button-size: 42px;
+    --button-size: 44px;
 }
 
 .cards.ultra .card {
     padding: 7px;
     border-radius: 17px;
-    grid-template-columns: var(--button-size) minmax(58px, 74px) minmax(42px, 1fr) var(--button-size);
+    grid-template-columns: var(--button-size) minmax(66px, 82px) minmax(42px, 1fr) var(--button-size);
 }
 
 .cards.ultra .card-meta {
-    display: none;
+    display: inline-flex;
+    font-size: 10px;
 }
 
 .cards.ultra .btn {
@@ -1227,11 +1228,11 @@ button {
     }
 
     body {
-        padding-bottom: calc(82px + var(--safe-bottom));
+        padding-bottom: calc(64px + var(--safe-bottom));
     }
 
     .shell {
-        height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 82px);
+        height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 64px);
     }
 
     .dashboard {
@@ -1632,6 +1633,7 @@ function renderCards() {
         empty.onclick = addBelaz;
         cards.appendChild(empty);
         adjustCardDensity();
+        requestAnimationFrame(adjustCardDensity);
         calc();
         return;
     }
@@ -1695,6 +1697,7 @@ function renderCards() {
     cards.appendChild(addButton);
 
     adjustCardDensity();
+    requestAnimationFrame(adjustCardDensity);
     calc();
 }
 
@@ -2015,6 +2018,9 @@ renderCards();
 </script>
 </body>
 </html>
+
+
+
 
 
 
